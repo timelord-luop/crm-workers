@@ -1,5 +1,5 @@
 <template lang="pug">
-	el-button(type="primary" @click="toPage") 主页
+	el-button(type="primary" @click="toPage") 主页改过的
 </template>
 <script setup>
 import { onMounted } from 'vue'
