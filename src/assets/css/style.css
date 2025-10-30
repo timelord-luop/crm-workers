@@ -4,6 +4,11 @@
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	--el-color-primary: #7354AF; /* 主色调 */
+	--el-color-primary-light-3: #8164B7; /* 主色调 */
+	--el-color-primary-light-5: #896FBC; /* 主色调 */
+	--el-color-primary-light-7: #9379C4; /* 主色调 */
+	--el-color-primary-light-8: #B2A0D8; /* 主色调 */
 }
 
 a {
@@ -16,6 +21,7 @@ a:hover {
 	color: #535bf2;
 }
 
-body {
+* {
 	margin: 0;
+	padding: 0;
 }

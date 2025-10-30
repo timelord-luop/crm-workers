@@ -4,8 +4,12 @@ const router = createRouter({
 	history: createWebHistory(),
 	routes: [
 		{
+			path: '/login',
+			component: () => import('@/pages/Login.vue')
+		},
+		{
 			path: '/',
-			component: () => import('@/pages/production/Home.vue')
+			component: () => import('@/pages/admin/Home.vue')
 		},
 		{
 			path: '/bom-update',
