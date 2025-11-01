@@ -29,10 +29,12 @@ const isRemember = ref(true)
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 	min-height: 100vh;
 	overflow: hidden;
+	display: flex;
+	align-items: center;
 	.login-panel {
 		width: 720px;
 		height: 480px;
-		margin: 10% auto;
+		margin: 0 auto;
 		background-color: #fff;
 		border-radius: 10px;
 		box-shadow: 0 0 10px rgba(0, 0, 0, .15);
