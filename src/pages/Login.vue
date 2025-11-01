@@ -81,7 +81,7 @@ const login = () => {
 				width: 80%;
 				margin: 40px auto;
 				.title {
-					color: #999999;
+					color: #666666;
 					font-size: 16px;
 					margin-bottom: 20px;
 				}
