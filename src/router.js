@@ -9,7 +9,13 @@ const router = createRouter({
 		},
 		{
 			path: '/',
-			component: () => import('@/pages/admin/Home.vue')
+			component: () => import('@/pages/admin/Menu.vue'),
+			children: [
+				{
+					path: '/home',
+					component: () => import('@/pages/admin/Home.vue'),
+				}
+			]
 		},
 		{
 			path: '/bom-update',
