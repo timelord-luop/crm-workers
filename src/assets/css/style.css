@@ -4,11 +4,11 @@
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	--el-color-primary: #7354AF; /* 主色调 */
-	--el-color-primary-light-3: #8164B7; /* 主色调 */
-	--el-color-primary-light-5: #9b85c6; /* 主色调 */
-	--el-color-primary-light-7: #b09cd5; /* 主色调 */
-	--el-color-primary-light-8: #c4b5e3; /* 主色调 */
+	/*--el-color-primary: #7354AF; !* 主色调 *!*/
+	/*--el-color-primary-light-3: #8164B7; !* 主色调 *!*/
+	/*--el-color-primary-light-5: #9b85c6; !* 主色调 *!*/
+	/*--el-color-primary-light-7: #b09cd5; !* 主色调 *!*/
+	/*--el-color-primary-light-8: #c4b5e3; !* 主色调 *!*/
 }
 
 a {
