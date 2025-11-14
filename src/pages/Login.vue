@@ -1,7 +1,7 @@
 <script setup>
 import {ref} from 'vue'
 import {User, Key, Position} from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
 
 const router = useRouter();
 
@@ -50,6 +50,7 @@ const login = () => {
 	overflow: hidden;
 	display: flex;
 	align-items: center;
+
 	.login-panel {
 		width: 720px;
 		height: 450px;
@@ -57,10 +58,11 @@ const login = () => {
 		background-color: #fff;
 		border-radius: 10px;
 		box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-		-moz-box-shadow: 0 0 10px rgba(0,0,0,.15);
+		-moz-box-shadow: 0 0 10px rgba(0, 0, 0, .15);
 		-webkit-box-shadow: 0 0 10px rgba(0, 0, 0, .15);
 		overflow: hidden;
 		display: flex;
+
 		.logo-blo {
 			width: 300px;
 			height: 100%;
@@ -69,6 +71,7 @@ const login = () => {
 			background-size: contain;
 			background-position: center bottom;
 			overflow: hidden;
+
 			.title {
 				text-align: center;
 				font-size: 20px;
@@ -77,28 +80,35 @@ const login = () => {
 				margin-top: 80px;
 			}
 		}
+
 		.form-panel {
 			flex: 1;
+
 			.el-form {
 				width: 80%;
 				margin: 40px auto;
+
 				.title {
 					color: #666666;
 					font-size: 16px;
 					margin-bottom: 20px;
 				}
+
 				.el-input {
 					margin: 10px 0;
 				}
+
 				._check {
 					display: flex;
-                    justify-content: space-between;
-                    margin: 10px 0 5px;
+					justify-content: space-between;
+					margin: 10px 0 5px;
 				}
 			}
+
 			._btn {
 				width: 100%;
 			}
+
 			.el-alert {
 				margin-top: 40px;
 			}
