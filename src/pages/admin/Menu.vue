@@ -226,6 +226,7 @@ const handleCommand = (command) => {
 		padding: 10px;
 		width: 100%;
 		overflow: auto;
+		background-color: var(--bg-color-main);
 	}
 }
 </style>
