@@ -16,13 +16,6 @@ const router = createRouter({
 					component: () => import('@/pages/admin/Home.vue'),
 				}
 			]
-		},
-		{
-			path: '/bom-update',
-			component: () => import('@/pages/production/BomUpdate.vue')
-		}, {
-			path: '/users',
-			component: () => import('@/pages/production/UserPage.vue')
 		}
 	]
 })
