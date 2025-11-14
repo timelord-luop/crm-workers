@@ -9,16 +9,23 @@
 	/*--el-color-primary-light-5: #9b85c6; !* 主色调 *!*/
 	/*--el-color-primary-light-7: #b09cd5; !* 主色调 *!*/
 	/*--el-color-primary-light-8: #c4b5e3; !* 主色调 *!*/
+
+	--border: #EEEEEE;
+	--bg-color-mute: #F2F2F2;
+	--secondary: #999999;
+	--text-color: #303133;
+}
+/* 暗色 */
+.dark {
+	--border: #4C4D4F;
+	--bg-color-mute: #2C2C2C;
+	--secondary: #999999;
+	--text-color: #E5E3F3;
 }
 
 a {
 	font-weight: 500;
-	color: #646cff;
 	text-decoration: inherit;
-}
-
-a:hover {
-	color: #535bf2;
 }
 
 * {

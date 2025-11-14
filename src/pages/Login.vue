@@ -28,7 +28,7 @@ const login = () => {
 	.body
 		.login-panel
 			.logo-blo
-				.title CRM客户管理系统
+				.title 羽翼CRM管理系统
 			.form-panel
 				el-form(@submit.native.prevent)
 					.title 用户登录

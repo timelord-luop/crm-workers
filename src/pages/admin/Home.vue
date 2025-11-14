@@ -3,9 +3,7 @@
 </script>
 
 <template lang="pug">
-	.tst
-		h1 123
-		el-link(type="primary") primary
+	.tst 23
 </template>
 
 <style scoped lang="scss">
