@@ -7,18 +7,18 @@ const isDark = ref(false)
 const msgCount = ref(4)
 const isCollapse = ref(false) // 菜单折叠
 const menuList = ref([
-	{ id: '1', label: '仪表盘', path: '/home', icon: 'House' },
-	{ id: '2', label: '客户管理', path: '/client', icon: 'House', children: [
+	{ id: '1', label: '仪表盘', path: '/home', icon: '📊' },
+	{ id: '2', label: '客户管理', path: '/client', icon: '👥', children: [
 			{id: '21', label: '客户列表', path: '/client-list'},
 			{id: '22', label: '新增客户', path: '/client-md'},
 			{id: '23', label: '基础设置', path: '/client-conf'},
 		]},
-	{ id: '3', label: '组织架构', path: '/org', icon: 'House', children: [
+	{ id: '3', label: '组织架构', path: '/org', icon: '🏢', children: [
 			{id: '31', label: '员工管理', path: '/user'},
 			{id: '32', label: '部门管理', path: '/dept'},
 			{id: '33', label: '职务管理', path: '/position'},
 		]},
-	{ id: '4', label: '系统设置', path: '/setting', icon: 'House' },
+	{ id: '4', label: '系统设置', path: '/setting', icon: '⚙️' },
 ])
 
 // 组件挂载时读取本地存储的主题设置
@@ -95,13 +95,11 @@ const handleCommand = (command) => {
 					template(v-for="item in menuList" :key="item.id")
 						el-sub-menu(:index="item.id" v-if="item.children")
 							template(#title)
-								el-icon
-									Moon
+								._icon {{item.icon}}
 								span {{item.label}}
 							el-menu-item(v-for="child in item.children" :index="child.id") {{child.label}}
 						el-menu-item(v-else, :index="item.id")
-							el-icon
-								Moon
+							._icon {{item.icon}}
 							template(#title) {{item.label}}
 			.main
 				._breadcrumb
@@ -219,6 +217,18 @@ const handleCommand = (command) => {
 		.el-menu-item {
 			height: 50px;
 			line-height: 50px;
+		}
+		._icon {
+			width: 18px;
+			height: 18px;
+			font-size: 12px;
+			display: flex;
+			align-items: center;
+			border-radius: 6px;
+			border: 1px solid var(--border);
+			justify-content: center;
+			background-color: #f3f4f6;
+			margin-right: 5px;
 		}
 	}
 	.main {
