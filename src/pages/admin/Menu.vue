@@ -1,19 +1,26 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import {ref, onMounted, watch, reactive} from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+
 import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell} from '@element-plus/icons-vue'
-import logo from '@/assets/img/logo.svg'
+import logo from '@/assets/img/logo.png'
 
 const isDark = ref(false)
 const msgCount = ref(4)
 const isCollapse = ref(false) // 菜单折叠
+const defaultActive = ref('/home')
+const breadcrumbData = ref([]);
 const menuList = ref([
 	{ id: '1', label: '仪表盘', path: '/home', icon: '📊' },
-	{ id: '2', label: '客户管理', path: '/client', icon: '👥', children: [
+	{ id: '2', label: '客户管理', icon: '👥', children: [
 			{id: '21', label: '客户列表', path: '/client-list'},
-			{id: '22', label: '新增客户', path: '/client-md'},
+			{id: '22', label: '新增客户', path: '/client-md', editLabel: '编辑客户'},
 			{id: '23', label: '基础设置', path: '/client-conf'},
 		]},
-	{ id: '3', label: '组织架构', path: '/org', icon: '🏢', children: [
+	{ id: '3', label: '组织架构', icon: '🏢', children: [
 			{id: '31', label: '员工管理', path: '/user'},
 			{id: '32', label: '部门管理', path: '/dept'},
 			{id: '33', label: '职务管理', path: '/position'},
@@ -29,6 +36,33 @@ onMounted(() => {
 		document.documentElement.classList.add('dark')
 	}
 })
+// 面包屑
+watch(route, (newRoute) => {
+	const path = newRoute.path;
+	let breadcrumb = [];
+	let defaultPath = '';
+	menuList.value.forEach(item => {
+		let obj = {name: `${item.icon}${item.label}`, path: item?.path};
+		if (item?.path === path) {
+			breadcrumb.push(obj);
+			defaultPath = obj.path;
+		} else {
+			if (item?.children) {
+				item.children.forEach(child => {
+					if (child.path === path) {
+						breadcrumb.push(obj);
+						breadcrumb.push({name: `${newRoute.query.eid ? child.editLabel || child.label : child.label}`, path: child.path});
+						defaultPath = child.path;
+					}
+				})
+			}
+		}
+	})
+	breadcrumbData.value = breadcrumb;
+	defaultActive.value = defaultPath;
+	console.log(breadcrumb)
+	console.log(defaultPath)
+}, { immediate: true }); // 立即执行一次以初始化面包屑数据
 // 切换主题
 const toggleTheme = (val) => {
 	isDark.value = val
@@ -48,6 +82,9 @@ const toggleTheme = (val) => {
 const handleCommand = (command) => {
 
 }
+const menuChecked = (index) => {
+	router.push(index)
+}
 
 </script>
 
@@ -55,7 +92,7 @@ const handleCommand = (command) => {
 	.admin-layout(:class="{ dark: isDark }")
 		section.header
 			._left
-				el-avatar(:size="26" shape="square" :src="logo" @click="isCollapse = !isCollapse")
+				el-avatar(:size="30" shape="square" :src="logo" @click="isCollapse = !isCollapse")
 				span._tit 羽翼CRM系统
 				el-tag(type="primary") 四海渔具 . 客户管理
 			._right
@@ -88,21 +125,24 @@ const handleCommand = (command) => {
 			.menus
 				el-menu(
 					class="_el-menu-vertical"
-					default-active="1",
-					:default-openeds="['2']"
-					:collapse="isCollapse"
+					:default-active="defaultActive",
+					:default-openeds="['2']",
+					:collapse="isCollapse",
+					@select="menuChecked"
 				)
 					template(v-for="item in menuList" :key="item.id")
 						el-sub-menu(:index="item.id" v-if="item.children")
 							template(#title)
 								._icon {{item.icon}}
 								span {{item.label}}
-							el-menu-item(v-for="child in item.children" :index="child.id") {{child.label}}
-						el-menu-item(v-else, :index="item.id")
+							el-menu-item(v-for="child in item.children" :index="child.path") {{child.label}}
+						el-menu-item(v-else, :index="item.path")
 							._icon {{item.icon}}
 							template(#title) {{item.label}}
 			.main
 				._breadcrumb
+					el-breadcrumb(separator="/")
+						el-breadcrumb-item(v-for="item in breadcrumbData") {{item.name}}
 				._views
 					keep-alive
 						router-view
@@ -120,6 +160,9 @@ const handleCommand = (command) => {
 	._left {
 		display: flex;
 		align-items: center;
+		.el-avatar {
+			background-color: initial;
+		}
 		._tit {
 			font-size: 15px;
 			margin-left: 10px;
