@@ -1,12 +1,12 @@
 <script setup>
-import {ref, onMounted, watch, reactive} from 'vue'
+import {ref, onMounted, watch} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-
-const router = useRouter()
-const route = useRoute()
 
 import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell} from '@element-plus/icons-vue'
 import logo from '@/assets/img/logo.png'
+
+const router = useRouter()
+const route = useRoute()
 
 const isDark = ref(false)
 const msgCount = ref(4)
@@ -35,6 +35,7 @@ onMounted(() => {
 		isDark.value = true
 		document.documentElement.classList.add('dark')
 	}
+	if (route.path === '/') router.push('/home')
 })
 // 面包屑
 watch(route, (newRoute) => {
@@ -60,8 +61,6 @@ watch(route, (newRoute) => {
 	})
 	breadcrumbData.value = breadcrumb;
 	defaultActive.value = defaultPath;
-	console.log(breadcrumb)
-	console.log(defaultPath)
 }, { immediate: true }); // 立即执行一次以初始化面包屑数据
 // 切换主题
 const toggleTheme = (val) => {
@@ -275,11 +274,17 @@ const menuChecked = (index) => {
 		}
 	}
 	.main {
+		display: flex;
+		flex-direction: column;
 		flex: 1;
-		padding: 10px;
+		padding: 12px;
 		width: 100%;
-		overflow: auto;
+		overflow: hidden;
 		background-color: var(--bg-color-main);
+		._views {
+			flex: 1;
+			height: 100%;
+		}
 	}
 }
 </style>

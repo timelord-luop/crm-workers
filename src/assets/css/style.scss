@@ -15,6 +15,7 @@
 	--bg-color-main: #F8F9FA;
 	--secondary: #999999;
 	--text-color: #303133;
+	--text-color2: #494a4d;
 }
 /* 暗色 */
 .dark {
@@ -23,6 +24,7 @@
 	--bg-color-main: #1c1c1c;
 	--secondary: #999999;
 	--text-color: #E5E3F3;
+	--text-color2: #cdcbd9;
 }
 
 a {
@@ -33,4 +35,46 @@ a {
 * {
 	margin: 0;
 	padding: 0;
+}
+
+.list-container {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	.panel-filter {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		margin: 10px 0;
+		row-gap: 10px;
+		column-gap: 10px;
+		.el-input, .el-select {
+			width: 180px;
+		}
+	}
+	.panel-extend {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		margin: 0 0 10px;
+		row-gap: 10px;
+	}
+	.panel-body {
+		flex: 1;
+		overflow-y: auto;
+	}
+	.panel-footer {
+		height: 52px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		.total-section {
+			font-size: 14px;
+			color: var(--text-color2);
+			._sec {
+				margin-left: 15px;
+			}
+		}
+	}
 }
