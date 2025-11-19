@@ -8,9 +8,7 @@ const filter = reactive({
 	level: ''
 });
 
-const tableData = reactive([
-	{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},{name: '王小二'},
-]);
+const tableData = reactive([]);
 
 const currentPage = ref(1);
 const handleSizeChange = (val) => {
