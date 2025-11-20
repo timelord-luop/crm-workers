@@ -8,7 +8,7 @@ const filter = reactive({
 	level: ''
 });
 
-const tableData = reactive([]);
+const tableData = reactive([{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},]);
 
 const currentPage = ref(1);
 const handleSizeChange = (val) => {
@@ -42,9 +42,9 @@ const handleCurrentChange = (val) => {
 			el-button 导出
 				el-icon(class="el-icon--right")
 					Upload
-		.panel-body
-			el-table(:data="tableData" border stripe height="100%" max-height="100%" )
-				el-table-column(prop="name" label="序号" width="100")
+		.panel-body(style="min-height: 100px")
+			el-table(:data="tableData" border stripe height="100%")
+				el-table-column(prop="name" label="序号" width="60" align="center" )
 				el-table-column(prop="name" label="客户名称")
 				el-table-column(prop="name" label="客户来源")
 				el-table-column(prop="name" label="联系方式")

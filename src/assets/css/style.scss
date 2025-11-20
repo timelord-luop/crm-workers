@@ -12,10 +12,11 @@
 
 	--border: #EEEEEE;
 	--bg-color-mute: #F2F2F2;
-	--bg-color-main: #F8F9FA;
+	--bg-color-main: #FFFFFF;
 	--secondary: #999999;
 	--text-color: #303133;
 	--text-color2: #494a4d;
+	--table-header-bg-color: #F5F7FA;
 }
 /* 暗色 */
 .dark {
@@ -25,6 +26,12 @@
 	--secondary: #999999;
 	--text-color: #E5E3F3;
 	--text-color2: #cdcbd9;
+	--table-header-bg-color: #2C2C2C;
+}
+
+html, body {
+	height: 100%;
+	font-family: Arial, sans-serif;
 }
 
 a {
@@ -35,6 +42,18 @@ a {
 * {
 	margin: 0;
 	padding: 0;
+}
+.el-table {
+	border-radius: 6px;
+}
+.el-table th.el-table__cell {
+	background-color: var(--table-header-bg-color);
+	color: var(--text-color);
+	font-weight: normal;
+	font-size: 13px;
+}
+.el-table .el-table__cell {
+	font-size: 13px;
 }
 
 .list-container {
@@ -63,9 +82,11 @@ a {
 	.panel-body {
 		flex: 1;
 		overflow-y: auto;
+		min-height: 10px;
 	}
 	.panel-footer {
-		height: 52px;
+		height: 32px;
+		margin-top: 10px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;

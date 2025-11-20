@@ -43,7 +43,7 @@ watch(route, (newRoute) => {
 	let breadcrumb = [];
 	let defaultPath = '';
 	menuList.value.forEach(item => {
-		let obj = {name: `${item.icon}${item.label}`, path: item?.path};
+		let obj = {name: `${item.icon} ${item.label}`, path: item?.path};
 		if (item?.path === path) {
 			breadcrumb.push(obj);
 			defaultPath = obj.path;
@@ -148,6 +148,12 @@ const menuChecked = (index) => {
 </template>
 
 <style scoped lang="scss">
+.admin-layout {
+	width: 100%;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
 .header {
 	height: 50px;
 	display: flex;
@@ -241,8 +247,9 @@ const menuChecked = (index) => {
 	}
 }
 .content {
-	height: calc(100vh - 52px);
 	display: flex;
+	flex: 1;
+	min-height: 0;
 	.menus {
 		overflow: hidden;
 		._el-menu-vertical {
@@ -281,9 +288,15 @@ const menuChecked = (index) => {
 		width: 100%;
 		overflow: hidden;
 		background-color: var(--bg-color-main);
+		._breadcrumb {
+			height: 20px;
+			line-height: 20px;
+			display: flex;
+			align-items: center;
+		}
 		._views {
 			flex: 1;
-			height: 100%;
+			min-height: 0;
 		}
 	}
 }
