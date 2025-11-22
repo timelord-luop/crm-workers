@@ -59,6 +59,7 @@ watch(route, (newRoute) => {
 			}
 		}
 	})
+	console.log(breadcrumb)
 	breadcrumbData.value = breadcrumb;
 	defaultActive.value = defaultPath;
 }, { immediate: true }); // 立即执行一次以初始化面包屑数据
@@ -93,7 +94,7 @@ const menuChecked = (index) => {
 			._left
 				el-avatar(:size="30" shape="square" :src="logo" @click="isCollapse = !isCollapse")
 				span._tit 羽翼CRM系统
-				el-tag(type="primary") 四海渔具 . 客户管理
+				el-tag(type="primary") 四海兄弟有限公司
 			._right
 				._search
 					el-icon
@@ -293,6 +294,13 @@ const menuChecked = (index) => {
 			line-height: 20px;
 			display: flex;
 			align-items: center;
+			:deep(.el-breadcrumb__item) {
+				&:last-child {
+					.el-breadcrumb__inner {
+						font-weight: bold;
+					}
+				}
+			}
 		}
 		._views {
 			flex: 1;

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive } from 'vue'
-import {Search, RefreshLeft, Plus, Upload, Download} from '@element-plus/icons-vue'
+import {Search, RefreshLeft, Plus, Upload, Download, Edit, View} from '@element-plus/icons-vue'
 
 const filter = reactive({
 	name: '',
@@ -8,7 +8,26 @@ const filter = reactive({
 	level: ''
 });
 
-const tableData = reactive([{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},{name: 12},]);
+const tableData = reactive([
+	{name: '四川飞鱼科技有限公司', source: '其他', phone: '0286363578', level: '五星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+	{name: '王大锤', source: '推广', phone: '136950045026', level: '二星级'},
+]);
 
 const currentPage = ref(1);
 const handleSizeChange = (val) => {
@@ -17,38 +36,49 @@ const handleSizeChange = (val) => {
 const handleCurrentChange = (val) => {
 
 }
+const  handleClick = () => {
+
+}
 </script>
 
 <template lang="pug">
 	.list-container
-		.panel-filter
-			el-input(v-model="filter.name" placeholder="客户名称" )
-			el-select(v-model="filter.type" placeholder="客户来源" )
-				el-option(label="线上推广" value="1")
-				el-option(label="线下广告" value="2")
-				el-option(label="其他" value="3")
-			el-select(v-model="filter.type" placeholder="重要等级" )
-				el-option(label="一星级" value="1")
-				el-option(label="二星级" value="2")
-				el-option(label="三星级" value="3")
-				el-option(label="四星级" value="4")
-				el-option(label="五星级" value="5")
-			.filter-btn
-				el-button(:icon="Search" type="primary") 查询
-				el-button(:icon="RefreshLeft") 重置
-		.panel-extend
-			el-button(:icon="Plus" type="primary") 新增客户
-			el-button(:icon="Download") 导入
-			el-button 导出
-				el-icon(class="el-icon--right")
-					Upload
+		.panel-header
+			.panel-filter
+				el-input(v-model="filter.name" placeholder="客户名称" )
+				el-select(v-model="filter.type" placeholder="客户来源" )
+					el-option(label="线上推广" value="1")
+					el-option(label="线下广告" value="2")
+					el-option(label="其他" value="3")
+				el-select(v-model="filter.type" placeholder="重要等级" )
+					el-option(label="一星级" value="1")
+					el-option(label="二星级" value="2")
+					el-option(label="三星级" value="3")
+					el-option(label="四星级" value="4")
+					el-option(label="五星级" value="5")
+				.filter-btn
+					el-button(:icon="Search" type="primary") 查询
+					el-button(:icon="RefreshLeft") 重置
+			.panel-extend
+				el-button(:icon="Plus" type="success") 新增客户
+				el-dropdown(split-button, trigger="click", @click="handleClick", style="margin-left: 10px")
+					el-icon(class="el-icon--right")
+						Upload
+					span 导出
+					template(#dropdown)
+						el-dropdown-item(:icon="Download") 导入
 		.panel-body(style="min-height: 100px")
 			el-table(:data="tableData" border stripe height="100%")
-				el-table-column(prop="name" label="序号" width="60" align="center" )
+				el-table-column(label="序号" type="index" width="60" align="center" )
 				el-table-column(prop="name" label="客户名称")
-				el-table-column(prop="name" label="客户来源")
-				el-table-column(prop="name" label="联系方式")
-				el-table-column(prop="name" label="重要等级")
+				el-table-column(prop="phone" label="联系方式")
+				el-table-column(prop="source" label="客户来源")
+				el-table-column(prop="level" label="重要等级")
+				el-table-column(label="操作" width="140")
+					template(#default="{row, $index}")
+						.tab-link
+							el-button(plain size="small") 查看
+							el-button(plain size="small") 编辑
 		.panel-footer
 			.total-section
 				span 共 {{ 100 }} 条记录
