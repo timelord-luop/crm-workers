@@ -64,6 +64,13 @@ a {
 		margin-left: 8px;
 	}
 }
+.el-dialog__title {
+	font-size: 15px;
+}
+.el-dialog.is-fullscreen .el-dialog__body {
+	height: calc(100% - 45px);
+	overflow-y: auto;
+}
 
 .list-container {
 	height: 100%;

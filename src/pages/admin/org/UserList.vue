@@ -58,7 +58,7 @@ const handleCurrentChange = (val) => {
 					el-button(:icon="Search" type="primary") 查询
 					el-button(:icon="RefreshLeft") 重置
 			.panel-extend
-				el-button(:icon="Plus" type="success") 新增员工
+				el-button(:icon="Plus" type="success" plain) 新增员工
 				el-button 导出
 					el-icon(class="el-icon--right")
 						Upload

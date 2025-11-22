@@ -60,7 +60,7 @@ const  handleClick = () => {
 					el-button(:icon="Search" type="primary") 查询
 					el-button(:icon="RefreshLeft") 重置
 			.panel-extend
-				el-button(:icon="Plus" type="success") 新增客户
+				el-button(:icon="Plus" type="success" plain) 新增客户
 				el-dropdown(split-button, trigger="click", @click="handleClick", style="margin-left: 10px")
 					el-icon(class="el-icon--right")
 						Upload
