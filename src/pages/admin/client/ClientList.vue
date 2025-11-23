@@ -1,6 +1,9 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import {Search, RefreshLeft, Plus, Upload, Download, Edit, View} from '@element-plus/icons-vue'
+import {useRouter} from "vue-router";
+
+const router = useRouter()
 
 const filter = reactive({
 	name: '',
@@ -39,6 +42,18 @@ const handleCurrentChange = (val) => {
 const  handleClick = () => {
 
 }
+const toClientMd = (row) => {
+	if (row) {
+		router.push({
+			path: '/client-md',
+			query: {
+				eid: row.phone
+			}
+		})
+	} else {
+		router.push('/client-md')
+	}
+}
 </script>
 
 <template lang="pug">
@@ -60,7 +75,7 @@ const  handleClick = () => {
 					el-button(:icon="Search" type="primary") 查询
 					el-button(:icon="RefreshLeft") 重置
 			.panel-extend
-				el-button(:icon="Plus" type="success" plain) 新增客户
+				el-button(:icon="Plus" type="success" plain, @click="toClientMd()") 新增客户
 				el-dropdown(split-button, trigger="click", @click="handleClick", style="margin-left: 10px")
 					el-icon(class="el-icon--right")
 						Upload
@@ -78,7 +93,7 @@ const  handleClick = () => {
 					template(#default="{row, $index}")
 						.tab-link
 							el-button(plain size="small") 查看
-							el-button(plain size="small") 编辑
+							el-button(plain size="small" @click="toClientMd(row)") 编辑
 		.panel-footer
 			.total-section
 				span 共 {{ 100 }} 条记录

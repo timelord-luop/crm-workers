@@ -21,7 +21,9 @@ const menuList = ref([
 			{id: '23', label: '基础设置', path: '/client-conf'},
 		]},
 	{ id: '3', label: '组织架构', icon: '🏢', children: [
-			{id: '31', label: '员工管理', path: '/user'},
+			{id: '31', label: '员工管理', path: '/user', subset: [
+					{label: '新增员工', editLabel: '编辑员工', path: '/user-md'}
+				]},
 			{id: '32', label: '部门管理', path: '/dept'},
 			{id: '33', label: '职务管理', path: '/position'},
 		]},
@@ -44,22 +46,28 @@ watch(route, (newRoute) => {
 	let defaultPath = '';
 	menuList.value.forEach(item => {
 		let obj = {name: `${item.icon} ${item.label}`, path: item?.path};
-		if (item?.path === path) {
+		if (item?.path === path || item.subset?.includes(path)) {
 			breadcrumb.push(obj);
 			defaultPath = obj.path;
 		} else {
 			if (item?.children) {
 				item.children.forEach(child => {
-					if (child.path === path) {
+					let findSub = null;
+					if (child.subset) {
+						findSub = child.subset.find(sub => sub.path === path);
+					}
+					if (child.path === path || findSub) {
 						breadcrumb.push(obj);
 						breadcrumb.push({name: `${newRoute.query.eid ? child.editLabel || child.label : child.label}`, path: child.path});
+						if (findSub) {
+							breadcrumb.push({name: `${newRoute.query.eid ? findSub.editLabel || findSub.label : findSub.label}`, path: findSub.path});
+						}
 						defaultPath = child.path;
 					}
 				})
 			}
 		}
 	})
-	console.log(breadcrumb)
 	breadcrumbData.value = breadcrumb;
 	defaultActive.value = defaultPath;
 }, { immediate: true }); // 立即执行一次以初始化面包屑数据
@@ -142,7 +150,7 @@ const menuChecked = (index) => {
 			.main
 				._breadcrumb
 					el-breadcrumb(separator="/")
-						el-breadcrumb-item(v-for="item in breadcrumbData") {{item.name}}
+						el-breadcrumb-item(v-for="item in breadcrumbData" :to="item.path ? {path: item.path} : null") {{item.name}}
 				._views
 					keep-alive
 						router-view

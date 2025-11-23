@@ -1,6 +1,9 @@
 <script setup>
 import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import {Search, RefreshLeft, Plus, Upload} from '@element-plus/icons-vue'
+
+const router = useRouter()
 
 const filter = reactive({
 	conditions: '',
@@ -42,6 +45,18 @@ const handleSizeChange = (val) => {
 const handleCurrentChange = (val) => {
 
 }
+const toUserMd = (row) => {
+	if (row) {
+		router.push({
+			path: '/user-md',
+			query: {
+				eid: row.phone
+			}
+		})
+	} else {
+		router.push('/user-md')
+	}
+}
 </script>
 
 <template lang="pug">
@@ -58,7 +73,7 @@ const handleCurrentChange = (val) => {
 					el-button(:icon="Search" type="primary") 查询
 					el-button(:icon="RefreshLeft") 重置
 			.panel-extend
-				el-button(:icon="Plus" type="success" plain) 新增员工
+				el-button(:icon="Plus" type="success" plain, @click="toUserMd()") 新增员工
 				el-button 导出
 					el-icon(class="el-icon--right")
 						Upload
@@ -75,7 +90,7 @@ const handleCurrentChange = (val) => {
 					template(#default="{row, $index}")
 						.tab-link
 							el-button(plain size="small") 查看
-							el-button(plain size="small") 编辑
+							el-button(plain size="small" @click="toUserMd(row)") 编辑
 							el-dropdown(placement="bottom-end" trigger="click" style="margin-left: 8px")
 								el-button(plain size="small") 更多
 								template(#dropdown)
