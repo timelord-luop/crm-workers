@@ -5,7 +5,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell} from '@element-plus/icons-vue'
 import logo from '@/assets/img/logo.png'
 import Http from "@/plugins/http.js";
-import {ApiLogout} from "@/configuration/api/common.js";
+import {ApiLogout} from "@/configuration/api/users.js";
 import {TokenStorage} from "@/assets/js/storageUtil.js";
 
 const router = useRouter()

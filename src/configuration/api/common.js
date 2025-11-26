@@ -7,9 +7,3 @@ export const ApiLogin= {
 	IS_AUTH: false,
 	NO_MSG: true
 };
-
-export const ApiLogout= {
-	URL: API_BASE + '/users/logout',
-	METHOD: MethodType.POST,
-	IS_AUTH: true
-};

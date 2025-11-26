@@ -1,29 +1,52 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import {ref, reactive, onMounted} from 'vue'
 import {Search, RefreshLeft, Plus} from '@element-plus/icons-vue'
+import {ElMessage, ElMessageBox} from 'element-plus'
+import Http from "@/plugins/http.js";
+import {ApiPostAdd, ApiPostDelete, ApiPostList, ApiPostUpdate} from "@/configuration/api/users.js";
+
+const loading = ref(true);
 
 const filter = reactive({
 	conditions: ''
 });
+const pager = reactive({
+	page: 1,
+	rows: 20,
+	total: 0,
+	pageCount: 0
+});
 
-const tableData = reactive([
-	{name: '超级管理员', isAdmin: 1, memberNum: '2', desc: '--', updateTime: '2023-06-15 12:22'},
-	{name: '运营负责人', isAdmin: 0, memberNum: '1', desc: '--', updateTime: '2023-06-15 12:22'},
-	{name: '测试工程师', isAdmin: 0, memberNum: '2', desc: '--', updateTime: '2023-06-15 12:22'},
-	{name: '开发工程师', isAdmin: 0, memberNum: '10', desc: '--', updateTime: '2023-06-15 12:22'},
-	{name: '行政专员', isAdmin: 0, memberNum: '2', desc: '--', updateTime: '2023-06-15 12:22'},
-	{name: '销售经理', isAdmin: 0, memberNum: '6', desc: '--', updateTime: '2023-06-15 12:22'},
-	{name: '总账会计', isAdmin: 0, memberNum: '2', desc: '--', updateTime: '2023-06-15 12:22'},
-	{name: '应收会计', isAdmin: 0, memberNum: '2', desc: '--', updateTime: '2023-06-15 12:22'}
-]);
+const tableData = ref([]);
 
-const currentPage = ref(1);
-const handleSizeChange = (val) => {
+onMounted(() => {
+	getBaseData();
+})
 
-}
 const handleCurrentChange = (val) => {
-
+	getBaseData();
 }
+
+const getBaseData = () => {
+	loading.value = true;
+	const params = getParams();
+	Http.request(ApiPostList, params).then(res => {
+		loading.value = false;
+		pager.total = res.total;
+		pager.pageCount = res.pageCount;
+		tableData.value = res.list;
+	}).catch(err => {
+		console.log(err);
+		loading.value = false;
+	})
+}
+const getParams = () => {
+	return {
+		page: pager.page,
+		rows: pager.rows
+	}
+}
+
 // 新增、编辑职务
 const dialogVisible = ref(false);
 const formRef = ref();
@@ -55,16 +78,41 @@ const toCommit = async (formEl) => {
 	await formEl.validate(valid => {
 		if (!valid) return;
 		committing.value = true;
-		setTimeout(() => {
+		const API = positionData.id ? ApiPostUpdate : ApiPostAdd;
+		Http.request(API, positionData).then(res => {
 			committing.value = false;
 			dialogVisible.value = false;
-		}, 500)
+			getBaseData();
+		}).catch(err => {
+			console.log(err);
+			committing.value = false;
+		})
 	})
+}
+
+// 删除职务
+const toDelete = (row) => {
+	ElMessageBox.confirm(`确定删除职务 “${row.name}” ?`, '提示', {
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			type: 'warning',
+		}).then(() => {
+			Http.request(ApiPostDelete, {id: row.id}).then(() => {
+				ElMessage({
+					type: 'success',
+					showClose: true,
+					message: `已删除职位：${row.name}`,
+				})
+				getBaseData();
+			}).catch(err => {
+				console.log(err);
+			})
+		}).catch(() => {})
 }
 </script>
 
 <template lang="pug">
-	.list-container
+	.list-container(v-loading="loading")
 		.panel-header
 			.panel-filter
 				el-input(v-model="filter.conditions" placeholder="职务名称" )
@@ -77,26 +125,23 @@ const toCommit = async (formEl) => {
 			el-table(:data="tableData" border stripe height="100%")
 				el-table-column(label="序号" width="60" align="center" type="index")
 				el-table-column(prop="name" label="职务名称")
-				el-table-column(prop="memberNum" label="人员数量")
+				el-table-column(prop="memberCount" label="人员数量")
 				el-table-column(prop="desc" label="职务描述")
 				el-table-column(label="操作" width="140")
 					template(#default="{row, $index}")
 						.tab-link
 							el-button(plain size="small" @click="toEdit(row)") 编辑
-							el-button(plain size="small" type="danger") 删除
+							el-button(plain size="small" type="danger" @click="toDelete(row)") 删除
 		.panel-footer
 			.total-section
-				span 共 {{ 10 }} 条记录
-				span._sec 第 {{ currentPage }} / 50 页
-			el-pagination(v-model:current-page="currentPage"
-				:page-size="1"
-				layout="prev, pager, next"
-				:total="1"
-				background,
-				@size-change="handleSizeChange"
-				@current-change="handleCurrentChange")
-				template(#default)
-					span 共{{10}}条记录
+				span 共 {{ pager.total }} 条记录
+				span._sec 第 {{ pager.page }} / {{pager.pageCount}} 页
+			el-pagination(v-model:current-page="pager.page",
+				layout="prev, pager, next",
+				:page-size="pager.rows",
+				:total="pager.total",
+				@current-change="handleCurrentChange",
+				background)
 	el-dialog(v-model="dialogVisible"
 		width="460"
 		draggable

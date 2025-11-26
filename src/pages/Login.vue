@@ -33,7 +33,7 @@ const login = () => {
 		router.push('/')
 	}).catch(err => {
 		loading.value = false;
-		errMsg.value = err.msg;
+		errMsg.value = err?.msg || '登录失败！';
 		setTimeout(() => {
 			errMsg.value = '';
 		}, 3000)
