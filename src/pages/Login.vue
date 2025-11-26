@@ -1,25 +1,51 @@
 <script setup>
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import {User, Key, Position} from '@element-plus/icons-vue'
 import {useRouter} from 'vue-router';
+import Http from "@/plugins/http.js";
+import {ApiLogin} from "@/configuration/api/common.js";
+import {LocalStorage, TokenStorage} from "@/assets/js/storageUtil.js";
 
 const router = useRouter();
 
 const username = ref('')
 const password = ref('')
-const isRemember = ref(true)
+const isRemember = ref(false)
 const errMsg = ref('');
+const loading = ref(false);
+
+onMounted(() => {
+	const localAccount = LocalStorage.get('_crm_account');
+	if (localAccount) {
+		username.value = localAccount.username;
+		password.value = localAccount.password;
+		isRemember.value = true;
+	}
+})
 
 const login = () => {
-	if (username.value === 'admin' && password.value === 'admin') {
+	loading.value = true;
+	Http.request(ApiLogin, {username: username.value, password: password.value}).then(res => {
+		loading.value = false;
 		errMsg.value = '';
+		parseLoginResult(res);
 		// 登录成功，跳转到首页
 		router.push('/')
-	} else {
-		errMsg.value = '账号或密码错误';
+	}).catch(err => {
+		loading.value = false;
+		errMsg.value = err.msg;
 		setTimeout(() => {
 			errMsg.value = '';
 		}, 3000)
+	})
+}
+
+const parseLoginResult = (data) => {
+	TokenStorage.saveAccessToken(data.token);
+	if (isRemember.value) {
+		LocalStorage.put('_crm_account', {username: username.value, password: password.value})
+	} else {
+		LocalStorage.remove('_crm_account')
 	}
 }
 
@@ -38,7 +64,13 @@ const login = () => {
 						el-checkbox(v-model="isRemember" label="记住密码" size="large")
 						el-tooltip(content="联系作者协助修改密码" placement="top")
 							el-link(underline="never" type="info") 忘记密码？
-					el-button._btn(type="primary", size="large", :disabled="!username || !password", :icon="Position", @click="login()", native-type="submit") 登录
+					el-button._btn(type="primary",
+						size="large",
+						:disabled="!username || !password",
+						:icon="Position",
+						@click="login()",
+						:loading="loading"
+						native-type="submit") 登录
 					el-alert(:title="errMsg" v-if="errMsg" type="error" show-icon :closable="false")
 
 </template>

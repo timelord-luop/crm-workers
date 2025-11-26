@@ -1,26 +1,18 @@
 const ArgsLocalStorage = {
-	ACCESS_TOKEN: 'access_token',
-	ACCESS_MNG_TOKEN: 'access_mng_token',
-	ACCESS_KEY: 'access_key'
+	ACCESS_TOKEN: 'access_token'
 };
-
-const TokenPrefix = '';
 
 const TokenStorage = {
 	saveAccessToken(accessToken) {
-		LocalStorage.put(ArgsLocalStorage.ACCESS_TOKEN, TokenPrefix + accessToken)
-	},
-
-	saveAccessKey(key) {
-		LocalStorage.put(ArgsLocalStorage.ACCESS_KEY, key);
+		LocalStorage.put(ArgsLocalStorage.ACCESS_TOKEN, accessToken)
 	},
 
 	getAccessToken() {
 		return LocalStorage.get(ArgsLocalStorage.ACCESS_TOKEN) || '';
 	},
 
-	getAccessKey() {
-		return LocalStorage.get(ArgsLocalStorage.ACCESS_KEY) || '';
+	clearToken() {
+		LocalStorage.remove(ArgsLocalStorage.ACCESS_TOKEN);
 	}
 }
 
@@ -47,5 +39,6 @@ const LocalStorage = {
 }
 
 export {
-	TokenStorage
+	TokenStorage,
+	LocalStorage
 }

@@ -4,6 +4,9 @@ import { useRouter, useRoute } from 'vue-router'
 
 import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell} from '@element-plus/icons-vue'
 import logo from '@/assets/img/logo.png'
+import Http from "@/plugins/http.js";
+import {ApiLogout} from "@/configuration/api/common.js";
+import {TokenStorage} from "@/assets/js/storageUtil.js";
 
 const router = useRouter()
 const route = useRoute()
@@ -88,7 +91,12 @@ const toggleTheme = (val) => {
 }
 
 const handleCommand = (command) => {
-
+	if (command === 'logout') {
+		Http.request(ApiLogout).then(res => {
+			TokenStorage.clearToken();
+			router.push('/login')
+		})
+	}
 }
 const menuChecked = (index) => {
 	router.push(index)
@@ -152,8 +160,9 @@ const menuChecked = (index) => {
 					el-breadcrumb(separator="/")
 						el-breadcrumb-item(v-for="item in breadcrumbData" :to="item.path ? {path: item.path} : null") {{item.name}}
 				._views
-					keep-alive
-						router-view
+					router-view(v-slot="{ Component }")
+						keep-alive
+							component(:is="Component")
 </template>
 
 <style scoped lang="scss">
