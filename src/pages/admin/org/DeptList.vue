@@ -107,15 +107,18 @@ const toDelete = (row) => {
 		cancelButtonText: '取消',
 		type: 'warning',
 	}).then(() => {
+		loading.value = true;
 		Http.request(ApiDeptDelete, {id: row.id}).then(() => {
 			ElMessage({
 				type: 'success',
 				showClose: true,
 				message: `已删除部门：${row.name}`,
 			})
+			loading.value = false;
 			getBaseData();
 		}).catch(err => {
 			console.log(err);
+			loading.value = false;
 		})
 	}).catch(() => {})
 }
