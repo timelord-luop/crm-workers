@@ -54,7 +54,7 @@ const toCommit = () => {
 </script>
 
 <template lang="pug">
-	.info-container
+	.info-container(v-loading="loading")
 		.info-header
 			._title 新增员工
 			._btn
