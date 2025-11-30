@@ -11,9 +11,10 @@
 	/*--el-color-primary-light-8: #c4b5e3; !* 主色调 *!*/
 
 	--border: #EEEEEE;
-	--bg-color-mute: #F2F2F2;
+	--bg-color-mute: #F5F6F8;
 	--bg-color-main: #FFFFFF;
 	--secondary: #999999;
+	--scrollbar: #BBBBBB;
 	--text-color: #303133;
 	--text-color2: #494a4d;
 	--table-header-bg-color: #F5F7FA;
@@ -24,6 +25,7 @@
 	--bg-color-mute: #2C2C2C;
 	--bg-color-main: #1c1c1c;
 	--secondary: #999999;
+	--scrollbar: #666666;
 	--text-color: #E5E3F3;
 	--text-color2: #cdcbd9;
 	--table-header-bg-color: #2C2C2C;
@@ -47,7 +49,7 @@ a {
 	border-radius: 6px;
 }
 .el-table th.el-table__cell {
-	background-color: var(--table-header-bg-color);
+	background-color: var(--bg-color-main);
 	color: var(--text-color);
 	font-weight: normal;
 	font-size: 13px;
@@ -119,6 +121,47 @@ a {
 			color: var(--text-color2);
 			._sec {
 				margin-left: 15px;
+			}
+		}
+	}
+}
+.info-container {
+	position: relative;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	.info-header {
+		height: 46px;
+		padding: 0 4px;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		._title {
+			font-size: 17px;
+			font-weight: bold;
+		}
+		._btn {
+
+		}
+	}
+	.info-body {
+		flex: 1;
+		height: 100%;
+		overflow-y: auto;
+		/* 关键：只修改轨道背景色，不改变其他属性 */
+		scrollbar-color: var(--scrollbar) var(--bg-color-mute);  /* 滑块颜色 轨道背景色 */
+		scrollbar-width: auto;  /* 保持默认宽度，确保箭头显示 */
+		.info-block {
+			background-color: var(--bg-color-main);
+			padding: 15px 20px;
+			margin: 4px 0 12px;
+			border: 1px solid var(--border);
+			border-radius: 14px;
+			._title {
+				line-height: 24px;
+				font-size: 15px;
+				margin-bottom: 8px;
 			}
 		}
 	}

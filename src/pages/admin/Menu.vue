@@ -305,7 +305,7 @@ const menuChecked = (index) => {
 		padding: 12px;
 		width: 100%;
 		overflow: hidden;
-		background-color: var(--bg-color-main);
+		background-color: var(--bg-color-mute);
 		._breadcrumb {
 			height: 20px;
 			line-height: 20px;

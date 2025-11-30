@@ -1,11 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_ROOT;
 const MethodType = {POST: 'post'}
 
-export const ApiSysConfig= {
-	URL: API_BASE + '/sys-config',
-	METHOD: MethodType.POST,
-	IS_AUTH: true
-};
 // 退出登录
 export const ApiLogout= {
 	URL: API_BASE + '/users/logout',
@@ -13,8 +8,8 @@ export const ApiLogout= {
 	IS_AUTH: true
 };
 // 职位分页列表
-export const ApiPostList = {
-	URL: API_BASE + '/users/post/list',
+export const ApiPostQueryList = {
+	URL: API_BASE + '/users/post/queryList',
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
@@ -36,3 +31,52 @@ export const ApiPostDelete = {
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
+// 部门列表
+export const ApiDeptList = {
+	URL: API_BASE + '/users/dept/list',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 新增部门
+export const ApiDeptAdd = {
+	URL: API_BASE + '/users/dept/add',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 编辑部门
+export const ApiDeptUpdate = {
+	URL: API_BASE + '/users/dept/edit',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 删除部门
+export const ApiDeptDelete = {
+	URL: API_BASE + '/users/dept/delete',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 员工列表
+export const ApiUserList = {
+	URL: API_BASE + '/users/list',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 新增员工
+export const ApiUserAdd = {
+	URL: API_BASE + '/users/add',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 编辑员工
+export const ApiUserUpdate = {
+	URL: API_BASE + '/users/edit',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 删除员工
+export const ApiUserDelete = {
+	URL: API_BASE + '/users/delete',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+
