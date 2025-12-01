@@ -84,7 +84,7 @@ const toClientMd = (row) => {
 						el-dropdown-item(:icon="Download") 导入
 		.panel-body(style="min-height: 100px")
 			el-table(:data="tableData" border stripe height="100%")
-				el-table-column(label="序号" type="index" width="60" align="center" )
+				el-table-column(label="序号" type="index" width="54" align="center" )
 				el-table-column(prop="name" label="客户名称")
 				el-table-column(prop="phone" label="联系方式")
 				el-table-column(prop="source" label="客户来源")

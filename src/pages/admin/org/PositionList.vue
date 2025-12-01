@@ -138,7 +138,7 @@ const toDelete = (row) => {
 				el-button(:icon="Plus" type="success" plain, @click="toAdd()") 新增职务
 		.panel-body(style="min-height: 100px")
 			el-table(:data="tableData" border stripe height="100%")
-				el-table-column(label="序号" width="60" align="center")
+				el-table-column(label="序号" width="54" align="center")
 					template(#default="{$index}") {{ (pager.rows * (pager.page - 1)) + $index + 1}}
 				el-table-column(prop="name" label="职务名称")
 				el-table-column(prop="memberCount" label="人员数量" sortable)
@@ -147,7 +147,7 @@ const toDelete = (row) => {
 					template(#default="{row, $index}")
 						.tab-link
 							el-button(plain size="small" @click="toEdit(row)") 编辑
-							el-button(plain size="small" type="danger" :disabled="row.memberCount"  @click="toDelete(row)") 删除
+							el-button(plain size="small" type="danger" :disabled="row.memberCount" @click="toDelete(row)") 删除
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

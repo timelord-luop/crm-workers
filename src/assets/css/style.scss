@@ -153,7 +153,7 @@ a {
 		overflow-y: auto;
 		/* 关键：只修改轨道背景色，不改变其他属性 */
 		scrollbar-color: var(--scrollbar) var(--bg-color-mute);  /* 滑块颜色 轨道背景色 */
-		scrollbar-width: auto;  /* 保持默认宽度，确保箭头显示 */
+		scrollbar-width: thin;  /* 保持默认宽度，确保箭头显示 */
 		.info-block {
 			background-color: var(--bg-color-main);
 			padding: 15px 20px;

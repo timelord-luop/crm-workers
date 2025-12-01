@@ -79,7 +79,7 @@ const toUserMd = (row) => {
 						Upload
 		.panel-body(style="min-height: 100px")
 			el-table(:data="tableData" border stripe height="100%")
-				el-table-column(label="序号" width="60" align="center" type="index")
+				el-table-column(label="序号" width="54" align="center" type="index")
 				el-table-column(prop="name" label="姓名")
 				el-table-column(prop="phone" label="手机号")
 				el-table-column(prop="workNum" label="工号")

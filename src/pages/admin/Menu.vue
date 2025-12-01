@@ -92,10 +92,9 @@ const toggleTheme = (val) => {
 
 const handleCommand = (command) => {
 	if (command === 'logout') {
-		Http.request(ApiLogout).then(res => {
-			TokenStorage.clearToken();
-			router.push('/login')
-		})
+		Http.request(ApiLogout);
+		TokenStorage.clearToken();
+		router.push('/login')
 	}
 }
 const menuChecked = (index) => {
