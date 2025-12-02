@@ -13,6 +13,12 @@ export const ApiPostQueryList = {
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
+// 职位simple列表
+export const ApiPostSimpleList = {
+	URL: API_BASE + '/users/post/simpleList',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
 // 新增职位
 export const ApiPostAdd = {
 	URL: API_BASE + '/users/post/add',
@@ -34,6 +40,12 @@ export const ApiPostDelete = {
 // 部门列表
 export const ApiDeptList = {
 	URL: API_BASE + '/users/dept/list',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 职位simple列表
+export const ApiDeptSimpleList = {
+	URL: API_BASE + '/users/dept/simpleList',
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
