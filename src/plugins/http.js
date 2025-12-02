@@ -16,7 +16,7 @@ function _showRequestErrMsg(res) {
 	})
 	setTimeout(() => {
 		if (res.status === 401) window.location.href = '/login'
-	}, 3600)
+	}, 1800)
 }
 
 function _getAuthHeaders() {
