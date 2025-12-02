@@ -1,7 +1,8 @@
-# public/_headers
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
 
 /*.js
   Cache-Control: public, max-age=31536000, immutable
@@ -20,19 +21,26 @@
 /*.ttf
   Cache-Control: public, max-age=31536000, immutable
 
+/*.png
+  Cache-Control: public, max-age=604800
+
+/*.jpg
+  Cache-Control: public, max-age=604800
+
+/*.jpeg
+  Cache-Control: public, max-age=604800
+
+/*.gif
+  Cache-Control: public, max-age=604800
+
+/*.svg
+  Cache-Control: public, max-age=604800
+
 /*.ico
   Cache-Control: public, max-age=86400
 
-/*.png
-  Cache-Control: public, max-age=86400
-
-/*.jpg
-  Cache-Control: public, max-age=86400
-
-/*.svg
-  Cache-Control: public, max-age=86400
-
 /*
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: no-cache, no-store, must-revalidate
   X-Frame-Options: DENY
   X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
