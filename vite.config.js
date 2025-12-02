@@ -9,5 +9,15 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve('./src')
 		}
+	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					vendor: ['vue', 'vue-router', 'pinia'],
+					element: ['element-plus']
+				}
+			}
+		}
 	}
 })
