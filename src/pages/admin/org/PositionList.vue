@@ -147,7 +147,7 @@ const toDelete = (row) => {
 					template(#default="{row, $index}")
 						.tab-link
 							el-button(plain size="small" @click="toEdit(row)") 编辑
-							el-button(plain size="small" type="danger" :disabled="row.memberCount" @click="toDelete(row)") 删除
+							el-button(plain size="small" type="danger" :disabled="row.memberCount > 0" @click="toDelete(row)") 删除
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

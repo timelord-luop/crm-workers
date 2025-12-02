@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted, watch} from 'vue'
+import {ref, onMounted, watch, computed} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell} from '@element-plus/icons-vue'
@@ -7,6 +7,11 @@ import logo from '@/assets/img/logo.png'
 import Http from "@/plugins/http.js";
 import {ApiLogout} from "@/configuration/api/users.js";
 import {TokenStorage} from "@/assets/js/storageUtil.js";
+
+import {useRouterLoadingStore} from '@/store/sysStore'
+
+const routerLoading = useRouterLoadingStore()
+const isLoading = computed(() => routerLoading.isLoading)
 
 const router = useRouter()
 const route = useRoute()
@@ -159,9 +164,29 @@ const menuChecked = (index) => {
 					el-breadcrumb(separator="/")
 						el-breadcrumb-item(v-for="item in breadcrumbData" :to="item.path ? {path: item.path} : null") {{item.name}}
 				._views
+					._skeleton(v-if="isLoading")
+						._skeleton_body
+							el-skeleton(animated)
+								template(#template)
+									._skeleton_head
+										el-skeleton-item(variant="text" style="width: 20%; height: 24px")
+										._skeleton_btn
+											el-skeleton-item(variant="button" style="height: 24px")
+											el-skeleton-item(variant="button" style="height: 24px;margin-left: 15px")
+							el-skeleton(:rows="17" animated )
+						._skeleton_footer
+							el-skeleton
+								template(#template)
+									._skeleton_head
+										el-skeleton-item(variant="text" style="width: 15%; height: 22px")
+										._skeleton_btn
+											el-skeleton-item(variant="button" style="width: 42px;height: 22px")
+											el-skeleton-item(variant="button" style="width: 42px;height: 22px;margin-left: 15px")
+											el-skeleton-item(variant="button" style="width: 42px;height: 22px;margin-left: 15px")
+											el-skeleton-item(variant="button" style="width: 42px;height: 22px;margin-left: 15px")
 					router-view(v-slot="{ Component }")
 						keep-alive
-							component(:is="Component")
+							component(:is="Component" v-show="!isLoading")
 </template>
 
 <style scoped lang="scss">
@@ -321,6 +346,29 @@ const menuChecked = (index) => {
 		._views {
 			flex: 1;
 			min-height: 0;
+			._skeleton {
+				margin-top: 20px;
+				padding: 0 10px;
+				height: calc(100% - 20px);
+				display: flex;
+				flex-direction: column;
+				._skeleton_body {
+					flex: 1;
+					overflow: hidden;
+					margin-bottom: 40px;
+					:deep(.el-skeleton__paragraph) {
+						margin-top: 20px
+					}
+				}
+				._skeleton_footer {
+					height: 40px;
+				}
+				._skeleton_head {
+					display: flex;
+					justify-content: space-between;
+					margin-bottom: 10px;
+				}
+			}
 		}
 	}
 }
