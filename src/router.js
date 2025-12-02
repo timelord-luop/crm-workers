@@ -56,8 +56,9 @@ router.beforeEach((to, from, next) => {
 router.afterEach(() => {
 	// 延迟隐藏，确保页面内容已加载
 	const routerLoading = useRouterLoadingStore()
-	setTimeout(() => {
-		routerLoading.finishLoading()
-	}, 50)
+	// setTimeout(() => {
+	// 	routerLoading.finishLoading()
+	// }, 50)
+	routerLoading.finishLoading()
 })
 export default router
