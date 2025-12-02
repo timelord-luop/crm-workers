@@ -70,7 +70,7 @@ const toCommit = () =>  {
 		draggable
 		destroy-on-close
 		:close-on-click-modal="false"
-		:title="dialogData.index !== null ? '编辑银行卡' : '新增银行卡'")
+		:title="dialogData.index !== null ? '编辑银行卡' : '添加银行卡'")
 		el-form(
 			ref="formRef"
 			:model="dialogData"
