@@ -1,4 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import {useRouterLoadingStore} from '@/store/sysStore'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -42,5 +43,21 @@ const router = createRouter({
 			]
 		}
 	]
+})
+
+router.beforeEach((to, from, next) => {
+	// 只有在不同路由之间跳转时才显示加载
+	const routerLoading = useRouterLoadingStore()
+	if (to.path !== from.path) {
+		routerLoading.startLoading()
+	}
+	next()
+})
+router.afterEach(() => {
+	// 延迟隐藏，确保页面内容已加载
+	const routerLoading = useRouterLoadingStore()
+	setTimeout(() => {
+		routerLoading.finishLoading()
+	}, 50)
 })
 export default router

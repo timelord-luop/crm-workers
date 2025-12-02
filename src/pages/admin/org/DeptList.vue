@@ -1,6 +1,6 @@
 <script setup>
 import {onMounted, reactive, ref} from 'vue'
-import {Notification, Plus, Search} from '@element-plus/icons-vue'
+import {Notification, Plus, Search, RefreshLeft} from '@element-plus/icons-vue'
 import {Vue3TreeOrg} from 'vue3-tree-org';
 import "vue3-tree-org/lib/vue3-tree-org.css";
 import {ApiDeptAdd, ApiDeptDelete, ApiDeptList, ApiDeptUpdate} from "@/configuration/api/users.js";
@@ -167,8 +167,6 @@ const arrayToChartTree = (data, rootPid = '0') => {
 			if (item.children) loopData(item.children)
 		})
 	}
-
-	console.log(result)
 	return result;
 }
 // 搜索
@@ -271,7 +269,7 @@ const toLocalSearch = () => {
 						.tab-link
 							el-button(plain size="small" @click="toAdd(row)") 新增子部门
 							el-button(plain size="small" @click="toEdit(row)") 编辑
-							el-button(plain size="small" type="danger" :disabled="row.children.length || row.memberCount" @click="toDelete(row)") 删除
+							el-button(plain size="small" type="danger" :disabled="row.children.length > 0 || row.memberCount > 0" @click="toDelete(row)") 删除
 	el-dialog(v-model="dialogVisible"
 		width="460"
 		draggable
