@@ -44,7 +44,7 @@ export default {
 				url: API.URL,
 				method: API.METHOD,
 				headers: {},
-				data: JSON.stringify(params)
+				data: params ? JSON.stringify(params) : {}
 			};
 			if (API.IS_AUTH) {
 				requestObj.headers = _getAuthHeaders();
