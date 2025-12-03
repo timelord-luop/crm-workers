@@ -61,7 +61,7 @@ const deptData = reactive({
 })
 const rules = reactive({
 	name: [{required: true, message: '请输入部门名称', trigger: 'change'}],
-	principal: [{required: true, message: '请选择部门负责人', trigger: 'change'}],
+	// principal: [{required: true, message: '请选择部门负责人', trigger: 'change'}],
 	pid: [{required: true, message: '请选择上级部门', trigger: 'change'}]
 })
 const toAdd = (row) => {
@@ -287,7 +287,7 @@ const toLocalSearch = () => {
 				el-input(v-model="deptData.parentName" disabled maxlength="32" placeholder="请输入" )
 			el-form-item(label="部门名称" prop="name")
 				el-input(v-model="deptData.name" maxlength="32" placeholder="请输入" )
-			el-form-item(label="部门负责人" prop="principal")
+			el-form-item(label="部门负责人")
 				el-select(v-model="deptData.principal" multiple placeholder="请选择")
 					el-option(label="王晓" value="1")
 					el-option(label="陈金德" value="2")
