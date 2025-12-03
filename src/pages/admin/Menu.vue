@@ -186,7 +186,7 @@ const menuChecked = (index) => {
 											el-skeleton-item(variant="button" style="width: 42px;height: 22px;margin-left: 15px")
 					router-view(v-slot="{ Component }")
 						keep-alive
-							component(:is="Component" v-show="!isLoading")
+							component(:is="Component" v-show="!isLoading" :key="route.fullPath")
 </template>
 
 <style scoped lang="scss">

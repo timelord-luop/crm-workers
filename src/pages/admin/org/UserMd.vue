@@ -1,9 +1,10 @@
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
+import {ref, reactive, onMounted, nextTick} from 'vue'
 import {useRouter} from 'vue-router'
 import Http from "@/plugins/http.js";
-import {ApiDeptSimpleList, ApiPostSimpleList} from "@/configuration/api/users.js";
+import {ApiDeptSimpleList, ApiPostSimpleList, ApiUserAdd, ApiUserUpdate} from "@/configuration/api/users.js";
 import BankDialog from "@/components/BankDialog.vue";
+import CommonUtil from "@/assets/js/commonUtil.js";
 
 const router = useRouter()
 const loading = ref(false);
@@ -72,15 +73,79 @@ const getDeptList = () => {
 }
 // 银行弹窗
 const dialogVisible = ref(false);
-const addBank = () => {
+const bankData = ref({});
+const addBank = (index) => {
+	bankData.value = {
+		index: index || null,
+		act: index >= 0 ? 'insert' : 'add',
+		account: '',
+		userName: '',
+		bankName: '',
+		openingBank: '',
+		bankCode: '',
+		remark: ''
+	}
 	dialogVisible.value = true
 }
+const bankEdit = (data, index) => {
+	bankData.value = {
+		index: index,
+		act: 'edit',
+		account: data.account,
+		userName: data.userName,
+		bankName: data.bankName,
+		openingBank: data.openingBank,
+		bankCode: data.bankCode,
+		remark: data.remark
+	}
+	dialogVisible.value = true;
+}
+const bankDelete = (index) => {
+	formData.bankCards.splice(index, 1)
+}
 const getBankData = (data) => {
-	console.log(data);
+	let bankData = CommonUtil.deepClone(data);
+	delete bankData.index;
+	delete bankData.act;
+	if (data.act === 'add') {
+		formData.bankCards.push(bankData)
+	}
+	if (data.act === 'insert') {
+		formData.bankCards.splice(data.index + 1, 0, bankData)
+	}
+	if (data.act === 'edit') {
+		formData.bankCards[data.index] = bankData
+	}
 }
-const toCommit = () => {
+const toCommit = async (formEl) => {
+	await formEl.validate(valid => {
+		if (!valid) return CommonUtil.scrollToFirstError();
+		let params = getSubmitData();
+		committing.value = true;
+		const API = params.id ? ApiUserUpdate : ApiUserAdd;
+		Http.request(API, params).then(res => {
+			committing.value = false;
+			router.push({
+				path: '/user',
+				query: {
+					_t: Date.now()
+				}
+			})
+		}).catch(err => {
+			console.log(err);
+			committing.value = false;
+		})
+	})
+}
 
+const getSubmitData = () => {
+	let submitData = CommonUtil.deepClone(formData);
+	if (submitData.bankCards.length) {
+		submitData.bankCards = JSON.stringify(submitData.bankCards)
+	}
+	return submitData;
 }
+
 </script>
 
 <template lang="pug">
@@ -110,7 +175,7 @@ const toCommit = () => {
 								el-cascader(v-model="formData.deptId"
 									style="width: 100%"
 									:options="deptList"
-									:props="{checkStrictly: true, label: 'name'}"
+									:props="{checkStrictly: true, emitPath: false, label: 'name', value: 'id'}"
 									filterable,
 									:show-all-levels="false"
 									clearable)
@@ -218,12 +283,18 @@ const toCommit = () => {
 						template(#empty)
 							el-link(type="success" @click="addBank()") 添加银行卡
 						el-table-column(label="序号" width="54" type="index" align="center")
-						el-table-column(prop="name" label="银行账号")
-						el-table-column(prop="name" label="户名")
-						el-table-column(prop="name" label="银行名称")
-						el-table-column(prop="name" label="开户行")
-						el-table-column(prop="name" label="行号")
-						el-table-column(prop="name" label="备注")
+						el-table-column(prop="account" label="银行账号")
+						el-table-column(prop="userName" label="户名")
+						el-table-column(prop="bankName" label="银行名称")
+						el-table-column(prop="openingBank" label="开户行")
+						el-table-column(prop="bankCode" label="行号")
+						el-table-column(prop="remark" label="备注")
+						el-table-column(label="操作" width="180")
+							template(#default="{row, $index}")
+								.tab-link
+									el-button(text bg size="small" type="success" @click="addBank($index)") 添加
+									el-button(text bg size="small" @click="bankEdit(row, $index)") 编辑
+									el-button(text bg size="small" type="danger" @click="bankDelete($index)") 删除
 				.info-block
 					._title 学历和其他
 					el-row(:gutter="30")
@@ -253,7 +324,7 @@ const toCommit = () => {
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="其他备注")
 								el-input(v-model="formData.remark" type="textarea" maxlength="255" :rows="3" placeholder="请输入" )
-	bank-dialog(v-model:visible="dialogVisible" @confirm="getBankData")
+	bank-dialog(v-model:visible="dialogVisible" :bank-data="bankData" @confirm="getBankData")
 </template>
 
 <style scoped lang="scss">

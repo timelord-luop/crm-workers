@@ -1,10 +1,17 @@
 <script setup>
-import {computed, reactive, ref} from "vue";
+import {computed, nextTick, reactive, ref} from "vue";
+import CommonUtil from "@/assets/js/commonUtil.js";
 
 const props = defineProps({
 	visible: {
 		type: Boolean,
 		default: false
+	},
+	bankData: {
+		type: Object,
+		default: () => {
+			return {}
+		}
 	}
 })
 
@@ -17,16 +24,14 @@ const emit = defineEmits(['update:visible', 'confirm'])
 
 const formRef = ref();
 
-const dialogData = reactive({
-	index: null,
-	id: null,
-	account: '',
-	userName: '',
-	bankName: '',
-	openingBank: '',
-	bankCode: '',
-	remark: ''
-})
+const dialogData = ref({});
+const onOpen = () => {
+	nextTick(() => {
+		dialogData.value = CommonUtil.deepClone(props.bankData);
+		formRef.value?.resetFields()
+	})
+}
+
 const rules = reactive({
 	account: [{required: true, message: '请输入银行账号', trigger: 'change'}],
 	userName: [{required: true, message: '请输入户名', trigger: 'change'}],
@@ -59,8 +64,12 @@ const bankList = ref([
 	"渤海银行",
 	"重庆银行"
 ])
-const toCommit = () =>  {
-	emit('confirm', {a: 1234})
+const toCommit = async (formEl) => {
+	await formEl.validate(valid => {
+		if (!valid) return;
+		emit('confirm', dialogData.value);
+		dialogVisible.value = false;
+	})
 }
 </script>
 
@@ -70,7 +79,8 @@ const toCommit = () =>  {
 		draggable
 		destroy-on-close
 		:close-on-click-modal="false"
-		:title="dialogData.index !== null ? '编辑银行卡' : '添加银行卡'")
+		@open="onOpen"
+		:title="dialogData.act === 'edit' ? '编辑银行卡' : '添加银行卡'")
 		el-form(
 			ref="formRef"
 			:model="dialogData"
@@ -82,7 +92,7 @@ const toCommit = () =>  {
 				el-input(v-model="dialogData.account" maxlength="22" placeholder="请输入" )
 			el-form-item(label="户名" prop="userName")
 				el-input(v-model="dialogData.userName" maxlength="22" placeholder="请输入" )
-			el-form-item(label="银行名称")
+			el-form-item(label="银行名称" prop="bankName")
 				el-select(v-model="dialogData.bankName" filterable placeholder="请选择")
 					el-option(v-for="item in bankList" :label="item" :value="item")
 			el-form-item(label="开户行")

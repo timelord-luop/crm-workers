@@ -1,4 +1,13 @@
 export default {
+	scrollToFirstError: () => {
+		const errorElement = document.querySelector('.is-error');
+		if (errorElement) {
+			errorElement.scrollIntoView({
+				behavior: 'smooth',
+				block: 'center'
+			});
+		}
+	},
     convertTimestamp: (timestamp) => {
         let fmt = 'YYYY-mm-dd HH:MM:SS';
         let date = !timestamp ? new Date() : new Date(Number(timestamp));
