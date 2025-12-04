@@ -97,7 +97,7 @@ const toUserMd = (row) => {
 </script>
 
 <template lang="pug">
-	.list-container
+	.list-container(v-loading="loading")
 		.panel-header
 			.panel-filter
 				el-input(v-model="filter.conditions"
