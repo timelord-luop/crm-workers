@@ -209,7 +209,8 @@ const toUserMd = (row) => {
 								el-table-column(prop="openingBank" label="开户行")
 								el-table-column(prop="bankCode" label="行号")
 								el-table-column(prop="remark" label="备注")
-				el-table-column(label="序号" width="54" align="center" type="index")
+				el-table-column(label="序号" width="54" align="center")
+					template(#default="{$index}") {{ (pager.rows * (pager.page - 1)) + $index + 1}}
 				el-table-column(prop="name" label="姓名")
 				el-table-column(prop="phone" label="手机号")
 				el-table-column(prop="workNumber" label="工号")
