@@ -201,7 +201,7 @@ const toUserMd = (row) => {
 							el-col(:xs="24" :sm="12" :md="8" :lg="6" :xl="6")
 								span._label 其他备注：
 									span._val {{row.remark}}
-						._table_tab(v-if="row.bankCards.length")
+						._table_tab(v-if="row.bankCards?.length")
 							el-table(size="small" :data="row.bankCards")
 								el-table-column(prop="account" label="银行账号")
 								el-table-column(prop="userName" label="户名")
