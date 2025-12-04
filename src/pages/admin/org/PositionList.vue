@@ -132,10 +132,10 @@ const toDelete = (row) => {
 					@keyup.enter="getBaseData"
 					@clear="getBaseData")
 				.filter-btn
-					el-button(:icon="Search" type="primary" @click="getBaseData()") 查询
-					el-button(:icon="RefreshLeft" @click="resetFilter()") 重置
+					el-button(:icon="Search" type="primary" @click="getBaseData") 查询
+					el-button(:icon="RefreshLeft" @click="resetFilter") 重置
 			.panel-extend
-				el-button(:icon="Plus" type="success" plain, @click="toAdd()") 新增职务
+				el-button(:icon="Plus" type="success" plain, @click="toAdd") 新增职务
 		.panel-body(style="min-height: 100px")
 			el-table(:data="tableData" border stripe height="100%")
 				el-table-column(label="序号" width="54" align="center")

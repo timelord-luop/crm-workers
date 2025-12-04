@@ -1,16 +1,24 @@
 <script setup>
 import {ref, reactive, onMounted, nextTick} from 'vue'
-import {useRouter} from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import Http from "@/plugins/http.js";
-import {ApiDeptSimpleList, ApiPostSimpleList, ApiUserAdd, ApiUserUpdate} from "@/configuration/api/users.js";
+import {
+	ApiDeptSimpleList,
+	ApiPostSimpleList,
+	ApiUserAdd,
+	ApiUserInfo,
+	ApiUserUpdate
+} from "@/configuration/api/users.js";
 import BankDialog from "@/components/BankDialog.vue";
 import CommonUtil from "@/assets/js/commonUtil.js";
 
 const router = useRouter()
+const route = useRoute()
 const loading = ref(false);
+const title = ref('');
 const committing = ref(false);
 const formRef = ref();
-const formData = reactive({
+const formData = ref({
 	// 基础
 	name: '',
 	deptId: '',
@@ -32,7 +40,7 @@ const formData = reactive({
 	idCardExpireDate: '',
 	idCardAddr: '',
 	// 劳动合同
-	isContract: '',
+	isContract: null,
 	contractBd: '',
 	contractEd: '',
 	contractCompany: '',
@@ -59,7 +67,26 @@ const deptList = ref([]);
 onMounted(() => {
 	getPositionList();
 	getDeptList();
+	if (route.query.eid) {
+		title.value = '编辑员工';
+		getBaseData();
+	} else {
+		title.value = '新增员工';
+	}
 })
+
+const getBaseData = () => {
+	loading.value = true;
+	Http.request(ApiUserInfo, {id: route.query.eid}).then(res => {
+		loading.value = false;
+		if (res.data) {
+			formData.value = res.data;
+		}
+	}).catch(err => {
+		console.log(err);
+		loading.value = false;
+	})
+}
 
 const getPositionList = () => {
 	Http.request(ApiPostSimpleList).then(res => {
@@ -101,20 +128,20 @@ const bankEdit = (data, index) => {
 	dialogVisible.value = true;
 }
 const bankDelete = (index) => {
-	formData.bankCards.splice(index, 1)
+	formData.value.bankCards.splice(index, 1)
 }
 const getBankData = (data) => {
 	let bankData = CommonUtil.deepClone(data);
 	delete bankData.index;
 	delete bankData.act;
 	if (data.act === 'add') {
-		formData.bankCards.push(bankData)
+		formData.value.bankCards.push(bankData)
 	}
 	if (data.act === 'insert') {
-		formData.bankCards.splice(data.index + 1, 0, bankData)
+		formData.value.bankCards.splice(data.index + 1, 0, bankData)
 	}
 	if (data.act === 'edit') {
-		formData.bankCards[data.index] = bankData
+		formData.value.bankCards[data.index] = bankData
 	}
 }
 const toCommit = async (formEl) => {
@@ -139,10 +166,8 @@ const toCommit = async (formEl) => {
 }
 
 const getSubmitData = () => {
-	let submitData = CommonUtil.deepClone(formData);
-	if (submitData.bankCards.length) {
-		submitData.bankCards = JSON.stringify(submitData.bankCards)
-	}
+	let submitData = CommonUtil.deepClone(formData.value);
+	submitData.bankCards = JSON.stringify(submitData.bankCards)
 	return submitData;
 }
 
@@ -151,7 +176,7 @@ const getSubmitData = () => {
 <template lang="pug">
 	.info-container(v-loading="loading")
 		.info-header
-			._title 新增员工
+			._title {{title}}
 			._btn
 				el-button(plain @click="router.go(-1)") 取 消
 				el-button(type="primary" :loading="committing" @click="toCommit(formRef)") 保 存

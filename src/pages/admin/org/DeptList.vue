@@ -3,7 +3,13 @@ import {onMounted, reactive, ref} from 'vue'
 import {Notification, Plus, Search, RefreshLeft} from '@element-plus/icons-vue'
 import {Vue3TreeOrg} from 'vue3-tree-org';
 import "vue3-tree-org/lib/vue3-tree-org.css";
-import {ApiDeptAdd, ApiDeptDelete, ApiDeptList, ApiDeptUpdate} from "@/configuration/api/users.js";
+import {
+	ApiDeptAdd,
+	ApiDeptDelete,
+	ApiDeptList,
+	ApiDeptUpdate,
+	ApiUserSimpleList
+} from "@/configuration/api/users.js";
 import Http from "@/plugins/http.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 
@@ -13,7 +19,7 @@ const filter = reactive({
 	name: '',
 	type: 'tree'
 });
-
+const userList = ref([]);
 const tableData = ref([]);
 const baseTableData = ref([]);
 
@@ -23,6 +29,12 @@ onMounted(() => {
 	getBaseData();
 })
 
+const getUserList = () => {
+	if (userList.value.length) return;
+	Http.request(ApiUserSimpleList).then(res => {
+		userList.value = res.list
+	})
+}
 const resetFilter = () => {
 	filter.name = '';
 	getBaseData();
@@ -65,6 +77,7 @@ const rules = reactive({
 	pid: [{required: true, message: '请选择上级部门', trigger: 'change'}]
 })
 const toAdd = (row) => {
+	getUserList();
 	dialogVisible.value = true;
 	deptData.title = '新增部门';
 	deptData.id = null;
@@ -75,6 +88,7 @@ const toAdd = (row) => {
 	deptData.desc = '';
 }
 const toEdit = (row) => {
+	getUserList();
 	dialogVisible.value = true;
 	deptData.title = '编辑部门';
 	deptData.id = row.id;
@@ -288,11 +302,8 @@ const toLocalSearch = () => {
 			el-form-item(label="部门名称" prop="name")
 				el-input(v-model="deptData.name" maxlength="32" placeholder="请输入" )
 			el-form-item(label="部门负责人")
-				el-select(v-model="deptData.principal" multiple placeholder="请选择")
-					el-option(label="王晓" value="1")
-					el-option(label="陈金德" value="2")
-					el-option(label="黄天霸" value="3")
-					el-option(label="吴梦" value="4")
+				el-select(v-model="deptData.principal" multiple filterable placeholder="请选择" clearable)
+					el-option(v-for="item in userList" :key="item.id" :label="item.name" :value="item.id")
 			el-form-item(label="部门描述")
 				el-input(v-model="deptData.desc" type="textarea" maxlength="255" :rows="3" placeholder="请输入" )
 		template(#footer)

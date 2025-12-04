@@ -13,6 +13,7 @@
 	--border: #EEEEEE;
 	--bg-color-mute: #F5F6F8;
 	--bg-color-main: #FFFFFF;
+	--bg-color-border: #FFFFFF;
 	--secondary: #999999;
 	--scrollbar: #BBBBBB;
 	--text-color: #303133;
@@ -24,6 +25,7 @@
 	--border: #4C4D4F;
 	--bg-color-mute: #2C2C2C;
 	--bg-color-main: #1c1c1c;
+	--bg-color-border: #141414;
 	--secondary: #999999;
 	--scrollbar: #666666;
 	--text-color: #E5E3F3;
@@ -53,6 +55,9 @@ a {
 	color: var(--text-color);
 	font-weight: normal;
 	font-size: 13px;
+}
+.el-table--enable-row-transition .el-table__body td.el-table__cell {
+	transition: inherit;
 }
 .el-table .el-table__cell {
 	font-size: 13px;
@@ -92,11 +97,11 @@ a {
 		margin: 0 0 8px;
 		row-gap: 10px;
 		column-gap: 10px;
-		.el-input, .el-select {
+		.el-input, .el-select, .el-cascader {
 			width: 180px;
 		}
 		.el-date-editor{
-			width: 230px;
+			width: 220px;
 		}
 	}
 	.panel-extend {

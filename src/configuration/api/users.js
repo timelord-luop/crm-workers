@@ -73,9 +73,21 @@ export const ApiUserList = {
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
+// 员工simple列表
+export const ApiUserSimpleList = {
+	URL: API_BASE + '/users/simpleList',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
 // 新增员工
 export const ApiUserAdd = {
 	URL: API_BASE + '/users/add',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 员工详情
+export const ApiUserInfo = {
+	URL: API_BASE + '/users/info',
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
