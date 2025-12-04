@@ -25,8 +25,26 @@ const router = createRouter({
 					path: '/client-md',
 					component: () => import('@/pages/admin/client/ClientMd.vue'),
 				},{
+					path: '/leads',
+					component: () => import('@/pages/admin/client/LeadsList.vue'),
+				},{
+					path: '/leads-md',
+					component: () => import('@/pages/admin/client/OpportunityList.vue'),
+				},{
+					path: '/opportunity',
+					component: () => import('@/pages/admin/client/OpportunityMd.vue'),
+				},{
+					path: '/opportunity-md',
+					component: () => import('@/pages/admin/client/LeadsMd.vue'),
+				},{
 					path: '/client-conf',
 					component: () => import('@/pages/admin/client/ClientConf.vue'),
+				},{
+					path: '/supplier',
+					component: () => import('@/pages/admin/supplier/SupplierList.vue'),
+				},{
+					path: '/supplier-md',
+					component: () => import('@/pages/admin/supplier/SupplierMd.vue'),
 				},{
 					path: '/user',
 					component: () => import('@/pages/admin/org/UserList.vue'),
@@ -46,7 +64,6 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-	// 只有在不同路由之间跳转时才显示加载
 	const routerLoading = useRouterLoadingStore()
 	if (to.path !== from.path) {
 		routerLoading.startLoading()
@@ -54,11 +71,7 @@ router.beforeEach((to, from, next) => {
 	next()
 })
 router.afterEach(() => {
-	// 延迟隐藏，确保页面内容已加载
 	const routerLoading = useRouterLoadingStore()
-	// setTimeout(() => {
-	// 	routerLoading.finishLoading()
-	// }, 50)
 	routerLoading.finishLoading()
 })
 export default router

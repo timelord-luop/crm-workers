@@ -22,7 +22,10 @@ export const useRouterLoadingStore = defineStore('routerLoading', {
 	state: () => ({
 		isLoading: false
 	}),
-
+	getters: {
+		// 获取加载状态
+		isRouteLoading: (state) => state.isLoading
+	},
 	actions: {
 		startLoading() {
 			this.isLoading = true
@@ -31,9 +34,4 @@ export const useRouterLoadingStore = defineStore('routerLoading', {
 			this.isLoading = false
 		}
 	},
-
-	getters: {
-		// 获取加载状态
-		isRouteLoading: (state) => state.isLoading
-	}
 })
