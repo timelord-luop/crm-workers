@@ -24,11 +24,11 @@ const breadcrumbData = ref([]);
 const menuList = ref([
 	{ id: '1', label: '仪表盘', path: '/home', icon: '📊' },
 	{ id: '2', label: '客户管理', icon: '👥', children: [
-			{id: '21', label: '客户列表', path: '/client-list', subset: [
-					{label: '新增客户', editLabel: '编辑客户', path: '/client-md'}
-				]},
 			{id: '34', label: '业务线索', path: '/leads', subset: [
 					{label: '新增线索', editLabel: '编辑线索', path: '/leads-md'}
+				]},
+			{id: '21', label: '客户列表', path: '/client-list', subset: [
+					{label: '新增客户', editLabel: '编辑客户', path: '/client-md'}
 				]},
 			{id: '35', label: '商机管理', path: '/opportunity', subset: [
 					{label: '新增商机', editLabel: '编辑商机', path: '/opportunity-md'}
@@ -312,12 +312,12 @@ const menuChecked = (index) => {
 			width: 180px;
 		}
 		:deep(.el-sub-menu__title) {
-			height: 50px;
-			line-height: 50px;
+			height: 46px;
+			line-height: 46px;
 		}
 		.el-menu-item {
-			height: 50px;
-			line-height: 50px;
+			height: 46px;
+			line-height: 46px;
 		}
 		._icon {
 			width: 18px;

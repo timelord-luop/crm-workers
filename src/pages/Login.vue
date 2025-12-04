@@ -68,7 +68,7 @@ const parseLoginResult = (data) => {
 						size="large",
 						:disabled="!username || !password",
 						:icon="Position",
-						@click="login()",
+						@click="login",
 						:loading="loading"
 						native-type="submit") 登录
 					el-alert(:title="errMsg" v-if="errMsg" type="error" show-icon :closable="false")
