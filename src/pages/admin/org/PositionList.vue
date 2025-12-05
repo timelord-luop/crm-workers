@@ -155,6 +155,7 @@ const toDelete = (row) => {
 			el-pagination(v-model:current-page="pager.page",
 				layout="prev, pager, next",
 				:page-size="pager.rows",
+				size="small"
 				:total="pager.total",
 				@current-change="handleCurrentChange",
 				background)

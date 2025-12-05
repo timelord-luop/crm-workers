@@ -102,6 +102,7 @@ const toClientMd = (row) => {
 				:page-size="100"
 				layout="prev, pager, next"
 				:total="1000"
+				size="small"
 				background,
 				@size-change="handleSizeChange"
 				@current-change="handleCurrentChange")
