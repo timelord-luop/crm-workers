@@ -2,7 +2,7 @@
 import {ref, onMounted, watch, computed} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell} from '@element-plus/icons-vue'
+import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell, Expand, Fold, Setting} from '@element-plus/icons-vue'
 import logo from '@/assets/img/logo.png'
 import Http from "@/plugins/http.js";
 import {ApiLogout} from "@/configuration/api/users.js";
@@ -18,6 +18,7 @@ const route = useRoute()
 
 const isDark = ref(false)
 const msgCount = ref(4)
+const isShowMenuFooter = ref(true) // 菜单底部显示
 const isCollapse = ref(false) // 菜单折叠
 const defaultActive = ref('/home')
 const breadcrumbData = ref([]);
@@ -44,8 +45,7 @@ const menuList = ref([
 				]},
 			{id: '32', label: '部门管理', path: '/dept'},
 			{id: '33', label: '职务管理', path: '/position'},
-		]},
-	{ id: '4', label: '系统设置', path: '/setting', icon: '⚙️' },
+		]}
 ])
 
 // 组件挂载时读取本地存储的主题设置
@@ -90,8 +90,8 @@ watch(route, (newRoute) => {
 	defaultActive.value = defaultPath;
 }, { immediate: true }); // 立即执行一次以初始化面包屑数据
 // 切换主题
-const toggleTheme = (val) => {
-	isDark.value = val
+const toggleTheme = () => {
+	isDark.value = !isDark.value
 
 	if (isDark.value) {
 		// 添加 dark 类 → Element Plus 组件自动变暗
@@ -103,6 +103,14 @@ const toggleTheme = (val) => {
 
 	// 持久化到本地存储
 	localStorage.setItem('admin-theme', isDark.value ? 'dark' : 'light')
+}
+// 菜单展开折叠
+const toggleCollapse = () => {
+	isShowMenuFooter.value = false
+	isCollapse.value = !isCollapse.value
+	setTimeout(() => {
+		isShowMenuFooter.value = true
+	}, 200)
 }
 
 const handleCommand = (command) => {
@@ -122,7 +130,7 @@ const menuChecked = (index) => {
 	.admin-layout(:class="{ dark: isDark }")
 		section.header
 			._left
-				el-avatar(:size="30" shape="square" :src="logo" @click="isCollapse = !isCollapse")
+				el-avatar(:size="30" shape="square" :src="logo")
 				span._tit 羽翼CRM系统
 				el-tag(type="primary") 四海兄弟有限公司
 			._right
@@ -134,11 +142,6 @@ const menuChecked = (index) => {
 				el-badge(:value="msgCount" :max="99")
 					el-icon
 						Bell
-				el-switch(:active-action-icon="Moon",
-					:inactive-action-icon="Sunny",
-					v-model="isDark",
-					size="default"
-					@change="toggleTheme")
 				._split
 				._user
 					el-dropdown(@command="handleCommand" trigger="click")
@@ -169,6 +172,11 @@ const menuChecked = (index) => {
 						el-menu-item(v-else, :index="item.path")
 							._icon {{item.icon}}
 							template(#title) {{item.label}}
+				.menus-footer(v-show="isShowMenuFooter" :class="isCollapse ? '_fold' : '_expend'")
+					el-tooltip(effect="dark" :show-after="500" :placement="!isCollapse ? 'top-start' : 'right'" content="系统设置")
+						el-button(text :icon="Setting")
+					el-button(text :icon="isDark ? Moon : Sunny", @click="toggleTheme")
+					el-button(text :icon="isCollapse ? Expand : Fold",  @click="toggleCollapse")
 			.main
 				._breadcrumb
 					el-breadcrumb(separator="/")
@@ -257,7 +265,7 @@ const menuChecked = (index) => {
 			}
 		}
 		.el-badge {
-			margin-right: 20px;
+			margin-right: 8px;
 			margin-top: 4px;
 			cursor: pointer;
 			.el-icon {
@@ -304,6 +312,33 @@ const menuChecked = (index) => {
 	min-height: 0;
 	.menus {
 		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		.el-menu {
+			flex: 1;
+			scrollbar-color: var(--scrollbar) var(--bg-color-mute);
+			scrollbar-width: thin;
+			border-right: none;
+		}
+		.menus-footer {
+			display: flex;
+			margin: 6px 0;
+			justify-content: center;
+			align-items: center;
+			.el-button {
+				font-size: 16px;
+				margin: 6px 0;
+			}
+			.el-button+.el-button {
+				margin-left: 0;
+			}
+		}
+		._fold {
+			flex-direction: column;
+        }
+        ._expend {
+            flex-direction: row;
+		}
 		._el-menu-vertical {
 			height: 100%;
 			overflow-y: auto;
