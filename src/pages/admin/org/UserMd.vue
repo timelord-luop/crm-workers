@@ -1,6 +1,7 @@
 <script setup>
-import {ref, reactive, onMounted, nextTick} from 'vue'
+import {ref, reactive, onMounted} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
+import { QuestionFilled } from '@element-plus/icons-vue'
 import Http from "@/plugins/http.js";
 import {
 	ApiDeptSimpleList,
@@ -11,6 +12,7 @@ import {
 } from "@/configuration/api/users.js";
 import BankDialog from "@/components/BankDialog.vue";
 import CommonUtil from "@/assets/js/commonUtil.js";
+import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
 
 const router = useRouter()
 const route = useRoute()
@@ -63,10 +65,12 @@ const rules = reactive({
 })
 const positionList = ref([]);
 const deptList = ref([]);
+const educationList = ref([]);
 
 onMounted(() => {
 	getPositionList();
 	getDeptList();
+	getDictList();
 	if (route.query.eid) {
 		title.value = '编辑员工';
 		getBaseData();
@@ -96,6 +100,14 @@ const getPositionList = () => {
 const getDeptList = () => {
 	Http.request(ApiDeptSimpleList).then(res => {
 		deptList.value = res.list
+	})
+}
+const getDictList = () => {
+	const params = {
+		dictKey: ['EDUCATION']
+	};
+	Http.request(ApiSysDictionaryRows, params).then(res => {
+		educationList.value = res.list;
 	})
 }
 // 银行弹窗
@@ -306,7 +318,7 @@ const getSubmitData = () => {
 					._title 银行卡信息
 					el-table(:data="formData.bankCards" border stripe height="100%")
 						template(#empty)
-							el-link(type="success" @click="addBank()") 添加银行卡
+							el-link(type="success" @click="addBank") 添加银行卡
 						el-table-column(label="序号" width="54" type="index" align="center")
 						el-table-column(prop="account" label="银行账号")
 						el-table-column(prop="userName" label="户名")
@@ -324,13 +336,16 @@ const getSubmitData = () => {
 					._title 学历和其他
 					el-row(:gutter="30")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
-							el-form-item(label="学历")
+							el-form-item
+								template(#label)
+									span
+										span 学历
+										el-popover(placement="top-start" content="“系统设置-数据字典” 维护" :show-after="300" width="200")
+											template(#reference)
+												el-icon._label-icon
+													QuestionFilled
 								el-select(v-model="formData.education" placeholder="请选择" clearable)
-									el-option(label="高中及以下" value="高中及以下")
-									el-option(label="大专" value="大专")
-									el-option(label="本科" value="本科")
-									el-option(label="硕士" value="硕士")
-									el-option(label="博士及以上" value="博士及以上")
+									el-option(v-for="item in educationList" :key="item.id" :label="item.name" :value="item.name")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="专业")
 								el-input(v-model="formData.major" placeholder="请输入" clearable maxlength="64")

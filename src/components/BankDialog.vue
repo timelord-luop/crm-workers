@@ -1,6 +1,9 @@
 <script setup>
 import {computed, nextTick, reactive, ref} from "vue";
+import { QuestionFilled } from '@element-plus/icons-vue'
 import CommonUtil from "@/assets/js/commonUtil.js";
+import Http from "@/plugins/http.js";
+import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
 
 const props = defineProps({
 	visible: {
@@ -24,12 +27,15 @@ const emit = defineEmits(['update:visible', 'confirm'])
 
 const formRef = ref();
 
+const bankList = ref([]);
+
 const dialogData = ref({});
 const onOpen = () => {
 	nextTick(() => {
 		dialogData.value = CommonUtil.deepClone(props.bankData);
 		formRef.value?.resetFields()
 	})
+	if (!bankList.value.length) getDictList();
 }
 
 const rules = reactive({
@@ -37,33 +43,15 @@ const rules = reactive({
 	userName: [{required: true, message: '请输入户名', trigger: 'change'}],
 	bankName: [{required: true, message: '请选择银行', trigger: 'change'}]
 })
-const bankList = ref([
-	"中国银行",
-	"中国工商银行",
-	"中国农业银行",
-	"中国建设银行",
-	"招商银行",
-	"交通银行",
-	"平安银行",
-	"中信银行",
-	"兴业银行",
-	"光大银行",
-	"民生银行",
-	"中国邮政储蓄银行",
-	"上海浦东发展银行",
-	"广发银行",
-	"华夏银行",
-	"北京银行",
-	"上海银行",
-	"浙江农商银行",
-	"宁波银行",
-	"江苏银行",
-	"南京银行",
-	"广州银行",
-	"成都银行",
-	"渤海银行",
-	"重庆银行"
-])
+
+const getDictList = () => {
+	const params = {
+		dictKey: ['BANK']
+	};
+	Http.request(ApiSysDictionaryRows, params).then(res => {
+		bankList.value = res.list;
+	})
+}
 const toCommit = async (formEl) => {
 	await formEl.validate(valid => {
 		if (!valid) return;
@@ -92,9 +80,16 @@ const toCommit = async (formEl) => {
 				el-input(v-model="dialogData.account" maxlength="22" placeholder="请输入" )
 			el-form-item(label="户名" prop="userName")
 				el-input(v-model="dialogData.userName" maxlength="22" placeholder="请输入" )
-			el-form-item(label="银行名称" prop="bankName")
+			el-form-item(prop="bankName")
+				template(#label)
+					span
+						span 银行名称
+						el-popover( placement="top-start" content="“系统设置-数据字典” 维护" :show-after="300" width="200")
+							template(#reference)
+								el-icon._label-icon
+									QuestionFilled
 				el-select(v-model="dialogData.bankName" filterable placeholder="请选择")
-					el-option(v-for="item in bankList" :label="item" :value="item")
+					el-option(v-for="item in bankList" :key="item.id" :label="item.name" :value="item.name")
 			el-form-item(label="开户行")
 				el-input(v-model="dialogData.openingBank" maxlength="64" placeholder="请输入" )
 			el-form-item(label="行号")

@@ -217,6 +217,11 @@ const toUserMd = (row) => {
 				el-table-column(prop="deptName" label="所属部门")
 				el-table-column(prop="positionName" label="职务")
 				el-table-column(prop="boardDate" label="入职日期")
+				el-table-column(prop="status" label="状态" align="center" width="110")
+					template(#default="{row}")
+						el-tag(v-if="row.status === 1" size="small" type="success")  正常
+						el-tag(v-if="row.status === 2" size="small" type="danger")  停用
+						el-tag(v-if="row.status === 3" size="small" type="info")  离职
 				el-table-column(label="操作" width="140")
 					template(#default="{row, $index}")
 						.tab-link

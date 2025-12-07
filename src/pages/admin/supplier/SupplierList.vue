@@ -1,9 +1,155 @@
 <script setup>
+import {ref, reactive, onMounted} from 'vue'
+import { useRouter } from 'vue-router'
+import {Search, RefreshLeft, Plus, Upload} from '@element-plus/icons-vue'
+import Http from "@/plugins/http.js";
+import {ApiSupplierQueryList} from "@/configuration/api/supplier.js";
+import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
+
+const router = useRouter()
+
+const loading = ref(false);
+const classifyList = ref([]);
+const levelList = ref([]);
+const filter = reactive({
+	conditions: '',
+	level: '',
+	classify: ''
+});
+const pager = reactive({
+	page: 1,
+	rows: 50,
+	total: 0,
+	pageCount: 0
+});
+const tableData = ref([]);
+
+onMounted(() => {
+	getDictList();
+	getBaseData();
+})
+const getDictList = () => {
+	const params = {
+		dictKey: ['SUPPLIER_CLASSIFY', 'SUPPLIER_LEVEL']
+	};
+	Http.request(ApiSysDictionaryRows, params).then(res => {
+		classifyList.value = res.list.filter(item => item.dictKey === 'SUPPLIER_CLASSIFY');
+		levelList.value = res.list.filter(item => item.dictKey === 'SUPPLIER_LEVEL');
+	})
+}
+const currentPage = ref(1);
+const handleSizeChange = (val) => {
+	getBaseData();
+}
+const handleCurrentChange = (val) => {
+	getBaseData();
+}
+const resetFilter = () => {
+	filter.conditions = '';
+	filter.level = '';
+	filter.classify = '';
+	getBaseData();
+}
+const getBaseData = () => {
+	loading.value = true;
+	const params = getParams();
+	Http.request(ApiSupplierQueryList, params).then(res => {
+		loading.value = false;
+		pager.total = res.total;
+		pager.pageCount = res.pageCount;
+		tableData.value = res.list;
+	}).catch(err => {
+		console.log(err);
+		loading.value = false;
+	})
+}
+const getParams = () => {
+	let params = {
+		page: pager.page,
+		rows: pager.rows
+	}
+	if (filter.conditions) params.conditions = filter.conditions;
+	if (filter.level) params.level = filter.level;
+	if (filter.classify) params.classify = filter.classify;
+	return params;
+}
+const toMd = (row) => {
+	if (row) {
+		router.push({
+			path: '/supplier-md',
+			query: {
+				eid: row.id
+			}
+		})
+	} else {
+		router.push('/supplier-md')
+	}
+}
+const toInfo = (row) => {
+
+}
 
 </script>
 
-<template>
-
+<template lang="pug">
+	.list-container(v-loading="loading")
+		.panel-header
+			.panel-filter
+				el-input(v-model="filter.conditions"
+					clearable
+					placeholder="供应商名称 / 编号"
+					@keyup.enter="getBaseData"
+					@clear="getBaseData")
+				el-select(v-model="filter.positionId" filterable placeholder="供应商类别" @clear="getBaseData" clearable)
+					el-option(v-for="item in classifyList" :key="item.id" :label="item.name" :value="item.name")
+				el-select(v-model="filter.positionId" filterable placeholder="供应商等级" @clear="getBaseData" clearable)
+					el-option(v-for="item in levelList" :key="item.id" :label="item.name" :value="item.name")
+				.filter-btn
+					el-button(:icon="Search" type="primary" @click="getBaseData") 查询
+					el-button(:icon="RefreshLeft" @click="resetFilter") 重置
+			.panel-extend
+				el-button(:icon="Plus" type="success" plain, @click="toMd") 新增供应商
+				el-button 导出
+					el-icon(class="el-icon--right")
+						Upload
+		.panel-body(style="min-height: 100px")
+			el-table(:data="tableData" border stripe height="100%")
+				el-table-column(label="序号" width="54" align="center")
+					template(#default="{$index}") {{ (pager.rows * (pager.page - 1)) + $index + 1}}
+				el-table-column(prop="name" label="供应商名称")
+				el-table-column(prop="code" label="编号")
+				el-table-column(prop="classify" label="供应商类别")
+				el-table-column(prop="level" label="供应商等级")
+				el-table-column(prop="contactName" label="联系人")
+				el-table-column(prop="contactPhone" label="联系人手机号")
+				el-table-column(label="所在地区")
+					template(#default="{row}")
+				el-table-column(prop="status" label="状态" align="center" width="110")
+					template(#default="{row}")
+						el-tag(v-if="row.status === 1" size="small" type="success")  正常
+						el-tag(v-if="row.status === 2" size="small" type="danger")  停用
+				el-table-column(label="操作" width="200")
+					template(#default="{row, $index}")
+						.tab-link
+							el-button(plain size="small" @click="toInfo(row)") 查看
+							el-button(plain size="small" @click="toMd(row)") 编辑
+							el-dropdown(placement="bottom-end" trigger="click" style="margin-left: 8px")
+								el-button(plain size="small") 更多
+								template(#dropdown)
+									el-dropdown-menu
+										el-dropdown-item() {{row.status === 1 ? '停用' : '启用'}}
+										el-dropdown-item() 删除
+		.panel-footer
+			.total-section
+				span 共 {{ pager.total }} 条记录
+				span._sec 第 {{ pager.page }} / {{pager.pageCount}} 页
+			el-pagination(v-model:current-page="pager.page",
+				layout="prev, pager, next",
+				:page-size="pager.rows",
+				size="small",
+				:total="pager.total",
+				@current-change="handleCurrentChange",
+				background)
 </template>
 
 <style scoped lang="scss">

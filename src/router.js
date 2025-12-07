@@ -57,6 +57,12 @@ const router = createRouter({
 				},{
 					path: '/position',
 					component: () => import('@/pages/admin/org/PositionList.vue'),
+				},{
+					path: '/dictionary',
+					component: () => import('@/pages/admin/setting/Dictionary.vue'),
+				},{
+					path: '/system-info',
+					component: () => import('@/pages/admin/setting/SystemInfo.vue'),
 				}
 			]
 		}

@@ -99,8 +99,8 @@ const parseLoginResult = (data) => {
 			width: 300px;
 			height: 100%;
 			background-color: #ECF5FF;
-			background-image: url('@/assets/img/login_bg.svg');
-			background-size: contain;
+			background-image: url('@/assets/img/login_bg.png');
+			background-size: cover;
 			background-position: center bottom;
 			overflow: hidden;
 

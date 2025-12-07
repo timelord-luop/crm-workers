@@ -45,7 +45,11 @@ const menuList = ref([
 				]},
 			{id: '32', label: '部门管理', path: '/dept'},
 			{id: '33', label: '职务管理', path: '/position'},
-		]}
+		]},
+	{ id: '6', label: '系统设置', icon: '⚙️', children: [
+			{id: '40', label: '数据字典', path: '/dictionary'},
+			{id: '41', label: '系统信息', path: '/system-info'}
+		]},
 ])
 
 // 组件挂载时读取本地存储的主题设置
@@ -83,6 +87,15 @@ watch(route, (newRoute) => {
 						defaultPath = child.path;
 					}
 				})
+			} else {
+				if (item?.subset) {
+					let findSub = item.subset.find(sub => sub.path === path);
+					if (item.path === path || findSub) {
+						breadcrumb.push(obj);
+						breadcrumb.push({name: `${newRoute.query.eid ? findSub.editLabel || findSub.label : findSub.label}`, path: findSub.path});
+						defaultPath = item.path;
+					}
+				}
 			}
 		}
 	})
@@ -159,7 +172,6 @@ const menuChecked = (index) => {
 				el-menu(
 					class="_el-menu-vertical"
 					:default-active="defaultActive",
-					:default-openeds="['2']",
 					:collapse="isCollapse",
 					@select="menuChecked"
 				)
@@ -245,6 +257,7 @@ const menuChecked = (index) => {
 		align-items: center;
 		._search {
 			padding: 3px 20px;
+			max-height: 32px;
 			border-radius: 25px;
 			background-color: var(--bg-color-mute);
 			display: flex;
@@ -262,6 +275,7 @@ const menuChecked = (index) => {
 			}
 			._text {
 				margin: 0 10px;
+				font-size: 15px;
 			}
 		}
 		.el-badge {
