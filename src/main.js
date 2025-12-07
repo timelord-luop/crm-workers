@@ -27,7 +27,7 @@ app.mixin({
 				})
 				el.__trimmed = true
 			})
-		}).then(r => {})
+		}).then(() => {})
 	}
 })
 
