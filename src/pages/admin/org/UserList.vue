@@ -115,7 +115,7 @@ const toUserMd = (row) => {
 				el-cascader(v-model="filter.deptId"
 					:options="deptList"
 					placeholder="部门"
-					:props="{checkStrictly: true, emitPath: false, label: 'name', value: 'id'}"
+					:props="{showPrefix: false, checkOnClickNode: true, checkStrictly: true, emitPath: false, label: 'name', value: 'id'}"
 					filterable,
 					:show-all-levels="false"
 					clearable)

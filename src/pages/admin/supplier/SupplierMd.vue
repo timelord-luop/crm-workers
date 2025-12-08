@@ -8,6 +8,7 @@ import BankDialog from "@/components/BankDialog.vue";
 import CommonUtil from "@/assets/js/commonUtil.js";
 import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
 import {ApiSupplierAdd, ApiSupplierInfo, ApiSupplierUpdate} from "@/configuration/api/supplier.js";
+import BankList from "@/components/BankList.vue";
 
 const router = useRouter()
 const route = useRoute()
@@ -16,9 +17,24 @@ const title = ref('');
 const committing = ref(false);
 const classifyList = ref([]);
 const levelList = ref([]);
+const areaOptions = ref([]);
 const formRef = ref();
 const formData = ref({
-
+	name: '',
+	code: '',
+    isClient: 0,
+    classify: '',
+    level: '',
+    invoiceType: '',
+	area: '',
+	address: '',
+	remark: '',
+    bankCards: [],
+	contactName: '',
+	contactPhone: '',
+	contactExtend: '',
+	contactEmail: '',
+	contactRemark: ''
 })
 const rules = reactive({
 	name: [{required: true, message: '请输入供应商名称', trigger: 'change'}],
@@ -27,8 +43,9 @@ const rules = reactive({
 	invoiceType: [{required: true, message: '请选择开票类型', trigger: 'change'}]
 })
 
-onMounted(() => {
+onMounted( async () => {
 	getDictList();
+	areaOptions.value = await CommonUtil.getAreaOptions();
 	if (route.query.eid) {
 		title.value = '编辑供应商';
 		getBaseData();
@@ -58,57 +75,11 @@ const getDictList = () => {
 		levelList.value = res.list.filter(item => item.dictKey === 'SUPPLIER_LEVEL');
 	})
 }
-
-// 银行弹窗
-const dialogVisible = ref(false);
-const bankData = ref({});
-const addBank = (index) => {
-	bankData.value = {
-		index: index || null,
-		act: index >= 0 ? 'insert' : 'add',
-		account: '',
-		userName: '',
-		bankName: '',
-		openingBank: '',
-		bankCode: '',
-		remark: ''
-	}
-	dialogVisible.value = true
-}
-const bankEdit = (data, index) => {
-	bankData.value = {
-		index: index,
-		act: 'edit',
-		account: data.account,
-		userName: data.userName,
-		bankName: data.bankName,
-		openingBank: data.openingBank,
-		bankCode: data.bankCode,
-		remark: data.remark
-	}
-	dialogVisible.value = true;
-}
-const bankDelete = (index) => {
-	formData.value.bankCards.splice(index, 1)
-}
-const getBankData = (data) => {
-	let bankData = CommonUtil.deepClone(data);
-	delete bankData.index;
-	delete bankData.act;
-	if (data.act === 'add') {
-		formData.value.bankCards.push(bankData)
-	}
-	if (data.act === 'insert') {
-		formData.value.bankCards.splice(data.index + 1, 0, bankData)
-	}
-	if (data.act === 'edit') {
-		formData.value.bankCards[data.index] = bankData
-	}
-}
 const toCommit = async (formEl) => {
 	await formEl.validate(valid => {
 		if (!valid) return CommonUtil.scrollToFirstError();
 		let params = getSubmitData();
+		console.log(params, 'params')
 		committing.value = true;
 		const API = params.id ? ApiSupplierUpdate : ApiSupplierAdd;
 		Http.request(API, params).then(res => {
@@ -195,7 +166,12 @@ const getSubmitData = () => {
 									el-option(label="增值税专票" :value="3")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="所在地区")
-								el-input(v-model="formData.address" placeholder="请输入" clearable maxlength="64")
+								el-cascader(v-model="formData.area"
+									style="width: 100%"
+									:options="areaOptions"
+									:props="{showPrefix: false, checkStrictly: true, checkOnClickNode: true, emitPath: true}"
+									filterable,
+									clearable)
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="详细地址")
 								el-input(v-model="formData.address" placeholder="请输入" clearable maxlength="64")
@@ -204,28 +180,10 @@ const getSubmitData = () => {
 								el-input(v-model="formData.remark" type="textarea" maxlength="255" :rows="1" placeholder="请输入")
 				.info-block
 					._title 财务信息
-					el-table(:data="formData.bankCards" border stripe height="100%")
-						template(#empty)
-							el-link(type="success" @click="addBank") 添加银行卡
-						el-table-column(label="序号" width="54" type="index" align="center")
-						el-table-column(prop="account" label="银行账号")
-						el-table-column(prop="userName" label="户名")
-						el-table-column(prop="bankName" label="银行名称")
-						el-table-column(prop="openingBank" label="开户行")
-						el-table-column(prop="bankCode" label="行号")
-						el-table-column(prop="remark" label="备注")
-						el-table-column(label="操作" width="180")
-							template(#default="{row, $index}")
-								.tab-link
-									el-button(text bg size="small" type="success" @click="addBank($index)") 添加
-									el-button(text bg size="small" @click="bankEdit(row, $index)") 编辑
-									el-button(text bg size="small" type="danger" @click="bankDelete($index)") 删除
+					bank-list(v-model="formData.bankCards")
 				.info-block
 					._title 联系人信息
 					el-row(:gutter="30")
-						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
-							el-form-item(label="联系人姓名")
-								el-input(v-model="formData.contactName" placeholder="请输入" maxlength="16")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="联系人姓名")
 								el-input(v-model="formData.contactName" placeholder="请输入" maxlength="16")
@@ -241,7 +199,6 @@ const getSubmitData = () => {
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="备注")
 								el-input(v-model="formData.contactRemark" type="textarea" maxlength="255" :rows="1" placeholder="请输入" )
-	bank-dialog(v-model:visible="dialogVisible" :bank-data="bankData" @confirm="getBankData")
 </template>
 
 <style scoped lang="scss">

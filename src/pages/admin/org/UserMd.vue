@@ -10,9 +10,9 @@ import {
 	ApiUserInfo,
 	ApiUserUpdate
 } from "@/configuration/api/users.js";
-import BankDialog from "@/components/BankDialog.vue";
 import CommonUtil from "@/assets/js/commonUtil.js";
 import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
+import BankList from "@/components/BankList.vue";
 
 const router = useRouter()
 const route = useRoute()
@@ -110,52 +110,6 @@ const getDictList = () => {
 		educationList.value = res.list;
 	})
 }
-// 银行弹窗
-const dialogVisible = ref(false);
-const bankData = ref({});
-const addBank = (index) => {
-	bankData.value = {
-		index: index || null,
-		act: index >= 0 ? 'insert' : 'add',
-		account: '',
-		userName: '',
-		bankName: '',
-		openingBank: '',
-		bankCode: '',
-		remark: ''
-	}
-	dialogVisible.value = true
-}
-const bankEdit = (data, index) => {
-	bankData.value = {
-		index: index,
-		act: 'edit',
-		account: data.account,
-		userName: data.userName,
-		bankName: data.bankName,
-		openingBank: data.openingBank,
-		bankCode: data.bankCode,
-		remark: data.remark
-	}
-	dialogVisible.value = true;
-}
-const bankDelete = (index) => {
-	formData.value.bankCards.splice(index, 1)
-}
-const getBankData = (data) => {
-	let bankData = CommonUtil.deepClone(data);
-	delete bankData.index;
-	delete bankData.act;
-	if (data.act === 'add') {
-		formData.value.bankCards.push(bankData)
-	}
-	if (data.act === 'insert') {
-		formData.value.bankCards.splice(data.index + 1, 0, bankData)
-	}
-	if (data.act === 'edit') {
-		formData.value.bankCards[data.index] = bankData
-	}
-}
 const toCommit = async (formEl) => {
 	await formEl.validate(valid => {
 		if (!valid) return CommonUtil.scrollToFirstError();
@@ -212,7 +166,7 @@ const getSubmitData = () => {
 								el-cascader(v-model="formData.deptId"
 									style="width: 100%"
 									:options="deptList"
-									:props="{checkStrictly: true, emitPath: false, label: 'name', value: 'id'}"
+									:props="{showPrefix: false, checkOnClickNode: true, checkStrictly: true, emitPath: false, label: 'name', value: 'id'}"
 									filterable,
 									:show-all-levels="false"
 									clearable)
@@ -316,22 +270,7 @@ const getSubmitData = () => {
 								el-input(v-model="formData.insuredCompany" placeholder="请输入" clearable maxlength="64")
 				.info-block
 					._title 银行卡信息
-					el-table(:data="formData.bankCards" border stripe height="100%")
-						template(#empty)
-							el-link(type="success" @click="addBank") 添加银行卡
-						el-table-column(label="序号" width="54" type="index" align="center")
-						el-table-column(prop="account" label="银行账号")
-						el-table-column(prop="userName" label="户名")
-						el-table-column(prop="bankName" label="银行名称")
-						el-table-column(prop="openingBank" label="开户行")
-						el-table-column(prop="bankCode" label="行号")
-						el-table-column(prop="remark" label="备注")
-						el-table-column(label="操作" width="180")
-							template(#default="{row, $index}")
-								.tab-link
-									el-button(text bg size="small" type="success" @click="addBank($index)") 添加
-									el-button(text bg size="small" @click="bankEdit(row, $index)") 编辑
-									el-button(text bg size="small" type="danger" @click="bankDelete($index)") 删除
+					bank-list(v-model="formData.bankCards")
 				.info-block
 					._title 学历和其他
 					el-row(:gutter="30")
@@ -364,7 +303,6 @@ const getSubmitData = () => {
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="其他备注")
 								el-input(v-model="formData.remark" type="textarea" maxlength="255" :rows="3" placeholder="请输入" )
-	bank-dialog(v-model:visible="dialogVisible" :bank-data="bankData" @confirm="getBankData")
 </template>
 
 <style scoped lang="scss">

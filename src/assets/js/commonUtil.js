@@ -1,4 +1,7 @@
+import {LocalStorage} from "@/assets/js/storageUtil.js";
+
 export default {
+	// 滚动到错误提示
 	scrollToFirstError: () => {
 		const errorElement = document.querySelector('.is-error');
 		if (errorElement) {
@@ -8,6 +11,31 @@ export default {
 			});
 		}
 	},
+	// 获取行政区划级联
+	getAreaOptions: async () => {
+		const localAreaData = LocalStorage.get('area_code_list');
+		if (!localAreaData) {
+			const response = await fetch('https://unpkg.com/china-location@2.1.0/dist/location.json');
+			const areaData = await response.json();
+			const resAreaData = Object.values(areaData).map(province => ({
+				value: province.code,
+				label: province.name,
+				children: Object.values(province.cities).map(city => ({
+					value: city.code,
+					label: city.name,
+					children: Object.entries(city.districts).map(([code, name]) => ({
+						value: code,
+						label: name
+					}))
+				}))
+			}));
+			LocalStorage.put('area_code_list', resAreaData);
+			return resAreaData;
+		} else {
+			return localAreaData;
+		}
+	},
+	// 时间戳转时间
     convertTimestamp: (timestamp) => {
         let fmt = 'YYYY-mm-dd HH:MM:SS';
         let date = !timestamp ? new Date() : new Date(Number(timestamp));
