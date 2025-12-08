@@ -19,6 +19,7 @@ const classifyList = ref([]);
 const levelList = ref([]);
 const areaOptions = ref([]);
 const formRef = ref();
+const areaRef = ref();
 const formData = ref({
 	name: '',
 	code: '',
@@ -27,6 +28,7 @@ const formData = ref({
     level: '',
     invoiceType: '',
 	area: '',
+	areaText: '',
 	address: '',
 	remark: '',
     bankCards: [],
@@ -74,6 +76,19 @@ const getDictList = () => {
 		classifyList.value = res.list.filter(item => item.dictKey === 'SUPPLIER_CLASSIFY');
 		levelList.value = res.list.filter(item => item.dictKey === 'SUPPLIER_LEVEL');
 	})
+}
+const areaHandleChange = (value) => {
+	console.log(value, 'value')
+	if (value && value.length > 0) {
+		// 需要等待DOM更新后获取
+		setTimeout(() => {
+			if (areaRef.value) {
+				const presentText = areaRef.value.presentText;
+				formData.value.areaText = presentText;
+				console.log('选中文本:', presentText);
+			}
+		}, 0);
+	}
 }
 const toCommit = async (formEl) => {
 	await formEl.validate(valid => {
@@ -167,9 +182,11 @@ const getSubmitData = () => {
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="所在地区")
 								el-cascader(v-model="formData.area"
+									ref="areaRef"
 									style="width: 100%"
 									:options="areaOptions"
-									:props="{showPrefix: false, checkStrictly: true, checkOnClickNode: true, emitPath: true}"
+									:props="{showPrefix: false, checkStrictly: true, checkOnClickNode: true, emitPath: true}",
+									@change="areaHandleChange"
 									filterable,
 									clearable)
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
