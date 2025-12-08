@@ -9,7 +9,7 @@ export const ApiSupplierQueryList = {
 };
 // 供应商详情
 export const ApiSupplierInfo = {
-	URL: API_BASE + '/supplier/add',
+	URL: API_BASE + '/supplier/info',
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
@@ -28,6 +28,13 @@ export const ApiSupplierUpdate = {
 // 供应商删除
 export const ApiSupplierDelete = {
 	URL: API_BASE + '/supplier/delete',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+
+// 供应商修改状态
+export const ApiSupplierUpdateStatus = {
+	URL: API_BASE + '/supplier/updateStatus',
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };

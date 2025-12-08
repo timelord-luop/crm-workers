@@ -3,8 +3,9 @@ import {ref, reactive, onMounted} from 'vue'
 import { useRouter } from 'vue-router'
 import {Search, RefreshLeft, Plus, Upload} from '@element-plus/icons-vue'
 import Http from "@/plugins/http.js";
-import {ApiSupplierQueryList} from "@/configuration/api/supplier.js";
+import {ApiSupplierDelete, ApiSupplierQueryList, ApiSupplierUpdateStatus} from "@/configuration/api/supplier.js";
 import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
+import {ElMessage, ElMessageBox} from "element-plus";
 
 const router = useRouter()
 
@@ -85,6 +86,40 @@ const toMd = (row) => {
 		router.push('/supplier-md')
 	}
 }
+const handleCommand = (command, row) => {
+	if (command === 'delete') {
+		ElMessageBox.confirm(`确定删除供应商 “${row.name}” ?`, '提示', {
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			type: 'warning',
+		}).then(() => {
+			loading.value = true;
+			Http.request(ApiSupplierDelete, {id: row.id}).then(() => {
+				ElMessage({
+					type: 'success',
+					showClose: true,
+					message: `已删除供应商：${row.name}`,
+				})
+				loading.value = false;
+				getBaseData();
+			}).catch(err => {
+				console.log(err);
+				loading.value = false;
+			})
+		}).catch(() => {})
+	}
+	if (command === 'status') {
+		loading.value = true;
+		const status = row.status === 1 ? 2 : 1;
+		Http.request(ApiSupplierUpdateStatus, {id: row.id, status: status}).then(() => {
+			loading.value = false;
+			row.status = status;
+		}).catch(err => {
+			console.log(err);
+			loading.value = false;
+		})
+	}
+}
 const toInfo = (row) => {
 
 }
@@ -100,9 +135,9 @@ const toInfo = (row) => {
 					placeholder="供应商名称 / 编号"
 					@keyup.enter="getBaseData"
 					@clear="getBaseData")
-				el-select(v-model="filter.positionId" filterable placeholder="供应商类别" @clear="getBaseData" clearable)
+				el-select(v-model="filter.classify" filterable placeholder="供应商类别" @clear="getBaseData" clearable)
 					el-option(v-for="item in classifyList" :key="item.id" :label="item.name" :value="item.name")
-				el-select(v-model="filter.positionId" filterable placeholder="供应商等级" @clear="getBaseData" clearable)
+				el-select(v-model="filter.level" filterable placeholder="供应商等级" @clear="getBaseData" clearable)
 					el-option(v-for="item in levelList" :key="item.id" :label="item.name" :value="item.name")
 				.filter-btn
 					el-button(:icon="Search" type="primary" @click="getBaseData") 查询
@@ -122,8 +157,7 @@ const toInfo = (row) => {
 				el-table-column(prop="level" label="供应商等级")
 				el-table-column(prop="contactName" label="联系人")
 				el-table-column(prop="contactPhone" label="联系人手机号")
-				el-table-column(label="所在地区")
-					template(#default="{row}")
+				el-table-column(prop="areaText" label="所在地区")
 				el-table-column(prop="status" label="状态" align="center" width="110")
 					template(#default="{row}")
 						el-tag(v-if="row.status === 1" size="small" type="success")  正常
@@ -133,12 +167,12 @@ const toInfo = (row) => {
 						.tab-link
 							el-button(plain size="small" @click="toInfo(row)") 查看
 							el-button(plain size="small" @click="toMd(row)") 编辑
-							el-dropdown(placement="bottom-end" trigger="click" style="margin-left: 8px")
+							el-dropdown(placement="bottom-end" trigger="click" @command="command => handleCommand(command, row)" style="margin-left: 8px")
 								el-button(plain size="small") 更多
 								template(#dropdown)
 									el-dropdown-menu
-										el-dropdown-item() {{row.status === 1 ? '停用' : '启用'}}
-										el-dropdown-item() 删除
+										el-dropdown-item(command="status") {{row.status === 1 ? '停用' : '启用'}}
+										el-dropdown-item(command="delete") 删除
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

@@ -27,7 +27,7 @@ const formData = ref({
     classify: '',
     level: '',
     invoiceType: '',
-	area: '',
+	areaCode: [],
 	areaText: '',
 	address: '',
 	remark: '',
@@ -100,7 +100,7 @@ const toCommit = async (formEl) => {
 		Http.request(API, params).then(res => {
 			committing.value = false;
 			router.push({
-				path: '/user',
+				path: '/supplier',
 				query: {
 					_t: Date.now()
 				}
@@ -181,7 +181,7 @@ const getSubmitData = () => {
 									el-option(label="增值税专票" :value="3")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="所在地区")
-								el-cascader(v-model="formData.area"
+								el-cascader(v-model="formData.areaCode"
 									ref="areaRef"
 									style="width: 100%"
 									:options="areaOptions"
