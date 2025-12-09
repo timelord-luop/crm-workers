@@ -1,108 +1,383 @@
 <template>
 	<div style="width:100%;height:100%;position:relative;">
-		<!-- 返回按钮（省级时显示） -->
+		<!-- 返回按钮（省级和市级时显示） -->
 		<button
-			v-if="currentLevel === 'province'"
+			v-if="currentLevel !== 'country'"
 			@click="handleBack"
 			class="back-btn"
-			title="返回全国"
+			:title="currentLevel === 'province' ? '返回全国' : '返回省份'"
 		>
-			← 返回全国
+			← {{ currentLevel === 'province' ? '返回全国' : '返回省份' }}
 		</button>
+
+		<!-- 主题切换按钮 -->
+		<div class="theme-switcher">
+			<button
+				@click="toggleTheme"
+				class="theme-btn"
+				:title="currentTheme === 'light' ? '切换到暗色主题' : '切换到浅色主题'"
+			>
+				{{ currentTheme === 'light' ? '🌙 暗色' : '☀️ 浅色' }}
+			</button>
+		</div>
 
 		<div ref="chartRef" style="width:100%;height:100%;"></div>
 	</div>
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from "vue";
+import { onMounted, onBeforeUnmount, ref, reactive } from "vue";
 
 const chartRef = ref(null);
 let chart = null;
-let currentLevel = ref("country"); // reactive flag for template
+let currentLevel = ref("country"); // country/province/city
+let currentProvince = ref(null); // 当前省份信息
+let currentCity = ref(null); // 当前城市信息
+let currentTheme = ref("light"); // light/dark
 
 // ---------- mock 数据 ----------
-const provinceData = [
-	{ name: "广东省", value: 320 },
-	{ name: "浙江省", value: 220 },
-	{ name: "江苏省", value: 180 },
-	{ name: "山东省", value: 160 },
-	{ name: "河南省", value: 150 }
-];
+const mockData = {
+	// 省份数据
+	'110000': 450, // 北京市
+	'120000': 280, // 天津市
+	'130000': 320, // 河北省
+	'140000': 240, // 山西省
+	'150000': 190, // 内蒙古自治区
+	'210000': 380, // 辽宁省
+	'220000': 220, // 吉林省
+	'230000': 260, // 黑龙江省
+	'310000': 520, // 上海市
+	'320000': 480, // 江苏省
+	'330000': 420, // 浙江省
+	'340000': 350, // 安徽省
+	'350000': 380, // 福建省
+	'360000': 270, // 江西省
+	'370000': 460, // 山东省
+	'410000': 410, // 河南省
+	'420000': 340, // 湖北省
+	'430000': 310, // 湖南省
+	'440000': 550, // 广东省
+	'450000': 290, // 广西壮族自治区
+	'460000': 180, // 海南省
+	'500000': 330, // 重庆市
+	'510000': 390, // 四川省
+	'520000': 230, // 贵州省
+	'530000': 250, // 云南省
+	'540000': 120, // 西藏自治区
+	'610000': 300, // 陕西省
+	'620000': 210, // 甘肃省
+	'630000': 140, // 青海省
+	'640000': 160, // 宁夏回族自治区
+	'650000': 190, // 新疆维吾尔自治区
+	'710000': 90,  // 台湾省
+	'810000': 60,  // 香港特别行政区
+	'820000': 40,  // 澳门特别行政区
 
-const cityDataMap = {
-	"广东省": [
-		{ name: "广州市", value: 80 },
-		{ name: "深圳市", value: 130 },
-		{ name: "佛山市", value: 60 },
-		{ name: "东莞市", value: 50 },
-		{ name: "中山市", value: 20 },
-		{ name: "珠海市", value: 30 }
-	],
-	"浙江省": [
-		{ name: "杭州市", value: 90 },
-		{ name: "宁波市", value: 60 },
-		{ name: "温州市", value: 40 }
-	]
+	// 直辖市和特别行政区的市级数据（对于直辖市，市级和省级相同）
+	'110100': 450, // 北京市
+	'120100': 280, // 天津市
+	'310100': 520, // 上海市
+	'500100': 330, // 重庆市
+	'810100': 60,  // 香港
+	'820100': 40,  // 澳门
+
+	// 广东省城市
+	'440100': 180, // 广州市
+	'440300': 210, // 深圳市
+	'440400': 75,  // 珠海市
+	'440500': 65,  // 汕头市
+	'440600': 85,  // 佛山市
+	'440700': 45,  // 江门市
+	'440800': 55,  // 湛江市
+	'440900': 50,  // 茂名市
+	'441200': 40,  // 肇庆市
+	'441300': 70,  // 惠州市
+	'441400': 35,  // 梅州市
+	'441500': 30,  // 汕尾市
+	'441600': 25,  // 河源市
+	'441700': 20,  // 阳江市
+	'441800': 25,  // 清远市
+	'441900': 95,  // 东莞市
+	'442000': 60,  // 中山市
+	'445100': 55,  // 潮州市
+	'445200': 40,  // 揭阳市
+	'445300': 35,  // 云浮市
+
+	// 浙江省城市
+	'330100': 150, // 杭州市
+	'330200': 120, // 宁波市
+	'330300': 85,  // 温州市
+	'330400': 60,  // 嘉兴市
+	'330500': 55,  // 湖州市
+	'330600': 75,  // 绍兴市
+	'330700': 50,  // 金华市
+	'330800': 40,  // 衢州市
+	'330900': 35,  // 舟山市
+	'331000': 45,  // 台州市
+	'331100': 30,  // 丽水市
+
+	// 北京市区县
+	'110101': 120, // 东城区
+	'110102': 135, // 西城区
+	'110105': 150, // 朝阳区
+	'110106': 110, // 丰台区
+	'110107': 85,  // 石景山区
+	'110108': 165, // 海淀区
+	'110109': 75,  // 门头沟区
+	'110111': 90,  // 房山区
+	'110112': 95,  // 通州区
+	'110113': 80,  // 顺义区
+	'110114': 70,  // 昌平区
+	'110115': 65,  // 大兴区
+	'110116': 55,  // 怀柔区
+	'110117': 45,  // 平谷区
+	'110118': 40,  // 密云区
+	'110119': 35,  // 延庆区
+
+	// 广州市区县
+	'440103': 45,  // 荔湾区
+	'440104': 55,  // 越秀区
+	'440105': 60,  // 海珠区
+	'440106': 70,  // 天河区
+	'440111': 40,  // 白云区
+	'440112': 35,  // 黄埔区
+	'440113': 30,  // 番禺区
+	'440114': 25,  // 花都区
+	'440115': 20,  // 南沙区
+	'440117': 15,  // 从化区
+	'440118': 15,  // 增城区
+
+	// 深圳市辖区
+	'440303': 65,  // 罗湖区
+	'440304': 75,  // 福田区
+	'440305': 85,  // 南山区
+	'440306': 60,  // 宝安区
+	'440307': 55,  // 龙岗区
+	'440308': 50,  // 盐田区
+	'440309': 45,  // 龙华区
+	'440310': 40,  // 坪山区
+	'440311': 35,  // 光明区
+
+	// 重庆市辖区
+	'500101': 55,  // 万州区
+	'500102': 45,  // 涪陵区
+	'500103': 65,  // 渝中区
+	'500104': 40,  // 大渡口区
+	'500105': 50,  // 江北区
+	'500106': 55,  // 沙坪坝区
+	'500107': 45,  // 九龙坡区
+	'500108': 50,  // 南岸区
+	'500109': 35,  // 北碚区
+	'500110': 30,  // 綦江区
+	'500111': 25,  // 大足区
+	'500112': 40,  // 渝北区
+	'500113': 35,  // 巴南区
+	'500114': 30,  // 黔江区
+	'500115': 25,  // 长寿区
+	'500116': 20,  // 江津区
+	'500117': 20,  // 合川区
+	'500118': 15,  // 永川区
+	'500119': 15,  // 南川区
+	'500120': 10,  // 璧山区
+	'500151': 10,  // 铜梁区
+	'500152': 8,   // 潼南区
+	'500153': 7,   // 荣昌区
+	'500154': 6,   // 开州区
+	'500155': 5,   // 梁平区
+	'500156': 4,   // 武隆区
 };
 
-// ---------- 加载 geojson 并 注册 map ----------
-async function loadGeoJSON(adcode, mapName) {
-	try {
-		const url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}_full.json`;
-		const res = await fetch(url);
-		if (!res.ok) throw new Error("GeoJSON load failed");
-		const data = await res.json();
-		// 注册 map（如果重复注册，echarts 会覆盖）
-		echarts.registerMap(mapName, data);
-		return data;
-	} catch (e) {
-		console.warn("loadGeoJSON error:", e);
-		return null;
+// ---------- 直辖市和特别行政区列表 ----------
+const municipalities = ['110000', '120000', '310000', '500000', '810000', '820000'];
+
+// ---------- 主题配置 ----------
+const themeConfig = {
+	light: {
+		backgroundColor: "#ffffff",
+		textColor: "#333",
+		mapAreaColor: "#f5f5f5",
+		mapBorderColor: "#ccc",
+		visualMapColors: ["#E3F2FD", "#64B5F6", "#0D47A1"],
+		scatterColor: "#FF5722",
+		buttonBg: "rgba(255,255,255,0.9)",
+		buttonBorder: "#ddd",
+		buttonText: "#333"
+	},
+	dark: {
+		backgroundColor: "#1a1a1a",
+		textColor: "#e0e0e0",
+		mapAreaColor: "#2d2d2d",
+		mapBorderColor: "#555",
+		visualMapColors: ["#0D1B2A", "#1B3A4B", "#1864ab"],
+		scatterColor: "#FF6B6B",
+		buttonBg: "rgba(40,40,40,0.9)",
+		buttonBorder: "#666",
+		buttonText: "#e0e0e0"
 	}
+};
+
+// ---------- 缓存已加载的地图数据 ----------
+const loadedMaps = reactive(new Map()); // key: mapName, value: geoJSON data
+
+// ---------- 工具函数 ----------
+function getCurrentTheme() {
+	return themeConfig[currentTheme.value];
 }
 
-// ---------- 工具：计算 visualMap 的 max（防止为 0 或 NaN） ----------
 function safeMax(arr) {
 	if (!Array.isArray(arr) || arr.length === 0) return 1;
 	const m = Math.max(...arr.map(i => (i && typeof i.value === "number" ? i.value : 0)));
 	return (isFinite(m) && m > 0) ? m : 1;
 }
 
-// ---------- init ----------
-onMounted(async () => {
-	chart = echarts.init(chartRef.value, null, { renderer: "canvas" });
+// 根据adcode判断层级
+function getLevelByAdcode(adcode) {
+	if (!adcode || typeof adcode !== 'string') return 'unknown';
 
-	// 载入全国 geojson 并渲染
-	const chinaGeo = await loadGeoJSON("100000", "china");
-	// render only once
-	renderCountryMap();
-	window.addEventListener("resize", () => {
-		chart && chart.resize();
-	});
+	if (adcode.endsWith('0000')) return 'province';
+	if (adcode.endsWith('00')) return 'city';
+	return 'district';
+}
 
-	// 统一事件处理（先 off 避免重复）
-	chart.off("click");
-	chart.on("click", (params) => {
-		// 只在 country 时响应点击进入省
-		if (currentLevel.value === "country" && params && params.name && chinaGeo) {
-			// 找到被点击省对应 feature 的 adcode（若有）
-			const f = chinaGeo.features.find(feat => feat.properties && feat.properties.name === params.name);
-			const adcode = f && f.properties && (f.properties.adcode || (f.properties && f.properties.adcode_ || undefined));
-			if (adcode) {
-				switchProvince(params.name, String(adcode));
-			} else {
-				// 仍尝试切换（有些 geojson 可能用其他字段）
-				switchProvince(params.name, undefined);
+// 获取省份adcode（前2位+4个0）
+function getProvinceAdcode(adcode) {
+	if (!adcode) return '';
+	return adcode.substring(0, 2) + '0000';
+}
+
+// 获取城市adcode（前4位+2个0）
+function getCityAdcode(adcode) {
+	if (!adcode) return '';
+	return adcode.substring(0, 4) + '00';
+}
+
+// 判断是否为直辖市
+function isMunicipality(adcode) {
+	return municipalities.includes(adcode);
+}
+
+// 根据adcode过滤数据
+function filterDataByAdcode(adcodePattern, level) {
+	const result = [];
+
+	for (const [key, value] of Object.entries(mockData)) {
+		let match = false;
+
+		if (level === 'province') {
+			// 省份数据：adcode以0000结尾
+			match = key.endsWith('0000');
+		} else if (level === 'city') {
+			// 城市数据：属于指定省份且以00结尾但不是省份
+			const provinceCode = getProvinceAdcode(key);
+			match = provinceCode === adcodePattern && key.endsWith('00') && !key.endsWith('0000');
+		} else if (level === 'district') {
+			// 区县数据：属于指定城市且不是城市或省份
+			const cityCode = getCityAdcode(key);
+			match = cityCode === adcodePattern && !key.endsWith('00');
+		}
+
+		if (match) {
+			result.push({
+				adcode: key,
+				value: value,
+				name: '' // 名称将在加载地图数据后填充
+			});
+		}
+	}
+
+	return result;
+}
+
+// 为直辖市获取区县数据
+function getMunicipalityDistrictData(adcode) {
+	const result = [];
+
+	// 直辖市的区县数据以省份adcode前4位+非00结尾的adcode
+	const prefix = adcode.substring(0, 2); // 11 for 北京市
+
+	for (const [key, value] of Object.entries(mockData)) {
+		// 区县数据：以省份前2位开头，不以00结尾，且不是省份数据
+		if (key.startsWith(prefix) && !key.endsWith('00') && !key.endsWith('0000')) {
+			result.push({
+				adcode: key,
+				value: value,
+				name: ''
+			});
+		}
+	}
+
+	return result;
+}
+
+// ---------- 加载 geojson 并注册地图 ----------
+async function loadGeoJSON(adcode, mapName) {
+	// 如果已加载，返回缓存的数据
+	if (loadedMaps.has(mapName)) {
+		return loadedMaps.get(mapName);
+	}
+
+	try {
+		// 尝试加载完整版
+		let url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}_full.json`;
+		let res = await fetch(url);
+
+		if (!res.ok) {
+			// 尝试加载标准版
+			url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}.json`;
+			res = await fetch(url);
+		}
+
+		if (!res.ok) {
+			// 尝试加载区县版（如果存在）
+			if (!adcode.endsWith('00')) {
+				const parentAdcode = getCityAdcode(adcode);
+				url = `https://geo.datav.aliyun.com/areas_v3/bound/${parentAdcode}_full.json`;
+				res = await fetch(url);
 			}
 		}
-	});
 
-	// 监听缩放和平移改为 map roam 的内部行为（不依赖 geo[0]）
-	chart.off("georoam");
-	chart.on("georoam", () => {
-		// 当 user 放大很多时可自动切换到当前视窗中心所在省（可选）
-		// 这里我们不自动切换以免误触，保持点击切换为主
+		if (!res.ok) throw new Error("GeoJSON load failed");
+
+		const data = await res.json();
+		echarts.registerMap(mapName, data);
+		loadedMaps.set(mapName, data);
+		return data;
+	} catch (e) {
+		console.warn(`loadGeoJSON error for ${adcode} (${mapName}):`, e);
+		return null;
+	}
+}
+
+// ---------- 主题切换 ----------
+function toggleTheme() {
+	currentTheme.value = currentTheme.value === "light" ? "dark" : "light";
+	// 重新渲染当前地图
+	rerenderCurrentMap();
+}
+
+function rerenderCurrentMap() {
+	if (!chart) return;
+
+	if (currentLevel.value === "country") {
+		renderCountryMap(false);
+	} else if (currentLevel.value === "province" && currentProvince.value) {
+		switchProvince(currentProvince.value.adcode, currentProvince.value.name);
+	} else if (currentLevel.value === "city" && currentCity.value && currentProvince.value) {
+		switchCity(currentCity.value.adcode, currentCity.value.name, currentProvince.value.adcode);
+	}
+}
+
+// ---------- 初始化 ----------
+onMounted(async () => {
+	// 使用当前主题初始化图表
+	chart = echarts.init(chartRef.value, currentTheme.value, { renderer: "canvas" });
+
+	// 载入全国geojson并渲染
+	await loadGeoJSON("100000", "china");
+	renderCountryMap();
+
+	window.addEventListener("resize", () => {
+		chart && chart.resize();
 	});
 });
 
@@ -113,31 +388,86 @@ onBeforeUnmount(() => {
 	}
 });
 
-// ---------- 返回全国 ----------
-function handleBack() {
-	renderCountryMap(true);
-}
-
-// ---------- 渲染全国（只有 series.map） ----------
-function renderCountryMap(withAnimation = false) {
-	currentLevel.value = "country";
+// ---------- 设置点击事件 ----------
+function setupClickEvents(level) {
 	if (!chart) return;
 
-	// 保证唯一地图：clear 并 off 所有 series 点击后再绑定
-	chart.clear();
 	chart.off("click");
+	chart.on("click", async (params) => {
+		if (!params || !params.name || !params.data) return;
 
+		const data = params.data;
+
+		if (level === "country") {
+			// 全国 -> 省份
+			if (data.adcode && data.adcode.endsWith('0000')) {
+				await switchProvince(data.adcode, data.name);
+			}
+		} else if (level === "province") {
+			// 省份 -> 城市
+			if (data.adcode && data.adcode.endsWith('00') && !data.adcode.endsWith('0000')) {
+				await switchCity(data.adcode, data.name, currentProvince.value.adcode);
+			}
+		}
+		// 城市级别不再向下钻取
+	});
+}
+
+// ---------- 返回 ----------
+function handleBack() {
+	if (currentLevel.value === "province") {
+		renderCountryMap(true);
+	} else if (currentLevel.value === "city") {
+		switchProvince(currentProvince.value.adcode, currentProvince.value.name);
+	}
+}
+
+// ---------- 渲染全国 ----------
+async function renderCountryMap(withAnimation = false) {
+	currentLevel.value = "country";
+	currentProvince.value = null;
+	currentCity.value = null;
+
+	if (!chart) return;
+	chart.clear();
+
+	const theme = getCurrentTheme();
+
+	// 获取省份数据
+	const provinceData = filterDataByAdcode('', 'province');
 	const maxVal = safeMax(provinceData);
 
+	// 获取全国地图数据，填充省份名称
+	const chinaMap = loadedMaps.get('china');
+	if (chinaMap && chinaMap.features) {
+		// 创建adcode到名称的映射
+		const nameMap = {};
+		chinaMap.features.forEach(feature => {
+			const props = feature.properties;
+			if (props && props.adcode) {
+				nameMap[props.adcode] = props.name;
+			}
+		});
+
+		// 填充省份名称
+		provinceData.forEach(item => {
+			item.name = nameMap[item.adcode] || item.adcode;
+		});
+	}
+
 	const option = {
+		backgroundColor: theme.backgroundColor,
 		animation: true,
 		animationDuration: withAnimation ? 800 : 500,
 		animationEasing: "cubicOut",
 		tooltip: {
 			trigger: "item",
+			backgroundColor: theme.buttonBg,
+			borderColor: theme.buttonBorder,
+			textStyle: { color: theme.textColor },
 			formatter: params => {
-				if (!params || params.value == null) return `${params.name}<br/>暂无数据`;
-				return `${params.name}<br/>客户数: ${params.value}`;
+				if (!params || !params.data) return `${params.name}<br/>暂无数据`;
+				return `${params.name}<br/>客户数: ${params.data.value}`;
 			}
 		},
 		visualMap: {
@@ -146,10 +476,9 @@ function renderCountryMap(withAnimation = false) {
 			left: 10,
 			bottom: 20,
 			text: ["高", "低"],
+			textStyle: { color: theme.textColor },
 			calculable: false,
-			inRange: {
-				color: ["#E3F2FD", "#64B5F6", "#0D47A1"] // 明确的三色范围（不会为 undefined）
-			}
+			inRange: { color: theme.visualMapColors }
 		},
 		series: [
 			{
@@ -159,235 +488,287 @@ function renderCountryMap(withAnimation = false) {
 				roam: true,
 				layoutCenter: ["50%", "50%"],
 				layoutSize: "88%",
-				label: { show: false },
+				label: {
+					show: false, // 全国地图不显示省份名称
+					color: theme.textColor,
+					fontSize: 12
+				},
+				itemStyle: {
+					areaColor: theme.mapAreaColor,
+					borderColor: theme.mapBorderColor,
+					borderWidth: 1
+				},
+				emphasis: {
+					label: {
+						show: true, // 鼠标悬停时显示名称
+						color: theme.textColor,
+						fontWeight: 'bold'
+					},
+					itemStyle: {
+						areaColor: theme.visualMapColors[1],
+						borderColor: theme.visualMapColors[2],
+						borderWidth: 2
+					}
+				},
+				data: provinceData,
 				animation: true,
-				animationDuration: withAnimation ? 900 : 600,
-				data: provinceData
+				animationDuration: withAnimation ? 900 : 600
 			}
 		],
-		// 控制更新动画
 		animationDurationUpdate: 600,
 		animationEasingUpdate: "cubicOut"
 	};
 
 	chart.setOption(option, true);
-
-	// 恢复点击事件：点击省进入省级（再次绑定）
-	chart.off("click");
-	chart.on("click", (params) => {
-		if (currentLevel.value === "country" && params && params.name) {
-			// 提取 adcode 的逻辑：尝试从已注册的 china map 中查 feature
-			const map = echarts.getMap("china");
-			const feat = map && map.geoJson && map.geoJson.features && map.geoJson.features.find(f => f.properties && f.properties.name === params.name);
-			const adcode = feat && (feat.properties.adcode || feat.properties.adcode_ || feat.properties.adcode_int || feat.properties.adcode_string);
-			if (adcode) {
-				switchProvince(params.name, String(adcode));
-			} else {
-				// 若没有 adcode，也尝试用名字去切换（loadGeoJSON 需要 adcode，这里直接尝试用 known mapping）
-				switchProvince(params.name, undefined);
-			}
-		}
-	});
+	setupClickEvents("country");
 }
 
-// ---------- 切换省级（加载省的 geojson，绘制市数据 + 气泡 + top5） ----------
-async function switchProvince(provinceName, adcode) {
+// ---------- 切换省份 ----------
+async function switchProvince(provinceAdcode, provinceName = '') {
 	currentLevel.value = "province";
+	currentProvince.value = { adcode: provinceAdcode, name: provinceName };
+	currentCity.value = null;
+
 	if (!chart) return;
-
 	chart.clear();
-	chart.off("click");
 
-	// load province geojson: 如果没有 adcode，则尝试从已注册 china map 查找 feature.properties.adcode
-	let mapAdcode = adcode;
-	if (!mapAdcode) {
-		const chinaMap = echarts.getMap("china");
-		const feat = chinaMap && chinaMap.geoJson && chinaMap.geoJson.features && chinaMap.geoJson.features.find(f => f.properties && f.properties.name === provinceName);
-		mapAdcode = feat && (feat.properties.adcode || feat.properties.adcode_ || feat.properties.adcode_int || feat.properties.adcode_string);
+	// 加载省份地图
+	const provinceGeo = await loadGeoJSON(provinceAdcode, provinceAdcode);
+	if (!provinceGeo) {
+		console.error("Failed to load province geo:", provinceAdcode);
+		return;
 	}
 
-	// 如果依然没有 adcode，则直接渲染一个空省地图，用全国 geo 中的该 feature 作 map 数据
-	let provinceGeo = null;
-	if (mapAdcode) {
-		provinceGeo = await loadGeoJSON(mapAdcode, provinceName);
+	// 检查是否为直辖市
+	const isMunicipalityArea = isMunicipality(provinceAdcode);
+
+	// 获取数据
+	let cityData;
+	if (isMunicipalityArea) {
+		// 直辖市：直接获取区县数据
+		cityData = getMunicipalityDistrictData(provinceAdcode);
 	} else {
-		// fallback: if no adcode, try to extract feature from registered china geo and register a new map with single feature
-		const chinaMap = echarts.getMap("china");
-		if (chinaMap && chinaMap.geoJson && chinaMap.geoJson.features) {
-			const feat = chinaMap.geoJson.features.find(f => f.properties && f.properties.name === provinceName);
-			if (feat) {
-				// 构造一个临时 geoJSON
-				const single = {
-					type: "FeatureCollection",
-					features: [feat]
-				};
-				echarts.registerMap(provinceName, single);
-				provinceGeo = single;
-			}
-		}
+		// 非直辖市：获取城市数据
+		cityData = filterDataByAdcode(provinceAdcode, 'city');
 	}
 
-	// 取得市级数据（如果没有数据，设为空数组）
-	const cityData = Array.isArray(cityDataMap[provinceName]) ? cityDataMap[provinceName] : [];
-
-	// safe max
 	const maxCity = safeMax(cityData);
+	const theme = getCurrentTheme();
 
-	// scatter 气泡数据（需要经纬度）：
-	// 我们尝试从 provinceGeo 中读取每个 city 对应的 cp 或 properties.centroid 作经纬度（许多 GeoJSON 含有 properties.centroid / cp）
-	// 如果无法获取到某个城市坐标，则该城市不会出现气泡（避免异常）
-	const scatterData = [];
-	if (provinceGeo && Array.isArray(provinceGeo.features)) {
-		// build a map: name -> centroid (尝试多种字段)
-		const centroidMap = {};
-		for (const f of provinceGeo.features) {
-			const props = f.properties || {};
-			const name = props.name || (props && props.NAME || "");
-			// common centroid fields: cp 或 centroid
-			const cp = props.cp || props.centroid || props.center || props._centroid || null;
-			if (cp && Array.isArray(cp) && cp.length >= 2) centroidMap[name] = cp;
-			// else try bbox center
-			if (!centroidMap[name] && f.geometry && f.geometry.coordinates) {
-				// skipping complex centroid calc to keep light — we prefer props.cp if present
+	// 填充地区名称
+	if (provinceGeo.features) {
+		const nameMap = {};
+		provinceGeo.features.forEach(feature => {
+			const props = feature.properties;
+			if (props && props.adcode) {
+				nameMap[props.adcode] = props.name;
 			}
-		}
+		});
 
-		for (const city of cityData) {
-			// 直接取 city.name 在 centroidMap 中匹配（有时 city 名称与 geojson 的名称不完全一致）
-			const coord = centroidMap[city.name] || centroidMap[city.name.replace(/市$/, "")] || null;
-			if (coord) {
-				scatterData.push({
-					name: city.name,
-					value: [coord[0], coord[1], city.value] // [lng, lat, value]
-				});
-			}
-		}
+		// 填充地区名称
+		cityData.forEach(item => {
+			item.name = nameMap[item.adcode] || item.adcode;
+		});
 	}
 
-	// 取 top5（按 value 降序）
-	const top5 = [...cityData].sort((a, b) => b.value - a.value).slice(0, 5);
-	const top5Scatter = [];
-	for (const t of top5) {
-		// try to find coord
-		let coord = null;
-		if (provinceGeo && provinceGeo.features) {
-			for (const f of provinceGeo.features) {
-				const pn = (f.properties && f.properties.name) || "";
-				if (pn && (pn === t.name || pn === t.name.replace(/市$/, ""))) {
-					const cp = f.properties && (f.properties.cp || f.properties.center || f.properties.centroid);
-					if (cp && Array.isArray(cp)) {
-						coord = cp;
-						break;
-					}
-				}
-			}
-		}
-		if (coord) top5Scatter.push({ name: t.name, value: [coord[0], coord[1], t.value] });
+	// 设置省份名称（如果未提供）
+	if (!provinceName && provinceGeo.features && provinceGeo.features[0]) {
+		const props = provinceGeo.features[0].properties;
+		currentProvince.value.name = props.name || provinceAdcode;
 	}
-
-	// 方案：当 cityData 为空时，仍要保证 visualMap 的 max 有值，避免 undefined color stops
-	const visualMax = maxCity || 1;
-	const hasCity = cityData && cityData.length > 0;
 
 	const option = {
+		backgroundColor: theme.backgroundColor,
 		animation: true,
 		animationDuration: 700,
 		animationEasing: "cubicOut",
 		tooltip: {
 			trigger: "item",
+			backgroundColor: theme.buttonBg,
+			borderColor: theme.buttonBorder,
+			textStyle: { color: theme.textColor },
 			formatter: params => {
-				if (!params) return "";
-				if (params.seriesType === "map") {
-					if (params.data && params.data.value != null) return `${params.name}<br/>客户数: ${params.data.value}`;
-					return `${params.name}<br/>暂无数据`;
-				} else if (params.seriesType === "scatter") {
-					const v = params.data && params.data.value ? params.data.value[2] : "-";
-					return `${params.name}<br/>客户数: ${v}`;
-				}
-				return params.name;
+				if (!params || !params.data) return `${params.name}<br/>暂无数据`;
+				return `${params.name}<br/>客户数: ${params.data.value}`;
 			}
 		},
 		visualMap: {
 			min: 0,
-			max: visualMax,
+			max: maxCity,
 			left: 10,
 			bottom: 20,
 			text: ["高", "低"],
+			textStyle: { color: theme.textColor },
 			calculable: false,
-			inRange: {
-				// 明确颜色数组，不会出现 undefined
-				color: ["#E8F5E9", "#66BB6A", "#1B5E20"]
-			}
+			inRange: { color: theme.visualMapColors }
 		},
 		series: [
-			// map series（主地图）
 			{
-				name: "城市客户数",
+				name: isMunicipalityArea ? "区县客户数" : "城市客户数",
 				type: "map",
-				map: provinceName,
+				map: provinceAdcode,
 				roam: true,
 				layoutCenter: ["50%", "50%"],
 				layoutSize: "88%",
-				label: { show: false },
+				label: {
+					show: true, // 省级地图显示地区名称
+					color: theme.textColor,
+					fontSize: isMunicipalityArea ? 10 : 11
+				},
+				itemStyle: {
+					areaColor: theme.mapAreaColor,
+					borderColor: theme.mapBorderColor,
+					borderWidth: 1
+				},
+				emphasis: {
+					label: {
+						show: true,
+						color: theme.textColor,
+						fontWeight: 'bold'
+					},
+					itemStyle: {
+						areaColor: theme.visualMapColors[1],
+						borderColor: theme.visualMapColors[2],
+						borderWidth: 2
+					}
+				},
 				data: cityData,
 				animation: true,
 				animationDuration: 800
-			},
-			// scatter 气泡（所有城市）
-			{
-				name: "城市气泡",
-				type: "scatter",
-				coordinateSystem: "geo",
-				data: scatterData,
-				symbol: "circle",
-				// 根据 value 大小调整气泡尺寸（函数）
-				symbolSize: val => {
-					if (!val || val.length < 3) return 0;
-					const v = val[2];
-					// map value -> size range [6, 28]
-					const min = 6, max = 28;
-					const scale = Math.sqrt(v / visualMax);
-					return Math.max(min, Math.min(max, Math.round(scale * max)));
-				},
-				label: {
-					show: false
-				},
-				emphasis: {
-					label: { show: true, formatter: p => `${p.data.name}: ${p.data.value[2]}` }
-				}
-			},
-			// top5 标注（更醒目）
-			{
-				name: "Top5",
-				type: "scatter",
-				coordinateSystem: "geo",
-				data: top5Scatter,
-				symbol: "pin",
-				symbolSize: val => (val && val.length >= 3 ? Math.max(20, Math.min(40, Math.round((val[2] / visualMax) * 40))) : 20),
-				label: {
-					show: true,
-					formatter: (p) => `${p.data.name}\n${p.data.value[2]}`,
-					position: "bottom",
-					color: "#333",
-					fontWeight: "600"
-				},
-				itemStyle: {
-					color: "#FF5722"
-				}
 			}
 		],
 		animationDurationUpdate: 600,
 		animationEasingUpdate: "cubicOut"
 	};
 
-	// 若没有 city 数据，则给 map series 一个空数组；气泡也为空，visualMap.max 为 1，tooltip 会显示暂无数据
 	chart.setOption(option, true);
 
-	// 省级时，绑定返回逻辑（点击 map 的空白处不再深入）
+	// 对于直辖市，不需要绑定点击事件（已经显示区县）
+	// 对于非直辖市，绑定点击事件进入城市
+	if (!isMunicipalityArea) {
+		setupClickEvents("province");
+	} else {
+		chart.off("click");
+	}
+}
+
+// ---------- 切换城市 ----------
+async function switchCity(cityAdcode, cityName = '', provinceAdcode) {
+	currentLevel.value = "city";
+	currentCity.value = { adcode: cityAdcode, name: cityName };
+
+	if (!chart) return;
+	chart.clear();
+
+	// 加载城市地图
+	const cityGeo = await loadGeoJSON(cityAdcode, cityAdcode);
+	if (!cityGeo) {
+		console.error("Failed to load city geo:", cityAdcode);
+		return;
+	}
+
+	// 获取区县数据
+	const districtData = filterDataByAdcode(cityAdcode, 'district');
+	const maxDistrict = safeMax(districtData);
+	const theme = getCurrentTheme();
+
+	// 填充区县名称
+	if (cityGeo.features) {
+		const nameMap = {};
+		cityGeo.features.forEach(feature => {
+			const props = feature.properties;
+			if (props && props.adcode) {
+				nameMap[props.adcode] = props.name;
+			}
+		});
+
+		// 填充区县名称
+		districtData.forEach(item => {
+			item.name = nameMap[item.adcode] || item.adcode;
+		});
+
+		// 设置城市名称（如果未提供）
+		if (!cityName && cityGeo.features[0]) {
+			const props = cityGeo.features[0].properties;
+			currentCity.value.name = props.name || cityAdcode;
+		}
+	}
+
+	const option = {
+		backgroundColor: theme.backgroundColor,
+		animation: true,
+		animationDuration: 700,
+		animationEasing: "cubicOut",
+		title: {
+			text: `${currentProvince.value.name} - ${currentCity.value.name}`,
+			left: "center",
+			top: 10,
+			textStyle: { color: theme.textColor, fontSize: 16 }
+		},
+		tooltip: {
+			trigger: "item",
+			backgroundColor: theme.buttonBg,
+			borderColor: theme.buttonBorder,
+			textStyle: { color: theme.textColor },
+			formatter: params => {
+				if (!params || !params.data) return `${params.name}<br/>暂无数据`;
+				return `${params.name}<br/>客户数: ${params.data.value}`;
+			}
+		},
+		visualMap: {
+			min: 0,
+			max: maxDistrict,
+			left: 10,
+			bottom: 20,
+			text: ["高", "低"],
+			textStyle: { color: theme.textColor },
+			calculable: false,
+			inRange: { color: theme.visualMapColors }
+		},
+		series: [
+			{
+				name: "区县客户数",
+				type: "map",
+				map: cityAdcode,
+				roam: true,
+				zoom: 1.2,
+				layoutCenter: ["50%", "50%"],
+				layoutSize: "95%",
+				label: {
+					show: true, // 城市地图显示区县名称
+					color: theme.textColor,
+					fontSize: 10
+				},
+				itemStyle: {
+					areaColor: theme.mapAreaColor,
+					borderColor: theme.mapBorderColor,
+					borderWidth: 1
+				},
+				emphasis: {
+					label: {
+						show: true,
+						color: theme.textColor,
+						fontWeight: 'bold'
+					},
+					itemStyle: {
+						areaColor: theme.visualMapColors[1],
+						borderColor: theme.visualMapColors[2],
+						borderWidth: 2
+					}
+				},
+				data: districtData,
+				animation: true,
+				animationDuration: 800
+			}
+		],
+		animationDurationUpdate: 600,
+		animationEasingUpdate: "cubicOut"
+	};
+
+	chart.setOption(option, true);
+
+	// 城市级别不再绑定点击事件（不继续向下钻取）
 	chart.off("click");
-	chart.on("click", (params) => {
-		// 在省级点击 city 可触发气泡或 city tooltip；我们不做进一步层级切换
-	});
 }
 </script>
 
@@ -397,14 +778,45 @@ async function switchProvince(provinceName, adcode) {
 	left: 18px;
 	top: 18px;
 	z-index: 10;
-	background: rgba(255,255,255,0.9);
-	border: 1px solid #ddd;
-	padding: 6px 10px;
+	background: v-bind('themeConfig[currentTheme].buttonBg');
+	border: 1px solid v-bind('themeConfig[currentTheme].buttonBorder');
+	color: v-bind('themeConfig[currentTheme].buttonText');
+	padding: 8px 12px;
 	border-radius: 6px;
 	cursor: pointer;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+	box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.3s ease;
 }
+
 .back-btn:hover {
-	background: #fff;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.theme-switcher {
+	position: absolute;
+	right: 18px;
+	top: 18px;
+	z-index: 10;
+}
+
+.theme-btn {
+	background: v-bind('themeConfig[currentTheme].buttonBg');
+	border: 1px solid v-bind('themeConfig[currentTheme].buttonBorder');
+	color: v-bind('themeConfig[currentTheme].buttonText');
+	padding: 8px 12px;
+	border-radius: 6px;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.3s ease;
+}
+
+.theme-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 </style>
