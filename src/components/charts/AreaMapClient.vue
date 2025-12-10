@@ -10,31 +10,25 @@
 			← {{ currentLevel === 'province' ? '返回全国' : '返回省份' }}
 		</button>
 
-		<!-- 主题切换按钮 -->
-		<div class="theme-switcher">
-			<button
-				@click="toggleTheme"
-				class="theme-btn"
-				:title="currentTheme === 'light' ? '切换到暗色主题' : '切换到浅色主题'"
-			>
-				{{ currentTheme === 'light' ? '🌙 暗色' : '☀️ 浅色' }}
-			</button>
-		</div>
-
 		<div ref="chartRef" style="width:100%;height:100%;"></div>
 	</div>
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref, reactive } from "vue";
+import {onMounted, onBeforeUnmount, ref, reactive, watch, computed} from "vue";
+import {useThemeStore} from "@/store/sysStore.js";
 
 const chartRef = ref(null);
 let chart = null;
 let currentLevel = ref("country"); // country/province/city
 let currentProvince = ref(null); // 当前省份信息
 let currentCity = ref(null); // 当前城市信息
-let currentTheme = ref("light"); // light/dark
-
+const themeStore = useThemeStore();
+const currentTheme = computed(() => themeStore.theme)
+watch(() => themeStore.theme, () => {
+		toggleTheme()
+	}
+)
 // ---------- mock 数据 ----------
 const mockData = {
 	// 省份数据
@@ -793,13 +787,6 @@ async function switchCity(cityAdcode, cityName = '', provinceAdcode) {
 .back-btn:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.theme-switcher {
-	position: absolute;
-	right: 18px;
-	top: 18px;
-	z-index: 10;
 }
 
 .theme-btn {

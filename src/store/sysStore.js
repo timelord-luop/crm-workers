@@ -35,3 +35,18 @@ export const useRouterLoadingStore = defineStore('routerLoading', {
 		}
 	},
 })
+// 主题状态
+export const useThemeStore = defineStore('theme', {
+	state: () => ({
+		theme: localStorage.getItem('admin-theme') || 'light'
+	}),
+	getters: {
+		// 获取加载状态
+		getTheme: (state) => state.theme
+	},
+	actions: {
+		setTheme(theme) {
+			this.theme = theme
+		}
+	},
+})

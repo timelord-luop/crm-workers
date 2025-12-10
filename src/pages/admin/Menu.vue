@@ -8,7 +8,7 @@ import Http from "@/plugins/http.js";
 import {ApiLogout} from "@/configuration/api/users.js";
 import {TokenStorage} from "@/assets/js/storageUtil.js";
 
-import {useRouterLoadingStore} from '@/store/sysStore'
+import {useRouterLoadingStore, useThemeStore} from '@/store/sysStore'
 
 const routerLoading = useRouterLoadingStore()
 const isLoading = computed(() => routerLoading.isLoading)
@@ -115,7 +115,10 @@ const toggleTheme = () => {
 	}
 
 	// 持久化到本地存储
-	localStorage.setItem('admin-theme', isDark.value ? 'dark' : 'light')
+	const theme = isDark.value ? 'dark' : 'light';
+	localStorage.setItem('admin-theme', theme)
+	const themeStore = useThemeStore();
+	themeStore.setTheme(theme)
 }
 // 菜单展开折叠
 const toggleCollapse = () => {
@@ -190,7 +193,7 @@ const menuChecked = (index) => {
 					el-button(text :icon="isDark ? Moon : Sunny", @click="toggleTheme")
 					el-button(text :icon="isCollapse ? Expand : Fold",  @click="toggleCollapse")
 			.main
-				._breadcrumb
+				._breadcrumb(v-if="route.path !== '/home'")
 					el-breadcrumb(separator="/")
 						el-breadcrumb-item(v-for="item in breadcrumbData" :to="item.path ? {path: item.path} : null") {{item.name}}
 				._views
@@ -333,6 +336,7 @@ const menuChecked = (index) => {
 			scrollbar-color: var(--scrollbar) var(--bg-color-mute);
 			scrollbar-width: thin;
 			border-right: none;
+			padding-top: 12px;
 		}
 		.menus-footer {
 			display: flex;
@@ -389,6 +393,8 @@ const menuChecked = (index) => {
 		width: 100%;
 		overflow: hidden;
 		background-color: var(--bg-color-mute);
+		border-top-left-radius: 12px;
+		border-bottom-left-radius: 12px;
 		._breadcrumb {
 			height: 20px;
 			line-height: 20px;
@@ -405,6 +411,8 @@ const menuChecked = (index) => {
 		._views {
 			flex: 1;
 			min-height: 0;
+			border-radius: 4px;
+			overflow: hidden;
 			._skeleton {
 				margin-top: 20px;
 				padding: 0 10px;
