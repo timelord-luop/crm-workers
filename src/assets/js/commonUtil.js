@@ -12,8 +12,9 @@ export default {
 		}
 	},
 	// 获取行政区划级联
-	getAreaOptions: async () => {
+	getAreaOptions: async (code) => {
 		const localAreaData = LocalStorage.get('area_code_list');
+		const defObj = {value: '0', label: '全国'};
 		if (!localAreaData) {
 			const response = await fetch('https://unpkg.com/china-location@2.1.0/dist/location.json');
 			const areaData = await response.json();
@@ -30,8 +31,14 @@ export default {
 				}))
 			}));
 			LocalStorage.put('area_code_list', resAreaData);
+			if (code === 0) {
+				resAreaData.unshift(defObj)
+			}
 			return resAreaData;
 		} else {
+			if (code === 0) {
+				localAreaData.unshift(defObj)
+			}
 			return localAreaData;
 		}
 	},

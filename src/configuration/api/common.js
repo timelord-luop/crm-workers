@@ -49,3 +49,15 @@ export const ApiSysDictionaryDelete = {
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
+// 查询多个系统配置传入 keys: ['companyName']
+export const ApiSysConfRows = {
+	URL: API_BASE + '/sys/conf/rows',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 批量更新系统配置
+export const ApiSysConfUpdate = {
+	URL: API_BASE + '/sys/conf/edit',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};

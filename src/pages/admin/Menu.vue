@@ -28,13 +28,13 @@ const menuList = ref([
 			{id: '34', label: '业务线索', path: '/leads', subset: [
 					{label: '新增线索', editLabel: '编辑线索', path: '/leads-md'}
 				]},
-			{id: '21', label: '客户列表', path: '/client-list', subset: [
-					{label: '新增客户', editLabel: '编辑客户', path: '/client-md'}
-				]},
 			{id: '35', label: '商机管理', path: '/opportunity', subset: [
 					{label: '新增商机', editLabel: '编辑商机', path: '/opportunity-md'}
 				]},
-			{id: '23', label: '基础设置', path: '/client-conf'},
+			{id: '21', label: '客户列表', path: '/client-list', subset: [
+					{label: '新增客户', editLabel: '编辑客户', path: '/client-md'}
+				]},
+			{id: '23', label: '客户设置', path: '/client-conf'},
 		]},
 	{ id: '5', label: '供应商管理', path: '/supplier', icon: '🏢', subset: [
 			{label: '新增供应商', editLabel: '编辑供应商', path: '/supplier-md'}

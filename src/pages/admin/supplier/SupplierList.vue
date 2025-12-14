@@ -158,7 +158,7 @@ const toInfo = (row) => {
 				el-table-column(prop="contactName" label="联系人")
 				el-table-column(prop="contactPhone" label="联系人手机号")
 				el-table-column(prop="areaText" label="所在地区")
-				el-table-column(prop="status" label="状态" align="center" width="110")
+				el-table-column(prop="status" label="状态" align="center" width="80")
 					template(#default="{row}")
 						el-tag(v-if="row.status === 1" size="small" type="success")  正常
 						el-tag(v-if="row.status === 2" size="small" type="danger")  停用
