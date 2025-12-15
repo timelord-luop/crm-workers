@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted, watch, computed} from 'vue'
+import {ref, onMounted, watch, computed, onUnmounted} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell, Expand, Fold, Setting} from '@element-plus/icons-vue'
@@ -9,6 +9,7 @@ import {ApiLogout} from "@/configuration/api/users.js";
 import {TokenStorage} from "@/assets/js/storageUtil.js";
 
 import {useRouterLoadingStore, useThemeStore} from '@/store/sysStore'
+import SearchDialog from "@/components/SearchDialog.vue";
 
 const routerLoading = useRouterLoadingStore()
 const isLoading = computed(() => routerLoading.isLoading)
@@ -60,6 +61,10 @@ onMounted(() => {
 		document.documentElement.classList.add('dark')
 	}
 	if (route.path === '/') router.push('/home')
+	document.addEventListener('keydown', handleKeyDown)
+})
+onUnmounted(() => {
+	document.removeEventListener('keydown', handleKeyDown)
 })
 // 面包屑
 watch(route, (newRoute) => {
@@ -139,7 +144,21 @@ const handleCommand = (command) => {
 const menuChecked = (index) => {
 	router.push(index)
 }
-
+// 全局搜索相关
+const searchDialogVisible = ref(false);
+const handleKeyDown = (event) => {
+	if (event.ctrlKey && (event.key === 'k' || event.key === 'K')) {
+		event.preventDefault()
+		// 执行你的逻辑
+		handleCtrlK()
+	}
+	if (event.key === 'Escape') {
+		searchDialogVisible.value = false;
+	}
+}
+const handleCtrlK = () => {
+	searchDialogVisible.value = true;
+}
 </script>
 
 <template lang="pug">
@@ -150,7 +169,7 @@ const menuChecked = (index) => {
 				span._tit 羽翼CRM系统
 				el-tag(type="primary") 四海兄弟有限公司
 			._right
-				._search
+				._search(@click="searchDialogVisible = true")
 					el-icon
 						Search
 					span._text 搜索
@@ -220,6 +239,7 @@ const menuChecked = (index) => {
 					router-view(v-slot="{ Component }")
 						keep-alive
 							component(:is="Component" :key="route.fullPath")
+	search-dialog(v-model:visible="searchDialogVisible")
 </template>
 
 <style scoped lang="scss">

@@ -20,6 +20,7 @@
 	--text-color2: #494a4d;
 	--table-header-bg-color: #F9F9FC;
 	--border-shadow: rgba(0, 0, 0, .15);
+	--search-footer-shadow: 0 -1px 0 0 #e0e3e8, 0 -3px 6px 0 #45629b1f;
 }
 /* 暗色 */
 .dark {
@@ -33,6 +34,7 @@
 	--text-color2: #cdcbd9;
 	--table-header-bg-color: #23292f;
 	--border-shadow: rgba(255, 255, 255, .1);
+	--search-footer-shadow: none
 }
 
 html, body {
@@ -48,6 +50,8 @@ a {
 * {
 	margin: 0;
 	padding: 0;
+	scrollbar-color: var(--scrollbar) var(--bg-color-mute);
+	scrollbar-width: thin;
 }
 //.el-table {
 //	border-radius: 6px;
@@ -76,6 +80,15 @@ a {
 	.el-dialog__footer {
 		padding-right: 14px;
 		padding-top: 12px;
+	}
+}
+.__dialog {
+	padding: 0;
+	overflow: hidden;
+	border-radius: 5px;
+	.el-dialog__body {
+		margin: 0 !important;
+		padding: 0 !important;
 	}
 }
 .el-dialog__header {
@@ -216,9 +229,6 @@ a {
 		flex: 1;
 		height: 100%;
 		overflow-y: auto;
-		/* 关键：只修改轨道背景色，不改变其他属性 */
-		scrollbar-color: var(--scrollbar) var(--bg-color-mute);  /* 滑块颜色 轨道背景色 */
-		scrollbar-width: thin;  /* 保持默认宽度，确保箭头显示 */
 		.info-block {
 			background-color: var(--bg-color-main);
 			padding: 15px 20px;
