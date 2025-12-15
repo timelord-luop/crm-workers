@@ -1,6 +1,6 @@
 <script setup>
 import {onMounted, reactive, ref} from 'vue'
-import {Notification, Plus, Search, RefreshLeft} from '@element-plus/icons-vue'
+import {Notification, Plus, Search, RefreshLeft, Switch} from '@element-plus/icons-vue'
 import {Vue3TreeOrg} from 'vue3-tree-org';
 import "vue3-tree-org/lib/vue3-tree-org.css";
 import {
@@ -23,6 +23,7 @@ const userList = ref([]);
 const tableData = ref([]);
 const baseTableData = ref([]);
 
+const horizontal = ref(false);
 const chartData = reactive({id: 0, pid: '0', name: '四海兄弟有限公司', children: []})
 
 onMounted(() => {
@@ -316,16 +317,18 @@ const toLocalSearch = () => {
 		destroy-on-close
 		title="组织架构图")
 		._chart_panel(v-loading="chartLoading")
+			el-button._direction(:icon="Switch" plain @click="horizontal = !horizontal")
 			vue3-tree-org(:data="chartData"
 				collapsable,
 				center,
+				:horizontal="horizontal",
 				:default-expand-level="5"
 				:node-draggable="false"
 				:toolBar="{scale: true, restore: false, expand: true, zoom: true, fullscreen: false}",
 				:props="{id: 'id',label: 'name',children: 'children'}")
 				template(v-slot="{node}")
 					._chart_node
-						span(:style="{color: node.pid ? '#111111' : '#777777'}") {{node.label}}
+						span(:style="{color: node.pid ? 'var(--text-color)' : 'var(--secondary)'}") {{node.label}}
 						._principal {{node.$$data.principalNames}}
 </template>
 
@@ -333,6 +336,7 @@ const toLocalSearch = () => {
 ._chart_panel {
 	height: 100%;
 	width: 100%;
+	position: relative;
 	._chart_node {
 		padding: 6px 8px;
 	}
@@ -340,8 +344,31 @@ const toLocalSearch = () => {
 		color: #f19914;
 		font-size: 12px;
 	}
+	._direction {
+		position: absolute;
+		right: 10px;
+		bottom: 150px;
+		z-index: 1;
+		padding: 6px 9px;
+		border-radius: 0;
+	}
 }
 :deep(.zm-tree-org) {
 	padding: 0;
+	background-color: var(--bg-color-main);
+	overflow: hidden;
+	.zm-tree-handle .zm-tree-handle-item {
+		background-color: var(--bg-color-border);
+		border: 1px solid var(--border);
+	}
+	.zoom-container {
+		padding-top: 10px;
+	}
+	.tree-org-node__expand {
+		background-color: var(--bg-color-main);
+	}
+	.tree-org-node__content .tree-org-node__inner {
+		box-shadow: 0 1px 5px var(--border-shadow);
+	}
 }
 </style>

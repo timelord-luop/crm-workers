@@ -19,6 +19,7 @@
 	--text-color: #303133;
 	--text-color2: #494a4d;
 	--table-header-bg-color: #F9F9FC;
+	--border-shadow: rgba(0, 0, 0, .15);
 }
 /* 暗色 */
 .dark {
@@ -31,6 +32,7 @@
 	--text-color: #E5E3F3;
 	--text-color2: #cdcbd9;
 	--table-header-bg-color: #23292f;
+	--border-shadow: rgba(255, 255, 255, .1);
 }
 
 html, body {
