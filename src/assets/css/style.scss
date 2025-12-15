@@ -76,10 +76,17 @@ a {
 		padding-top: 12px;
 	}
 }
-.el-dialog__body {
-	padding: 8px 16px 0;
+.el-dialog__header {
+	padding-bottom: 0;
+}
+.el-dialog .el-dialog__body {
+	padding: 10px 16px 0;
 	overflow-y: auto;
 	max-height: 420px;
+	margin-top: 10px;
+}
+.is-fullscreen .el-dialog__body {
+	max-height: inherit;
 }
 .tab-link {
 	.el-link {

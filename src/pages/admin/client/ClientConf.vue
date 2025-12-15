@@ -211,7 +211,14 @@ const toSaveConf = () => {
 	.custom-container
 		el-tabs(tab-position="left" style="height: 100%" v-model="activeName" @tab-change="tabHandleChange")
 			el-tab-pane(label="自定义字段" name="field")
-				el-table(:data="tableData" ref="tableRef" border stripe height="100%" row-key="id"  v-loading="loading")
+				el-table(:data="tableData"
+					ref="tableRef"
+					border
+					stripe
+					height="100%"
+					row-key="id"
+					show-overflow-tooltip
+					v-loading="loading")
 					template(#empty)
 						el-link(type="success" @click="add") 添加字段
 					el-table-column(label="序号" width="54" type="index" align="center")
