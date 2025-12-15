@@ -48,7 +48,6 @@ const searchChange = (val) => {
 					clearable)
 			.search-body
 				._empty 没有搜索历史
-
 			.search-footer
 				ul
 					li
