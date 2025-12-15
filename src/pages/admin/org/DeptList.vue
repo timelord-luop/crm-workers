@@ -369,6 +369,7 @@ const toLocalSearch = () => {
 	}
 	.tree-org-node__content .tree-org-node__inner {
 		box-shadow: 0 1px 5px var(--border-shadow);
+		white-space: nowrap;
 	}
 }
 </style>
