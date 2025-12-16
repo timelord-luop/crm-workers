@@ -33,6 +33,7 @@ const dialogData = ref({});
 
 const onOpen = () => {
 	nextTick(() => {
+		committing.value = false;
 		dialogData.value = CommonUtil.deepClone(props.fieldData);
 		formRef.value?.resetFields()
 		const tbody = tableRef.value.$el.querySelector('.el-table__body-wrapper tbody')
@@ -53,6 +54,7 @@ const onOpen = () => {
 const rules = reactive({
 	name: [{required: true, message: '请输入字段名', trigger: 'change'}],
 	fieldType: [{required: true, message: '请选择字段类型', trigger: 'change'}],
+	isRequired: [{required: true, message: '请选择是否必填', trigger: 'change'}],
 	textType: [{required: true, message: '请选择文本类型', trigger: 'change'}],
 	multiple: [{required: true, message: '请选择选项类型', trigger: 'change'}],
 	options: [{required: true, message: '请添加选项值', trigger: 'change'}]
@@ -112,10 +114,10 @@ const toCommit = async (formEl) => {
 		}
 		emit('confirm', dialogData.value);
 		committing.value = true;
-		setTimeout(() => {
-			committing.value = false;
-		}, 1000)
-		// dialogVisible.value = false;
+		// setTimeout(() => {
+		// 	committing.value = false;
+		// }, 1000)
+		dialogVisible.value = false;
 	})
 }
 
@@ -142,6 +144,10 @@ const toCommit = async (formEl) => {
 				el-radio-group(v-model="dialogData.fieldType")
 					el-radio(:value="1") 文本字段
 					el-radio(:value="2") 选项字段
+			el-form-item(label="是否必填" prop="isRequired")
+				el-radio-group(v-model="dialogData.isRequired")
+					el-radio(:value="2") 否
+					el-radio(:value="1") 是
 			el-form-item(label="文本类型" prop="textType" v-if="dialogData.fieldType === 1")
 				el-radio-group(v-model="dialogData.textType" @change="textTypeChange")
 					el-radio(:value="1") 单行文本
@@ -160,7 +166,6 @@ const toCommit = async (formEl) => {
 				el-button._add_btn(:icon="Plus" size="small" plain, @click="toAddOption") 添加选项
 				el-table(:data="dialogData.options"
 					border
-					stripe
 					ref="tableRef"
 					row-key="idx"
 					size="small"

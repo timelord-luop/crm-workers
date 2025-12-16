@@ -94,6 +94,7 @@ const add = (index) => {
 		name: '',
 		fieldType: 2,
 		textType: 1,
+		isRequired: 2,
 		unit: '',
 		multiple: 1,
 		placeholder: '',
@@ -109,6 +110,7 @@ const edit = (data, index) => {
 		name: data.name,
 		fieldType: data.fieldType,
 		textType: data.textType,
+		isRequired: data.isRequired,
 		unit: data.unit,
 		multiple: data.multiple,
 		placeholder: data.placeholder,
@@ -223,7 +225,7 @@ const toSaveConf = () => {
 						el-link(type="success" @click="add") 添加字段
 					el-table-column(label="序号" width="54" type="index" align="center")
 					el-table-column(prop="name" label="字段名称" width="140" )
-					el-table-column(prop="fieldType" label="字段类型" width="140" )
+					el-table-column(prop="fieldType" sortable label="字段类型" width="140" )
 						template(#default="{row}")
 							span(v-if="row.fieldType === 1") 文本
 								span(v-if="row.textType === 1") （单行文本）
@@ -233,16 +235,20 @@ const toSaveConf = () => {
 							span(v-if="row.fieldType === 2") 选项
 								span(v-if="row.multiple === 1") （单选）
 								span(v-if="row.multiple === 2") （多选）
+					el-table-column(prop="isRequired" label="是否必填" sortable align="center" width="110")
+						template(#default="{row}")
+							el-tag(v-if="row.isRequired === 1" size="small" type="success")  是
+							el-tag(v-if="row.isRequired === 2" size="small" type="info") 否
 					el-table-column(prop="placeholder" label="输入提示")
 					el-table-column(prop="optionsText" label="选项值")
 					el-table-column(prop="sort" label="排序" align="center" width="80")
 						template(#default="{row}")
 							el-link.drag-handle(type="info" :icon="Sort" underline="never")
-					el-table-column(prop="status" label="状态" align="center" width="80")
+					el-table-column(prop="status" label="状态" sortable align="center" width="80")
 						template(#default="{row}")
 							el-tag(v-if="row.status === 1" size="small" type="success")  正常
 							el-tag(v-if="row.status === 2" size="small" type="danger")  停用
-					el-table-column(prop="updateTime" width="130" label="更新时间")
+					el-table-column(prop="updateTime" width="130" sortable label="更新时间")
 					el-table-column(label="操作" width="200")
 						template(#default="{row, $index}")
 							.tab-link
