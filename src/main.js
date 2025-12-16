@@ -41,7 +41,7 @@ router.isReady().then(async () => {
 	await nextTick()
 	if (document.readyState === 'complete') {
 		console.log('加载完成')
-		const el = document.getElementById('page-loading')
-		if (el) el.classList.add('hide')
+		const loadingPage = document.getElementById('page-loading');
+		if (loadingPage) loadingPage.style.display = 'none';
 	}
 })
