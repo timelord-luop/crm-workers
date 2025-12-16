@@ -36,4 +36,12 @@ app.use(createPinia())
 app.use(ElementPlus, {
 	locale: zhCn,
 })
-app.mount('#app')
+router.isReady().then(async () => {
+	app.mount('#app')
+	await nextTick()
+	if (document.readyState === 'complete') {
+		console.log('加载完成')
+		const el = document.getElementById('page-loading')
+		if (el) el.classList.add('hide')
+	}
+})
