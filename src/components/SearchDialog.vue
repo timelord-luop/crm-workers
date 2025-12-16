@@ -75,40 +75,48 @@ const searchChange = (val) => {
 	.search-header {
 		padding: 12px;
 		background-color: var(--bg-color-main);
+
 		.el-input {
 			font-size: 16px;
 		}
 	}
+
 	.search-body {
 		flex: 1;
-        padding: 12px;
-        overflow-y: auto;
+		padding: 12px;
+		overflow-y: auto;
 		min-height: 90px;
 		max-height: 260px;
 		background-color: var(--bg-color-main);
+
 		._empty {
 			text-align: center;
 			line-height: 70px;
 			color: var(--secondary);
 		}
 	}
+
 	.search-footer {
 		height: 42px;
 		width: 100%;
 		box-shadow: var(--search-footer-shadow);
+
 		ul {
 			display: flex;
 			list-style-type: none;
 			align-items: center;
 			height: 100%;
 			padding: 0 15px;
+
 			li {
 				margin-right: 15px;
 				color: var(--secondary);
+
 				span {
 					font-size: 12px;
 				}
 			}
+
 			kbd {
 				border-radius: 2px;
 				background-color: var(--bg-color-mute);
