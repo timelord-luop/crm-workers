@@ -39,12 +39,5 @@ app.use(ElementPlus, {
 router.isReady().then(async () => {
 	app.mount('#app')
 	await nextTick()
-	// if (document.readyState === 'complete') {
-	// 	console.log('加载完成')
-	// 	const loadingPage = document.getElementById('page-loading');
-	// 	if (loadingPage) loadingPage.style.display = 'none';
-	// }
-	console.log('加载完成')
-	const loadingPage = document.getElementById('page-loading');
-	if (loadingPage) loadingPage.style.display = 'none';
+	document.getElementById('page-loading')?.remove()
 })

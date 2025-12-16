@@ -27,10 +27,10 @@ export default defineConfig({
 			}
 		},
 		minify: 'terser',
-		// esbuild: {
-		// 	drop: ['console', 'debugger'],
-		// 	pure: ['console.log']
-		// },
+		esbuild: {
+			drop: ['console', 'debugger'],
+			pure: ['console.log']
+		},
 		sourcemap: false
 	}
 })
