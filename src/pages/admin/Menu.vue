@@ -2,7 +2,7 @@
 import {ref, onMounted, watch, computed, onUnmounted} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell, Expand, Fold, Setting} from '@element-plus/icons-vue'
+import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell, Expand, Fold, Clock} from '@element-plus/icons-vue'
 import logo from '@/assets/img/logo.png'
 import Http from "@/plugins/http.js";
 import {ApiLogout} from "@/configuration/api/users.js";
@@ -207,8 +207,8 @@ const handleCtrlK = () => {
 							._icon {{item.icon}}
 							template(#title) {{item.label}}
 				.menus-footer(v-show="isShowMenuFooter" :class="isCollapse ? '_fold' : '_expend'")
-					el-tooltip(effect="dark" :show-after="500" :placement="!isCollapse ? 'top-start' : 'right'" content="系统设置")
-						el-button(text :icon="Setting")
+					el-tooltip(effect="dark" :show-after="500" :placement="!isCollapse ? 'top-start' : 'right'" content="历史记录 Ctrl E")
+						el-button(text :icon="Clock")
 					el-button(text :icon="isDark ? Moon : Sunny", @click="toggleTheme")
 					el-button(text :icon="isCollapse ? Expand : Fold",  @click="toggleCollapse")
 			.main
