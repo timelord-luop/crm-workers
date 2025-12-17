@@ -2,19 +2,13 @@ import { defineStore } from 'pinia'
 
 // 用户信息状态
 export const useUserStore = defineStore('userStore', {
-	state: () => {
-		return {
-			userInfo: {}
-		}
-	},
+	state: () => ({
+		userInfo: {}
+	}),
 	// 计算属性
-	getters: {
-
-	},
+	getters: {},
 	// 赋值
-	actions: {
-
-	}
+	actions: {}
 })
 
 // 路由加载状态
@@ -33,7 +27,7 @@ export const useRouterLoadingStore = defineStore('routerLoading', {
 		finishLoading() {
 			this.isLoading = false
 		}
-	},
+	}
 })
 // 主题状态
 export const useThemeStore = defineStore('theme', {
@@ -48,5 +42,5 @@ export const useThemeStore = defineStore('theme', {
 		setTheme(theme) {
 			this.theme = theme
 		}
-	},
+	}
 })
