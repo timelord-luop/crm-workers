@@ -119,7 +119,6 @@ const getFieldData = async () => {
 			}
 		})
 		formData.customFields = customFields;
-		loading.value = false;
 	}).catch(err => {
 		console.log(err);
 		loading.value = false;
