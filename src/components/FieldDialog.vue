@@ -111,6 +111,13 @@ const toCommit = async (formEl) => {
 					type: 'error',
 				})
 			}
+			if (CommonUtil.hasDuplicate(dialogData.value.options, 'val')) {
+				return ElMessage({
+					showClose: true,
+					message: '选项值不能重复！',
+					type: 'error',
+				})
+			}
 		}
 		emit('confirm', dialogData.value);
 		committing.value = true;
@@ -154,7 +161,7 @@ const toCommit = async (formEl) => {
 					el-radio(:value="2") 多行文本
 					el-radio(:value="3") 数字
 					el-radio(:value="4") 金额
-			el-form-item(label="单位" prop="unit" v-if="dialogData.textType === 3 || dialogData.textType === 4")
+			el-form-item(label="单位" prop="unit" v-if="dialogData.textType === 3")
 				el-input(v-model="dialogData.unit" maxlength="4" placeholder="请输入" )
 			el-form-item(label="选项类型" prop="multiple" v-if="dialogData.fieldType === 2")
 				el-radio-group(v-model="dialogData.multiple" @change="multipleChange")

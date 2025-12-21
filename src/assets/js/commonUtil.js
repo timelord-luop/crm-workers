@@ -11,6 +11,12 @@ export default {
 			});
 		}
 	},
+	// 检查数组对象某个属性值是否有重复
+	hasDuplicate: (arr, prop) => {
+		return  Array.isArray(arr) && arr.length > 0
+			? new Set(arr.map(item => item[prop])).size !== arr.length
+			: false;
+	},
 	// 获取行政区划级联
 	getAreaOptions: async (code) => {
 		const localAreaData = LocalStorage.get('area_code_list');
@@ -41,6 +47,42 @@ export default {
 			}
 			return localAreaData;
 		}
+	},
+	// 获取部门人员树状结构
+	arrayToChartTree: (data, rootPid = '0') => {
+		// 创建映射表和结果数组
+		const map = new Map();
+		const result = [];
+		// 第一遍：将所有节点存入 Map，并初始化 children 数组
+		data.forEach(item => {
+			map.set(item.id, { ...item, children: [] });
+		});
+		// 第二遍：构建父子关系
+		data.forEach(item => {
+			const currentNode = map.get(item.id);
+			const parentNode = map.get(item.pid);
+
+			if (parentNode) {
+				// 如果有父节点，添加到父节点的 children 中
+				parentNode.children.push(currentNode);
+			} else if (item.pid === rootPid) {
+				// 如果没有父节点且 pid 是根节点 ID，添加到结果中
+				result.push(currentNode);
+			}
+		});
+		loopData(result);
+		function loopData(result) {
+			result.forEach(item => {
+				if (item.memberList?.length) {
+					item.children = item.memberList.concat(item.children);
+				}
+				if (!item.children?.length && !!item.pid) {
+					item.disabled = true;
+				}
+				if (item.children) loopData(item.children)
+			})
+		}
+		return result;
 	},
 	// 时间戳转时间
     convertTimestamp: (timestamp) => {

@@ -1,10 +1,9 @@
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
+import {onMounted, reactive, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import { QuestionFilled } from '@element-plus/icons-vue'
+import {QuestionFilled} from '@element-plus/icons-vue'
 import Http from "@/plugins/http.js";
 
-import BankDialog from "@/components/BankDialog.vue";
 import CommonUtil from "@/assets/js/commonUtil.js";
 import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
 import {ApiSupplierAdd, ApiSupplierInfo, ApiSupplierUpdate} from "@/configuration/api/supplier.js";
@@ -38,12 +37,12 @@ const formData = ref({
 	contactEmail: '',
 	contactRemark: ''
 })
-const rules = reactive({
+const rules = {
 	name: [{required: true, message: '请输入供应商名称', trigger: 'change'}],
 	isClient: [{required: true, message: '请选择是否为客户', trigger: 'change'}],
 	classify: [{required: true, message: '请选择供应商类别', trigger: 'change'}],
 	invoiceType: [{required: true, message: '请选择开票类型', trigger: 'change'}]
-})
+}
 
 onMounted( async () => {
 	getDictList();
@@ -83,9 +82,7 @@ const areaHandleChange = (value) => {
 		// 需要等待DOM更新后获取
 		setTimeout(() => {
 			if (areaRef.value) {
-				const presentText = areaRef.value.presentText;
-				formData.value.areaText = presentText;
-				console.log('选中文本:', presentText);
+				formData.value.areaText = areaRef.value.presentText;
 			}
 		}, 0);
 	}
@@ -94,7 +91,6 @@ const toCommit = async (formEl) => {
 	await formEl.validate(valid => {
 		if (!valid) return CommonUtil.scrollToFirstError();
 		let params = getSubmitData();
-		console.log(params, 'params')
 		committing.value = true;
 		const API = params.id ? ApiSupplierUpdate : ApiSupplierAdd;
 		Http.request(API, params).then(res => {
@@ -194,10 +190,7 @@ const getSubmitData = () => {
 								el-input(v-model="formData.address" placeholder="请输入" clearable maxlength="64")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="其他备注")
-								el-input(v-model="formData.remark" type="textarea" maxlength="255" :rows="1" placeholder="请输入")
-				.info-block
-					._title 财务信息
-					bank-list(v-model="formData.bankCards")
+								el-input(v-model="formData.remark" type="textarea" maxlength="255" autosize placeholder="请输入")
 				.info-block
 					._title 联系人信息
 					el-row(:gutter="30")
@@ -215,7 +208,10 @@ const getSubmitData = () => {
 								el-input(v-model="formData.contactEmail" placeholder="请输入" clearable maxlength="64")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="备注")
-								el-input(v-model="formData.contactRemark" type="textarea" maxlength="255" :rows="1" placeholder="请输入" )
+								el-input(v-model="formData.contactRemark" type="textarea" maxlength="255" autosize placeholder="请输入" )
+				.info-block
+					._title 财务信息
+					bank-list(v-model="formData.bankCards")
 </template>
 
 <style scoped lang="scss">

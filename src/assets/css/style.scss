@@ -65,6 +65,9 @@ a {
 	font-size: 13px;
 	border-radius: 3px;
 }
+.el-table.is-scrolling-none th.el-table-fixed-column--left, .el-table.is-scrolling-none th.el-table-fixed-column--right {
+	background-color: var(--table-header-bg-color);
+}
 .el-table--enable-row-transition .el-table__body td.el-table__cell {
 	transition: inherit;
 }
@@ -249,4 +252,8 @@ a {
 	font-size: 14px;
 	vertical-align: -2px;
 	margin-left: 4px;
+}
+.table-head-custom {
+	display: flex;
+	justify-content: space-between;
 }

@@ -39,7 +39,6 @@ const fieldData = ref({});
 onMounted(async () => {
 	getFieldData();
 	areaOptions.value = await CommonUtil.getAreaOptions(0);
-	console.log(areaOptions.value)
 	await nextTick();
 	const tbody = tableRef.value.$el.querySelector('.el-table__body-wrapper tbody')
 

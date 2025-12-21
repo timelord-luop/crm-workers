@@ -302,7 +302,7 @@ const getSubmitData = () => {
 									value-format="YYYY-MM")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="其他备注")
-								el-input(v-model="formData.remark" type="textarea" maxlength="255" :rows="3" placeholder="请输入" )
+								el-input(v-model="formData.remark" type="textarea" maxlength="255" autosize placeholder="请输入" )
 </template>
 
 <style scoped lang="scss">
