@@ -2,7 +2,7 @@
 import {ref, onMounted, watch, computed, onUnmounted} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell, Expand, Fold, Clock} from '@element-plus/icons-vue'
+import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell, Refresh, Expand, Fold, Clock} from '@element-plus/icons-vue'
 import logo from '@/assets/img/logo.png'
 import Http from "@/plugins/http.js";
 import {ApiLogout} from "@/configuration/api/users.js";
@@ -72,7 +72,7 @@ watch(route, (newRoute) => {
 	let breadcrumb = [];
 	let defaultPath = '';
 	menuList.value.forEach(item => {
-		let obj = {name: `${item.icon} ${item.label}`, path: item?.path};
+		let obj = {name: `${item.label}`, path: item?.path};
 		if (item?.path === path || item.subset?.includes(path)) {
 			breadcrumb.push(obj);
 			defaultPath = obj.path;
@@ -104,6 +104,7 @@ watch(route, (newRoute) => {
 			}
 		}
 	})
+	breadcrumb[breadcrumb.length - 1].path = null
 	breadcrumbData.value = breadcrumb;
 	defaultActive.value = defaultPath;
 }, { immediate: true }); // 立即执行一次以初始化面包屑数据
@@ -159,6 +160,30 @@ const handleKeyDown = (event) => {
 const handleCtrlK = () => {
 	searchDialogVisible.value = true;
 }
+
+// 刷新路由
+const routeRefreshCount = ref({})
+// 生成路由的唯一标识（考虑路径和参数）
+const generateRouteKey = (route) => {
+	const { path, query, params } = route
+	// 根据实际需求组合 key
+	const baseKey = path
+	const queryStr = Object.keys(query).length > 0 ? JSON.stringify(query) : ''
+	const paramsStr = Object.keys(params).length > 0 ? JSON.stringify(params) : ''
+	return `${baseKey}_${queryStr}_${paramsStr}`
+}
+
+const getComponentKey = (route) => {
+	const routeKey = generateRouteKey(route)
+	const refreshCount = routeRefreshCount.value[routeKey] || 0
+	return `${routeKey}__${refreshCount}`
+}
+
+const refreshCurrentRoute = () => {
+	const routeKey = generateRouteKey(route)
+	const currentCount = routeRefreshCount.value[routeKey] || 0
+	routeRefreshCount.value[routeKey] = currentCount + 1
+}
 </script>
 
 <template lang="pug">
@@ -213,6 +238,7 @@ const handleCtrlK = () => {
 					el-button(text :icon="isCollapse ? Expand : Fold",  @click="toggleCollapse")
 			.main
 				._breadcrumb(v-if="route.path !== '/home'")
+					el-link._refresh(underline="never" :icon="Refresh" @click="refreshCurrentRoute")
 					el-breadcrumb(separator="/")
 						el-breadcrumb-item(v-for="item in breadcrumbData" :to="item.path ? {path: item.path} : null") {{item.name}}
 				._views
@@ -238,7 +264,7 @@ const handleCtrlK = () => {
 											el-skeleton-item(variant="button" style="width: 42px;height: 22px;margin-left: 15px")
 					router-view(v-slot="{ Component }")
 						keep-alive
-							component(:is="Component" :key="route.fullPath")
+							component(:is="Component" :key="getComponentKey(route)")
 	search-dialog(v-model:visible="searchDialogVisible")
 </template>
 
@@ -420,6 +446,10 @@ const handleCtrlK = () => {
 			line-height: 20px;
 			display: flex;
 			align-items: center;
+			._refresh {
+				font-size: 16px;
+				margin-right: 10px;
+			}
 			:deep(.el-breadcrumb__item) {
 				&:last-child {
 					.el-breadcrumb__inner {
