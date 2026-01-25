@@ -18,6 +18,7 @@
 	--scrollbar: #BBBBBB;
 	--text-color: #303133;
 	--text-color2: #494a4d;
+	--text-color3: #6F6F6F;
 	--table-header-bg-color: #F9F9FC;
 	--border-shadow: rgba(0, 0, 0, .15);
 	--search-footer-shadow: 0 -1px 0 0 #e0e3e8, 0 -3px 6px 0 #45629b1f;
@@ -33,6 +34,7 @@
 	--scrollbar: #666666;
 	--text-color: #E5E3F3;
 	--text-color2: #cdcbd9;
+	--text-color3: #999999;
 	--table-header-bg-color: #23292f;
 	--border-shadow: rgba(255, 255, 255, .1);
 	--search-footer-shadow: none;
@@ -58,6 +60,9 @@ a {
 //.el-table {
 //	border-radius: 6px;
 //}
+.el-drawer__body {
+	padding: 0;
+}
 .el-table th.el-table__cell {
 	background-color: var(--table-header-bg-color);
 	color: var(--text-color);
@@ -256,4 +261,107 @@ a {
 .table-head-custom {
 	display: flex;
 	justify-content: space-between;
+}
+
+// 抽屉弹窗
+._drawer {
+	.retract {
+		position: absolute;
+		width: 24px;
+		height: 24px;
+		left: -12px;
+		top: 37px;
+		background-color: var(--table-header-bg-color);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 12px;
+		box-shadow: var(--border-shadow);
+		cursor: pointer;
+		color: #6283df;
+		transition: all .4s;
+		&:hover {
+			width: 26px;
+			height: 26px;
+			top: 36px;
+			left: -13px;
+			font-size: 13px;
+		}
+	}
+	.__body {
+		height: 100%;
+		overflow-y: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+	.header {
+		height: 51px;
+		border-bottom: 1px solid var(--border);
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 20px;
+		flex-shrink: 0;
+		.title {
+			font-size: 15px;
+			color: var(--text-color);
+		}
+		.el-dropdown {
+			vertical-align: middle;
+			width: 46px;
+			height: 32px;
+			justify-content: center;
+			margin-left: 5px;
+			&:before {
+				content: '';
+				width: 1px;
+				height: 20px;
+				background-color: var(--bg-color-mute);
+				margin-top: 6px;
+				margin-right: 10px;
+			}
+		}
+		.el-link {
+			font-size: 16px;
+			line-height: 50px;
+		}
+	}
+	.content {
+		flex: 1;
+		display: flex;
+		overflow-y: hidden;
+		.left {
+			flex: 1;
+		}
+		.right {
+			width: 420px;
+			border-left: 1px solid var(--border);
+			height: 100%;
+			box-sizing: border-box;
+			padding: 15px;
+			overflow-y: auto;
+			flex-shrink: 0;
+			.el-form-item {
+				margin-bottom: 4px;
+			}
+			.el-form-item__label {
+				color: var(--text-color3);
+				padding: 0 25px 0 0;
+			}
+			.info-title {
+				font-size: 13px;
+				color: var(--text-color);
+				margin-bottom: 20px;
+				margin-left: 10px;
+			}
+			.cut-line {
+				width: 96%;
+				height: 1px;
+				margin: 10px auto 20px;
+				background-color: var(--border);
+
+			}
+		}
+	}
 }

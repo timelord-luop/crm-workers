@@ -1,5 +1,5 @@
 <script setup>
-import {ref, reactive, onMounted, nextTick} from 'vue'
+import {ref, reactive, onMounted, nextTick, computed} from 'vue'
 import {Search, RefreshLeft, Plus, Upload, Download, Setting, Close, Sort} from '@element-plus/icons-vue'
 import {useRouter} from "vue-router";
 import Http from "@/plugins/http.js";
@@ -11,6 +11,7 @@ import {
 	ApiClientQueryList
 } from "@/configuration/api/client.js";
 import draggable from 'vuedraggable';
+import ClientInfoDrawer from "@/pages/admin/client/comp/ClientInfoDrawer.vue";
 
 const router = useRouter()
 
@@ -93,6 +94,7 @@ const getBaseData = () => {
 				if (item.isShow === 1) shows.push(item)
 				if (item.isShow === 2) noShows.push(item)
 			})
+			headerFields.all = res.fields;
 			headerFields.shows = shows;
 			headerFields.noShows = noShows;
 		}
@@ -145,6 +147,7 @@ const settingRef = ref();
 const popoverRef = ref();
 const headerSearchVal = ref('');
 const headerFields = reactive({
+	all: [],
 	shows: [],
 	noShows: []
 })
@@ -199,6 +202,23 @@ const onFieldDragEnd = (event) => {
 	}
 	Http.request(ApiClientCustomFiledSetHead, inShows).then(() => {})
 }
+// 详情
+const tableRef = ref();
+const drawerVisible = ref(false);
+const rowId = ref('');
+const pageIds = computed(() => {
+	return tableData.value.map(item => item.id)
+})
+const showInfo = (row) => {
+	tableRef.value.setCurrentRow(row)
+	drawerVisible.value = true
+	rowId.value = row.id;
+}
+const onInfoPage = (index) => {
+	let rowData = tableData.value[index];
+	tableRef.value.setCurrentRow(rowData)
+	rowId.value = rowData.id;
+}
 </script>
 
 <template lang="pug">
@@ -232,20 +252,21 @@ const onFieldDragEnd = (event) => {
 					template(#dropdown)
 						el-dropdown-item(:icon="Download") 导入
 		.panel-body(style="min-height: 100px")
-			el-table(:data="tableData" border stripe show-overflow-tooltip height="100%")
+			el-table(:data="tableData" ref="tableRef" highlight-current-row border size="small" stripe show-overflow-tooltip height="100%")
 				el-table-column(label="序号" type="index" width="54" align="center" fixed="left")
 				el-table-column(prop="name" label="客户名称" width="200" fixed="left")
+					template(#default="{row}")
+						el-link(underline="never", type="primary" @click="showInfo(row)") {{row.name}}
 				el-table-column(prop="code" label="客户编号")
 				template(v-for="col in headerFields.shows" :key="col.id")
 					el-table-column(:prop="col.key" :label="col.name")
-				el-table-column(label="操作" width="140" fixed="right")
+				el-table-column(label="操作" width="80" fixed="right")
 					template(#header)
 						.table-head-custom
 							span 操作
 							el-link(ref="settingRef" :icon="Setting" type="info" underline="never")
 					template(#default="{row, $index}")
 						.tab-link
-							el-button(plain size="small") 查看
 							el-button(plain size="small" @click="toClientMd(row)") 编辑
 		.panel-footer
 			.total-section
@@ -265,7 +286,7 @@ const onFieldDragEnd = (event) => {
 			:popper-style="{padding: '10px 0'}"
 			width="240"
 			:hide-after="0"
-			placement="bottom"
+			placement="bottom-end"
 			virtual-triggering
 		)
 			.tab-head-conf
@@ -319,6 +340,11 @@ const onFieldDragEnd = (event) => {
 									@change="val => onShowChange(val, item)"
 									size="small")
 					._empty(v-else) 暂无字段
+		client-info-drawer(v-model:visible="drawerVisible"
+			:id="rowId",
+			:page-ids="pageIds",
+			:custom-fields="headerFields.all"
+			@info-page="onInfoPage")
 </template>
 
 <style scoped lang="scss">

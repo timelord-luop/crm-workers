@@ -197,7 +197,7 @@ const toDelete = (row) => {
 				.panel-extend
 					el-button(:icon="Plus" type="success" plain, @click="toAdd") 新增字典项
 			.panel-body(style="min-height: 100px")
-				el-table(:data="tableData" border stripe ref="tableRef" row-key="id" height="100%")
+				el-table(:data="tableData" border size="small" stripe ref="tableRef" row-key="id" height="100%")
 					el-table-column(label="序号" width="54" type="index" align="center")
 					el-table-column(prop="name" label="字典项")
 					el-table-column(label="字典类型")

@@ -68,7 +68,7 @@ const getBankData = (data) => {
 </script>
 
 <template lang="pug">
-	el-table(:data="bankList" border stripe height="100%")
+	el-table(:data="bankList" border size="small" stripe height="100%")
 		template(#empty)
 			el-link(type="success" @click="addBank") 添加银行卡
 		el-table-column(label="序号" width="54" type="index" align="center")

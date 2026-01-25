@@ -130,7 +130,7 @@ const toUserMd = (row) => {
 					el-icon(class="el-icon--right")
 						Upload
 		.panel-body(style="min-height: 100px")
-			el-table(:data="tableData" border stripe height="100%")
+			el-table(:data="tableData" border size="small" stripe height="100%")
 				el-table-column(type="expand")
 					template(#default="{row}")
 						el-row._table_extend(:gutter="30")

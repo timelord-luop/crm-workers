@@ -242,7 +242,7 @@ const toLocalSearch = () => {
 				el-button(:icon="Plus" type="success" plain, @click="toAdd()") 新增部门
 				el-button(:icon="Notification" type="primary" plain, @click="showChartOrg()") 组织架构图
 		.panel-body(style="min-height: 100px")
-			el-table(:data="tableData" border stripe, default-expand-all, row-key="id", height="100%")
+			el-table(:data="tableData" border size="small" stripe, default-expand-all, row-key="id", height="100%")
 				el-table-column(label="序号" width="54" align="center" type="index")
 				el-table-column(prop="name" label="部门名称")
 				el-table-column(prop="principalNames" label="负责人")

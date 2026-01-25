@@ -1,8 +1,20 @@
 <script setup>
 import {ref, onMounted, watch, computed, onUnmounted} from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import {useRouter, useRoute} from 'vue-router'
 
-import { Sunny, Moon, UserFilled, Edit, SwitchButton, Search, Bell, Refresh, Expand, Fold, Clock} from '@element-plus/icons-vue'
+import {
+	Sunny,
+	Moon,
+	UserFilled,
+	Edit,
+	SwitchButton,
+	Search,
+	Bell,
+	Refresh,
+	Expand,
+	Fold,
+	Clock
+} from '@element-plus/icons-vue'
 import logo from '@/assets/img/logo.png'
 import Http from "@/plugins/http.js";
 import {ApiLogout} from "@/configuration/api/users.js";
@@ -24,33 +36,49 @@ const isCollapse = ref(false) // 菜单折叠
 const defaultActive = ref('/home')
 const breadcrumbData = ref([]);
 const menuList = ref([
-	{ id: '1', label: '仪表盘', path: '/home', icon: '📊' },
-	{ id: '2', label: '客户管理', icon: '👥', children: [
-			{id: '34', label: '业务线索', path: '/leads', subset: [
+	{id: '1', label: '仪表盘', path: '/home', icon: '📊'},
+	{
+		id: '2', label: '客户管理', icon: '👥', children: [
+			{
+				id: '34', label: '业务线索', path: '/leads', subset: [
 					{label: '新增线索', editLabel: '编辑线索', path: '/leads-md'}
-				]},
-			{id: '35', label: '商机管理', path: '/opportunity', subset: [
+				]
+			},
+			{
+				id: '35', label: '商机管理', path: '/opportunity', subset: [
 					{label: '新增商机', editLabel: '编辑商机', path: '/opportunity-md'}
-				]},
-			{id: '21', label: '客户列表', path: '/client-list', subset: [
+				]
+			},
+			{
+				id: '21', label: '客户列表', path: '/client-list', subset: [
 					{label: '新增客户', editLabel: '编辑客户', path: '/client-md'}
-				]},
+				]
+			},
 			{id: '23', label: '客户设置', path: '/client-conf'},
-		]},
-	{ id: '5', label: '供应商管理', path: '/supplier', icon: '🏢', subset: [
+		]
+	},
+	{
+		id: '5', label: '供应商管理', path: '/supplier', icon: '🏢', subset: [
 			{label: '新增供应商', editLabel: '编辑供应商', path: '/supplier-md'}
-		]},
-	{ id: '3', label: '组织架构', icon: '🌐', children: [
-			{id: '31', label: '员工管理', path: '/user', subset: [
+		]
+	},
+	{
+		id: '3', label: '组织架构', icon: '🌐', children: [
+			{
+				id: '31', label: '员工管理', path: '/user', subset: [
 					{label: '新增员工', editLabel: '编辑员工', path: '/user-md'}
-				]},
+				]
+			},
 			{id: '32', label: '部门管理', path: '/dept'},
 			{id: '33', label: '职务管理', path: '/position'},
-		]},
-	{ id: '6', label: '系统设置', icon: '⚙️', children: [
+		]
+	},
+	{
+		id: '6', label: '系统设置', icon: '⚙️', children: [
 			{id: '40', label: '数据字典', path: '/dictionary'},
 			{id: '41', label: '系统信息', path: '/system-info'}
-		]},
+		]
+	},
 ])
 
 // 组件挂载时读取本地存储的主题设置
@@ -85,9 +113,15 @@ watch(route, (newRoute) => {
 					}
 					if (child.path === path || findSub) {
 						breadcrumb.push(obj);
-						breadcrumb.push({name: `${newRoute.query.eid ? child.editLabel || child.label : child.label}`, path: child.path});
+						breadcrumb.push({
+							name: `${newRoute.query.eid ? child.editLabel || child.label : child.label}`,
+							path: child.path
+						});
 						if (findSub) {
-							breadcrumb.push({name: `${newRoute.query.eid ? findSub.editLabel || findSub.label : findSub.label}`, path: findSub.path});
+							breadcrumb.push({
+								name: `${newRoute.query.eid ? findSub.editLabel || findSub.label : findSub.label}`,
+								path: findSub.path
+							});
 						}
 						defaultPath = child.path;
 					}
@@ -97,17 +131,20 @@ watch(route, (newRoute) => {
 					let findSub = item.subset.find(sub => sub.path === path);
 					if (item.path === path || findSub) {
 						breadcrumb.push(obj);
-						breadcrumb.push({name: `${newRoute.query.eid ? findSub.editLabel || findSub.label : findSub.label}`, path: findSub.path});
+						breadcrumb.push({
+							name: `${newRoute.query.eid ? findSub.editLabel || findSub.label : findSub.label}`,
+							path: findSub.path
+						});
 						defaultPath = item.path;
 					}
 				}
 			}
 		}
 	})
-	breadcrumb[breadcrumb.length - 1].path = null
+	if (breadcrumb.length) breadcrumb[breadcrumb.length - 1].path = null
 	breadcrumbData.value = breadcrumb;
 	defaultActive.value = defaultPath;
-}, { immediate: true }); // 立即执行一次以初始化面包屑数据
+}, {immediate: true}); // 立即执行一次以初始化面包屑数据
 // 切换主题
 const toggleTheme = () => {
 	isDark.value = !isDark.value
@@ -165,7 +202,7 @@ const handleCtrlK = () => {
 const routeRefreshCount = ref({})
 // 生成路由的唯一标识（考虑路径和参数）
 const generateRouteKey = (route) => {
-	const { path, query, params } = route
+	const {path, query, params} = route
 	// 根据实际需求组合 key
 	const baseKey = path
 	const queryStr = Object.keys(query).length > 0 ? JSON.stringify(query) : ''
@@ -275,6 +312,7 @@ const refreshCurrentRoute = () => {
 	display: flex;
 	flex-direction: column;
 }
+
 .header {
 	height: 50px;
 	display: flex;
@@ -283,17 +321,21 @@ const refreshCurrentRoute = () => {
 	padding: 0 20px;
 	border-bottom: 1px solid var(--border);
 	backdrop-filter: blur(6px);
+
 	._left {
 		display: flex;
 		align-items: center;
+
 		.el-avatar {
 			background-color: initial;
 		}
+
 		._tit {
 			font-size: 15px;
 			margin-left: 10px;
 			font-weight: bold;
 		}
+
 		.el-tag {
 			margin-left: 10px;
 			color: #6283df;
@@ -301,9 +343,11 @@ const refreshCurrentRoute = () => {
 			border-radius: 8px;
 		}
 	}
+
 	._right {
 		display: flex;
 		align-items: center;
+
 		._search {
 			padding: 3px 20px;
 			max-height: 32px;
@@ -315,51 +359,64 @@ const refreshCurrentRoute = () => {
 			cursor: pointer;
 			margin-right: 20px;
 			border: 1px solid rgba(0, 0, 0, 0);
+
 			&:hover {
 				border-color: var(--el-color-primary);
 			}
+
 			.el-icon {
 				font-size: 17px;
 				color: var(--text-color);
 			}
+
 			._text {
 				margin: 0 10px;
 				font-size: 15px;
 			}
 		}
+
 		.el-badge {
 			margin-right: 8px;
 			margin-top: 4px;
 			cursor: pointer;
+
 			.el-icon {
 				font-size: 16px;
 				color: var(--text-color);
 			}
+
 			:deep(.el-badge__content) {
 				top: -4px;
 			}
 		}
+
 		.el-switch {
 			--el-switch-on-color: var(--bg-color-mute);
 			--el-switch-off-color: var(--bg-color-mute);
+
 			:deep(.el-switch__action) {
 				color: #2C2C2C;
 			}
 		}
+
 		._split {
 			width: 1px;
 			height: 25px;
 			background-color: var(--border);
 			margin: 0 15px;
 		}
+
 		._user {
 			cursor: pointer;
+
 			._user_blo {
 				display: flex;
+
 				._user_tag {
 					margin-left: 10px;
 					font-size: 12px;
 					text-align: center;
+
 					._name_org {
 						color: var(--secondary);
 						margin-top: 5px;
@@ -369,14 +426,17 @@ const refreshCurrentRoute = () => {
 		}
 	}
 }
+
 .content {
 	display: flex;
 	flex: 1;
 	min-height: 0;
+
 	.menus {
 		overflow: hidden;
 		display: flex;
 		flex-direction: column;
+
 		.el-menu {
 			flex: 1;
 			scrollbar-color: var(--scrollbar) var(--bg-color-mute);
@@ -384,40 +444,50 @@ const refreshCurrentRoute = () => {
 			border-right: none;
 			padding-top: 12px;
 		}
+
 		.menus-footer {
 			display: flex;
 			margin: 6px 0;
 			justify-content: center;
 			align-items: center;
+
 			.el-button {
 				font-size: 16px;
 				margin: 6px 0;
 			}
-			.el-button+.el-button {
+
+			.el-button + .el-button {
 				margin-left: 0;
 			}
 		}
+
 		._fold {
 			flex-direction: column;
-        }
-        ._expend {
-            flex-direction: row;
 		}
+
+		._expend {
+			flex-direction: row;
+		}
+
 		._el-menu-vertical {
 			height: 100%;
 			overflow-y: auto;
 		}
+
 		._el-menu-vertical:not(.el-menu--collapse) {
 			width: 180px;
 		}
+
 		:deep(.el-sub-menu__title) {
 			height: 46px;
 			line-height: 46px;
 		}
+
 		.el-menu-item {
 			height: 46px;
 			line-height: 46px;
 		}
+
 		._icon {
 			width: 18px;
 			height: 18px;
@@ -431,6 +501,7 @@ const refreshCurrentRoute = () => {
 			margin-right: 5px;
 		}
 	}
+
 	.main {
 		display: flex;
 		flex-direction: column;
@@ -441,15 +512,18 @@ const refreshCurrentRoute = () => {
 		background-color: var(--bg-color-mute);
 		border-top-left-radius: 12px;
 		border-bottom-left-radius: 12px;
+
 		._breadcrumb {
 			height: 20px;
 			line-height: 20px;
 			display: flex;
 			align-items: center;
+
 			._refresh {
 				font-size: 16px;
 				margin-right: 10px;
 			}
+
 			:deep(.el-breadcrumb__item) {
 				&:last-child {
 					.el-breadcrumb__inner {
@@ -458,28 +532,34 @@ const refreshCurrentRoute = () => {
 				}
 			}
 		}
+
 		._views {
 			flex: 1;
 			min-height: 0;
 			border-radius: 4px;
 			overflow: hidden;
+
 			._skeleton {
 				margin-top: 20px;
 				padding: 0 10px;
 				height: calc(100% - 20px);
 				display: flex;
 				flex-direction: column;
+
 				._skeleton_body {
 					flex: 1;
 					overflow: hidden;
 					margin-bottom: 40px;
+
 					:deep(.el-skeleton__paragraph) {
 						margin-top: 20px
 					}
 				}
+
 				._skeleton_footer {
 					height: 40px;
 				}
+
 				._skeleton_head {
 					display: flex;
 					justify-content: space-between;

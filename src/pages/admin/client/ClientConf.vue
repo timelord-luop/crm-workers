@@ -215,6 +215,7 @@ const toSaveConf = () => {
 				el-table(:data="tableData"
 					ref="tableRef"
 					border
+					size="small"
 					stripe
 					height="100%"
 					row-key="id"

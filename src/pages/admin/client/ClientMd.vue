@@ -49,6 +49,7 @@ const formData = reactive({
 const rules = {
 	name: [{required: true, message: '请输入客户名称', trigger: 'change'}],
 	type: [{required: true, message: '请选择客户类型', trigger: 'change'}],
+	source: [{required: true, message: '请选择客户来源', trigger: 'change'}],
 	principal: [{required: true, message: '请选择客户负责人', trigger: 'change'}]
 }
 /* ================= formatter：只管显示 ================= */
@@ -271,7 +272,7 @@ const getSubmitData = () => {
 								el-select(v-model="formData.type" placeholder="请选择" clearable)
 									el-option(v-for="item in typeOptions" :key="item.id" :label="item.name" :value="item.name")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
-							el-form-item
+							el-form-item(prop="source")
 								template(#label)
 									span
 										span 客户来源

@@ -173,9 +173,9 @@ const toCommit = async (formEl) => {
 				el-button._add_btn(:icon="Plus" size="small" plain, @click="toAddOption") 添加选项
 				el-table(:data="dialogData.options"
 					border
+					size="small"
 					ref="tableRef"
 					row-key="idx"
-					size="small"
 					:show-header="false")
 					el-table-column(prop="val" label="选项值")
 						template(#default="{row, $index}")

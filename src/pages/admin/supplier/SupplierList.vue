@@ -148,7 +148,7 @@ const toInfo = (row) => {
 					el-icon(class="el-icon--right")
 						Upload
 		.panel-body(style="min-height: 100px")
-			el-table(:data="tableData" border stripe show-overflow-tooltip height="100%")
+			el-table(:data="tableData" border size="small" stripe show-overflow-tooltip height="100%")
 				el-table-column(label="序号" width="54" align="center")
 					template(#default="{$index}") {{ (pager.rows * (pager.page - 1)) + $index + 1}}
 				el-table-column(prop="name" label="供应商名称")
