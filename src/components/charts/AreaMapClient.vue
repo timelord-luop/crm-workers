@@ -333,6 +333,7 @@ async function loadGeoJSON(adcode, mapName) {
 		if (!res.ok) throw new Error("GeoJSON load failed");
 
 		const data = await res.json();
+
 		echarts.registerMap(mapName, data);
 		loadedMaps.set(mapName, data);
 		return data;

@@ -245,7 +245,7 @@ const onInfoPage = (index) => {
 					el-button(:icon="RefreshLeft" @click="resetFilter") 重置
 			.panel-extend
 				el-button(:icon="Plus" type="success" plain, @click="toClientMd()") 新增客户
-				el-dropdown(split-button, trigger="click", @click="handleClick", style="margin-left: 10px")
+				el-dropdown(split-button, trigger="click", @click="handleClick", style="margin-left: 6px")
 					el-icon(class="el-icon--right")
 						Upload
 					span 导出

@@ -36,9 +36,9 @@ const isCollapse = ref(false) // 菜单折叠
 const defaultActive = ref('/home')
 const breadcrumbData = ref([]);
 const menuList = ref([
-	{id: '1', label: '仪表盘', path: '/home', icon: '📊'},
+	{id: '1', label: '仪表盘', path: '/home', icon: 'icon-dashboard'},
 	{
-		id: '2', label: '客户管理', icon: '👥', children: [
+		id: '2', label: '业务管理', icon: 'icon-yewuguanli', children: [
 			{
 				id: '34', label: '业务线索', path: '/leads', subset: [
 					{label: '新增线索', editLabel: '编辑线索', path: '/leads-md'}
@@ -58,25 +58,34 @@ const menuList = ref([
 		]
 	},
 	{
-		id: '5', label: '供应商管理', path: '/supplier', icon: '🏢', subset: [
-			{label: '新增供应商', editLabel: '编辑供应商', path: '/supplier-md'}
+		id: '3', label: '财务管理', icon: 'icon-caiwuguanli', children: [
+			{id: '31', label: '日记账', path: '/day-book'},
+			{id: '32', label: '收款记录', path: '/receipt'},
+			{id: '33', label: '付款记录', path: '/payment'},
+			{id: '34', label: '账户管理', path: '/account'},
+			{
+				id: '35', label: '供应商管理', path: '/supplier', subset: [
+					{label: '新增供应商', editLabel: '编辑供应商', path: '/supplier-md'}
+				]
+			}
 		]
+
 	},
 	{
-		id: '3', label: '组织架构', icon: '🌐', children: [
+		id: '4', label: '组织架构', icon: 'icon-zuzhijiagou', children: [
 			{
-				id: '31', label: '员工管理', path: '/user', subset: [
+				id: '41', label: '员工管理', path: '/user', subset: [
 					{label: '新增员工', editLabel: '编辑员工', path: '/user-md'}
 				]
 			},
-			{id: '32', label: '部门管理', path: '/dept'},
-			{id: '33', label: '职务管理', path: '/position'},
+			{id: '42', label: '部门管理', path: '/dept'},
+			{id: '43', label: '职务管理', path: '/position'},
 		]
 	},
 	{
-		id: '6', label: '系统设置', icon: '⚙️', children: [
-			{id: '40', label: '数据字典', path: '/dictionary'},
-			{id: '41', label: '系统信息', path: '/system-info'}
+		id: '5', label: '系统设置', icon: 'icon-xitongshezhi1', children: [
+			{id: '51', label: '数据字典', path: '/dictionary'},
+			{id: '52', label: '系统信息', path: '/system-info'}
 		]
 	},
 ])
@@ -255,6 +264,7 @@ const refreshCurrentRoute = () => {
 			.menus
 				el-menu(
 					class="_el-menu-vertical"
+					:default-openeds="['2']",
 					:default-active="defaultActive",
 					:collapse="isCollapse",
 					@select="menuChecked"
@@ -262,11 +272,11 @@ const refreshCurrentRoute = () => {
 					template(v-for="item in menuList" :key="item.id")
 						el-sub-menu(:index="item.id" v-if="item.children")
 							template(#title)
-								._icon {{item.icon}}
+								._icon.iconfont(:class="item.icon")
 								span {{item.label}}
 							el-menu-item(v-for="child in item.children" :index="child.path") {{child.label}}
 						el-menu-item(v-else, :index="item.path")
-							._icon {{item.icon}}
+							._icon.iconfont(:class="item.icon")
 							template(#title) {{item.label}}
 				.menus-footer(v-show="isShowMenuFooter" :class="isCollapse ? '_fold' : '_expend'")
 					el-tooltip(effect="dark" :show-after="500" :placement="!isCollapse ? 'top-start' : 'right'" content="历史记录 Ctrl E")
@@ -436,11 +446,16 @@ const refreshCurrentRoute = () => {
 		overflow: hidden;
 		display: flex;
 		flex-direction: column;
-
+		.el-menu-item.is-active {
+			font-weight: bold;
+			.iconfont {
+				color: var(--el-menu-active-color);
+			}
+		}
 		.el-menu {
 			flex: 1;
 			scrollbar-color: var(--scrollbar) var(--bg-color-mute);
-			scrollbar-width: thin;
+			scrollbar-width: none;
 			border-right: none;
 			padding-top: 12px;
 		}
@@ -467,6 +482,7 @@ const refreshCurrentRoute = () => {
 
 		._expend {
 			flex-direction: row;
+			box-shadow: inset 0 2px 3px -1px var(--border-shadow-little);
 		}
 
 		._el-menu-vertical {
@@ -489,16 +505,18 @@ const refreshCurrentRoute = () => {
 		}
 
 		._icon {
-			width: 18px;
-			height: 18px;
-			font-size: 12px;
+			width: 20px;
+			height: 20px;
+			font-size: 14px;
 			display: flex;
 			align-items: center;
 			border-radius: 6px;
 			border: 1px solid var(--border);
 			justify-content: center;
-			background-color: #f3f4f6;
+			//background-color: #f3f4f6;
+			background-color: var(--bg-color-mute);
 			margin-right: 5px;
+			color: var(--text-color2);
 		}
 	}
 

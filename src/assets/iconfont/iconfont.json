@@ -1,0 +1,44 @@
+{
+  "id": "5134778",
+  "name": "crm",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "11356575",
+      "name": "系统设置",
+      "font_class": "xitongshezhi1",
+      "unicode": "e6b1",
+      "unicode_decimal": 59057
+    },
+    {
+      "icon_id": "28966208",
+      "name": "组织架构",
+      "font_class": "zuzhijiagou",
+      "unicode": "e7b9",
+      "unicode_decimal": 59321
+    },
+    {
+      "icon_id": "3372179",
+      "name": "财务管理",
+      "font_class": "caiwuguanli",
+      "unicode": "e675",
+      "unicode_decimal": 58997
+    },
+    {
+      "icon_id": "18828432",
+      "name": "仪表盘",
+      "font_class": "dashboard",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "34164244",
+      "name": "业务管理",
+      "font_class": "yewuguanli",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    }
+  ]
+}

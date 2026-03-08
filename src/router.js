@@ -29,22 +29,22 @@ const router = createRouter({
 					component: () => import('@/pages/admin/client/LeadsList.vue'),
 				},{
 					path: '/leads-md',
-					component: () => import('@/pages/admin/client/OpportunityList.vue'),
+					component: () => import('@/pages/admin/client/LeadsMd.vue'),
 				},{
 					path: '/opportunity',
-					component: () => import('@/pages/admin/client/OpportunityMd.vue'),
+					component: () => import('@/pages/admin/client/OpportunityList.vue'),
 				},{
 					path: '/opportunity-md',
-					component: () => import('@/pages/admin/client/LeadsMd.vue'),
+					component: () => import('@/pages/admin/client/OpportunityMd.vue'),
 				},{
 					path: '/client-conf',
 					component: () => import('@/pages/admin/client/ClientConf.vue'),
 				},{
 					path: '/supplier',
-					component: () => import('@/pages/admin/supplier/SupplierList.vue'),
+					component: () => import('@/pages/admin/finance/SupplierList.vue'),
 				},{
 					path: '/supplier-md',
-					component: () => import('@/pages/admin/supplier/SupplierMd.vue'),
+					component: () => import('@/pages/admin/finance/SupplierMd.vue'),
 				},{
 					path: '/user',
 					component: () => import('@/pages/admin/org/UserList.vue'),
@@ -63,6 +63,18 @@ const router = createRouter({
 				},{
 					path: '/system-info',
 					component: () => import('@/pages/admin/setting/SystemInfo.vue'),
+				},{
+					path: '/day-book',
+					component: () => import('@/pages/admin/finance/DayBook.vue'),
+				},{
+					path: '/receipt',
+					component: () => import('@/pages/admin/finance/Receipt.vue'),
+				},{
+					path: '/payment',
+					component: () => import('@/pages/admin/finance/Payment.vue'),
+				},{
+					path: '/account',
+					component: () => import('@/pages/admin/finance/Account.vue'),
 				}
 			]
 		}
