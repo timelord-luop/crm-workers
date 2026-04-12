@@ -1,7 +1,7 @@
 <script setup>
 import {ref, reactive, onMounted} from 'vue'
 import { useRouter } from 'vue-router'
-import {Search, RefreshLeft, Plus, Upload} from '@element-plus/icons-vue'
+import {Search, RefreshLeft, Plus, Upload, ArrowDown} from '@element-plus/icons-vue'
 import Http from "@/plugins/http.js";
 import {ApiDeptSimpleList, ApiPostSimpleList, ApiUserList} from "@/configuration/api/users.js";
 
@@ -225,16 +225,16 @@ const toUserMd = (row) => {
 				el-table-column(label="操作" width="140")
 					template(#default="{row, $index}")
 						.tab-link
-							el-button(plain size="small" @click="toUserMd(row)") 编辑
-							el-dropdown(placement="bottom-end" trigger="click" style="margin-left: 8px")
-								el-button(plain size="small") 更多
+							el-link(underline="never" type="primary"  @click="toUserMd(row)") 编辑
+							el-dropdown(placement="bottom-end" trigger="click")
+								el-link(underline="never" type="primary") 更多
+									el-icon
+										ArrowDown
 								template(#dropdown)
 									el-dropdown-menu
 										el-dropdown-item() 重置密码
 										el-dropdown-item() 关闭账号
 										el-dropdown-item() 离职办理
-							//el-link(:icon="Edit" type="primary" underline="never" title="编辑")
-							//el-link(:icon="View" type="primary" underline="never" title="详情")
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

@@ -126,8 +126,8 @@ const getBaseData = () => {
 				el-table-column(label="操作" width="140")
 					template(#default="{row, $index}")
 						.tab-link
-							el-button(plain size="small" @click="toInfo(row)") 查看
-							el-button(plain size="small" @click="toMd(row)") 编辑
+							el-link(underline="never" type="primary" @click="toInfo(row)") 查看
+							el-link(underline="never" type="primary" @click="toMd(row)") 编辑
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

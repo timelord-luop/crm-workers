@@ -1,8 +1,9 @@
 <script setup>
-import {ArrowRightBold, ArrowUp, ArrowDown, MoreFilled} from '@element-plus/icons-vue'
-import {computed, ref, watch} from "vue";
+import {ArrowRightBold, ArrowUp, ArrowDown, MoreFilled, Plus} from '@element-plus/icons-vue'
+import {computed, ref, watch, onMounted} from "vue";
 import Http from "@/plugins/http.js";
 import {ApiClientInfo} from "@/configuration/api/client.js";
+import Editor from "@/components/Editor.vue";
 
 const props = defineProps({
 	visible: {
@@ -41,10 +42,21 @@ const next = () => {
 }
 
 const infoData = ref({});
+const activeTab = ref('follow');
+const showEditor = ref(false);
+const editorContent = ref('');
+const followList = ref([]);
+const paymentList = ref([]);
+const receiptList = ref([]);
 
 watch(() => props.id, (val) => {
 	parseCustomField();
 	getInfoData(val);
+	if (val) {
+		getFollowList(val);
+		getPaymentList(val);
+		getReceiptList(val);
+	}
 })
 
 const fieldsNameObj = ref({});
@@ -90,10 +102,118 @@ const parseInfoData = (data) => {
 	}
 	infoData.value = info;
 }
+
+// 获取跟进记录
+const getFollowList = (clientId) => {
+	// 模拟数据
+	followList.value = [
+		{
+			id: 1,
+			content: '跟进客户需求',
+			createTime: '2026-04-10 15:14:06',
+			createUser: '王良财'
+		},
+		{
+			id: 2,
+			content: '确认合作细节',
+			createTime: '2026-04-09 10:30:00',
+			createUser: '王良财'
+		}
+	];
+};
+
+// 获取付款列表
+const getPaymentList = (clientId) => {
+	// 模拟数据
+	paymentList.value = [
+		{
+			id: 1,
+			amount: '10000.00',
+			paymentTime: '2026-04-10 15:14:06',
+			remark: '合同首款'
+		},
+		{
+			id: 2,
+			amount: '20000.00',
+			paymentTime: '2026-04-09 10:30:00',
+			remark: '合同尾款'
+		}
+	];
+};
+
+// 获取收款列表
+const getReceiptList = (clientId) => {
+	// 模拟数据
+	receiptList.value = [
+		{
+			id: 1,
+			amount: '5000.00',
+			receiptTime: '2026-04-10 15:14:06',
+			remark: '服务费用'
+		},
+		{
+			id: 2,
+			amount: '8000.00',
+			receiptTime: '2026-04-09 10:30:00',
+			remark: '产品费用'
+		}
+	];
+};
+
+// 打开富文本编辑器
+const openEditor = () => {
+	showEditor.value = true;
+	// 延迟初始化编辑器，确保DOM已经渲染
+	setTimeout(() => {
+		initEditor();
+	}, 100);
+};
+
+// 关闭富文本编辑器
+const closeEditor = () => {
+	showEditor.value = false;
+	editorContent.value = '';
+};
+
+// 提交跟进信息
+const submitFollow = () => {
+	// 这里可以添加提交逻辑
+	console.log('提交跟进信息:', editorContent.value);
+	closeEditor();
+	// 重新获取跟进记录
+	getFollowList(props.id);
+};
+
+// 初始化wangeditor
+const initEditor = () => {
+	if (window.WangEditor) {
+		const editor = window.WangEditor.createEditor({
+			selector: '#editor-container',
+			html: editorContent.value
+		});
+		
+		editor.on('change', () => {
+			editorContent.value = editor.getHtml();
+		});
+	}
+};
+
+// 切换tab
+const switchTab = (tab) => {
+	activeTab.value = tab;
+	showEditor.value = false;
+};
+
+// 新建按钮点击事件
+const handleCreate = () => {
+	if (activeTab.value === 'follow') {
+		openEditor();
+	}
+};
 </script>
 
 <template lang="pug">
-	el-drawer._drawer(v-model="dialogVisible" :modal="false" size="64%" modal-penetrable :with-header="false")
+	el-drawer._drawer(v-model="dialogVisible" :modal="false" size="70%" modal-penetrable :with-header="false")
 		.retract(@click="dialogVisible = false")
 			el-icon
 				ArrowRightBold
@@ -113,7 +233,7 @@ const parseInfoData = (data) => {
 			.content(v-loading="pageLoading")
 				.left
 					.main
-
+						editor
 					.footer
 
 				.right

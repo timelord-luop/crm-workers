@@ -81,9 +81,9 @@ const getBankData = (data) => {
 		el-table-column(label="操作" width="180")
 			template(#default="{row, $index}")
 				.tab-link
-					el-button(text bg size="small" type="success" @click="addBank($index)") 添加
-					el-button(text bg size="small" @click="bankEdit(row, $index)") 编辑
-					el-button(text bg size="small" type="danger" @click="bankDelete($index)") 删除
+					el-link(underline="never" type="success" @click="addBank($index)") 添加
+					el-link(underline="never" type="primary" @click="bankEdit(row, $index)") 编辑
+					el-link(underline="never" type="danger" @click="bankDelete($index)") 删除
 	bank-dialog(v-model:visible="dialogVisible" :bank-data="bankData" @confirm="getBankData")
 </template>
 

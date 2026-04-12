@@ -12,6 +12,7 @@ import {
 } from "@/configuration/api/client.js";
 import draggable from 'vuedraggable';
 import ClientInfoDrawer from "@/pages/admin/client/comp/ClientInfoDrawer.vue";
+import ExportImport from "@/components/ExportImport.vue";
 
 const router = useRouter()
 
@@ -74,7 +75,12 @@ const resetFilter = () => {
 	filter.principal = '';
 	getBaseData();
 }
-const  handleClick = () => {
+// 导出
+const  onExport = () => {
+
+}
+// 导入
+const  onImport = () => {
 
 }
 
@@ -245,29 +251,25 @@ const onInfoPage = (index) => {
 					el-button(:icon="RefreshLeft" @click="resetFilter") 重置
 			.panel-extend
 				el-button(:icon="Plus" type="success" plain, @click="toClientMd()") 新增客户
-				el-dropdown(split-button, trigger="click", @click="handleClick", style="margin-left: 6px")
-					el-icon(class="el-icon--right")
-						Upload
-					span 导出
-					template(#dropdown)
-						el-dropdown-item(:icon="Download") 导入
+				export-import(isImport @onExport="onExport" @onImport="onImport")
 		.panel-body(style="min-height: 100px")
 			el-table(:data="tableData" ref="tableRef" highlight-current-row border size="small" stripe show-overflow-tooltip height="100%")
 				el-table-column(label="序号" type="index" width="54" align="center" fixed="left")
 				el-table-column(prop="name" label="客户名称" width="200" fixed="left")
 					template(#default="{row}")
-						el-link(underline="never", type="primary" @click="showInfo(row)") {{row.name}}
+						el-link(underline="never", @click="showInfo(row)") {{row.name}}
 				el-table-column(prop="code" label="客户编号")
 				template(v-for="col in headerFields.shows" :key="col.id")
 					el-table-column(:prop="col.key" :label="col.name")
-				el-table-column(label="操作" width="80" fixed="right")
+				el-table-column(label="操作" width="120" fixed="right")
 					template(#header)
 						.table-head-custom
 							span 操作
 							el-link(ref="settingRef" :icon="Setting" type="info" underline="never")
 					template(#default="{row, $index}")
 						.tab-link
-							el-button(plain size="small" @click="toClientMd(row)") 编辑
+							el-link(underline="never" type="primary" @click="showInfo(row)") 查看
+							el-link(underline="never" type="primary" @click="toClientMd(row)") 编辑
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

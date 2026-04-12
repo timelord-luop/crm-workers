@@ -1,9 +1,11 @@
 <script setup>
 import {useRouter} from "vue-router";
 import {onMounted, reactive, ref} from "vue";
-import {Search, RefreshLeft, Plus, Upload} from '@element-plus/icons-vue'
+import {Search, RefreshLeft, Plus, Upload, ArrowDown} from '@element-plus/icons-vue'
 import Http from "@/plugins/http.js";
 import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
+import {ApiLeadsDelete, ApiLeadsQueryList, ApiLeadsUpdateStatus} from "@/configuration/api/leads.js";
+import {ElMessage, ElMessageBox} from "element-plus";
 
 const router = useRouter()
 
@@ -17,10 +19,34 @@ const statusObj = {
 	"4": {id: 4, name: '已流失', tagType: 'info'}
 }
 const statusList = ref(Object.values(statusObj));
+
+/** DB INTEGER：秒或毫秒 → 展示用毫秒 */
+const toDisplayMs = (val) => {
+	if (val == null || val === '') return null
+	const n = Number(val)
+	if (!Number.isFinite(n)) return null
+	return n > 1e12 ? n : n * 1000
+}
+
+const formatDbDate = (val) => {
+	const ms = toDisplayMs(val)
+	if (ms == null) return '-'
+	const d = new Date(ms)
+	const y = d.getFullYear()
+	const m = String(d.getMonth() + 1).padStart(2, '0')
+	const day = String(d.getDate()).padStart(2, '0')
+	return `${y}-${m}-${day}`
+}
+
+const formatDbDateTime = (val) => {
+	const ms = toDisplayMs(val)
+	return ms == null ? '-' : new Date(ms).toLocaleString('zh-CN', {hour12: false})
+}
+
 const filter = reactive({
 	conditions: '',
 	source: '',
-	intention: '',
+	productIntent: '',
 	status: ''
 });
 const pager = reactive({
@@ -29,30 +55,7 @@ const pager = reactive({
 	total: 0,
 	pageCount: 0
 });
-const tableData = ref([
-	{id: 1, name: "关于五金建材的咨询", client: '北京XX科技有限公司', phone: '13696445004', source: '电话咨询', intention: '五金建材', status: 1, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "千里香旗舰店意向", client: '千里香旗舰店', phone: '13696445004', source: '渠道代理', intention: '五金建材', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '广州XX制造有限公司', phone: '13696445004', source: '客户推荐', intention: '防火门系列', status: 3, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '云南香格里拉云雾大酒店', phone: '13696445004', source: '线下活动', intention: '五金建材', status: 4, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '北京XX科技有限公司', phone: '13696445004', source: '其他', intention: '门窗系列', status: 4, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '云南香格里拉云雾大酒店', phone: '13696445004', source: '客户推荐', intention: '五金建材', status: 3, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '北京XX科技有限公司', phone: '13696445004', source: '其他', intention: '五金建材', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "地推咨询", client: '北京XX科技有限公司', phone: '13696445004', source: '在线客服', intention: '五金建材', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '成都飞鱼科技有限公司', phone: '13696445004', source: '客户推荐', intention: '门窗系列', status: 1, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '成都飞鱼科技有限公司', phone: '13696445004', source: '线下活动', intention: '防火门系列', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '北京XX科技有限公司', phone: '13696445004', source: '线下活动', intention: '防火门系列', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '北京XX科技有限公司', phone: '13696445004', source: '线下活动', intention: '防火门系列', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '成都飞鱼科技有限公司', phone: '13696445004', source: '在线客服', intention: '五金建材', status: 3, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '云南香格里拉云雾大酒店', phone: '13696445004', source: '在线客服', intention: '防火门系列', status: 4, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '云南香格里拉云雾大酒店', phone: '13696445004', source: '客户推荐', intention: '五金建材', status: 3, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '北京XX科技有限公司', phone: '13696445004', source: '其他', intention: '五金建材', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "地推咨询", client: '北京XX科技有限公司', phone: '13696445004', source: '在线客服', intention: '五金建材', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '成都飞鱼科技有限公司', phone: '13696445004', source: '客户推荐', intention: '门窗系列', status: 1, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '成都飞鱼科技有限公司', phone: '13696445004', source: '线下活动', intention: '防火门系列', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '北京XX科技有限公司', phone: '13696445004', source: '线下活动', intention: '防火门系列', status: 2, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '成都飞鱼科技有限公司', phone: '13696445004', source: '在线客服', intention: '五金建材', status: 3, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-	{id: 1, name: "关于五金建材的咨询", client: '云南香格里拉云雾大酒店', phone: '13696445004', source: '在线客服', intention: '防火门系列', status: 4, principal: '徐三', nextTime: '2026-03-11', createTime: '2026-03-02 11:11'},
-]);
+const tableData = ref([]);
 
 onMounted(() => {
 	getDictList();
@@ -76,12 +79,95 @@ const handleCurrentChange = (val) => {
 }
 const resetFilter = () => {
 	filter.conditions = '';
-	filter.level = '';
-	filter.classify = '';
+	filter.source = '';
+	filter.productIntent = '';
+	filter.status = '';
+	pager.page = 1;
 	getBaseData();
 }
 const getBaseData = () => {
+	loading.value = true;
+	const params = getParams();
+	Http.request(ApiLeadsQueryList, params).then(res => {
+		loading.value = false;
+		pager.total = res.total;
+		pager.pageCount = res.pageCount;
+		tableData.value = res.list;
+	}).catch(err => {
+		console.log(err);
+		loading.value = false;
+	})
+}
 
+const getParams = () => {
+	let params = {
+		page: pager.page,
+		rows: pager.rows
+	}
+	if (filter.conditions) params.conditions = filter.conditions;
+	if (filter.source) params.source = filter.source;
+	if (filter.productIntent) params.productIntent = filter.productIntent;
+	if (filter.status !== '' && filter.status != null) params.status = filter.status;
+	return params;
+}
+
+const handleCommand = (command, row) => {
+	if (command === 'delete') {
+		ElMessageBox.confirm(`确定删除线索 “${row.name}” ?`, '提示', {
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			type: 'warning',
+		}).then(() => {
+			loading.value = true;
+			Http.request(ApiLeadsDelete, {id: row.id}).then(() => {
+				ElMessage({
+					type: 'success',
+					showClose: true,
+					message: `已删除线索：${row.name}`,
+				})
+				loading.value = false;
+				getBaseData();
+			}).catch(err => {
+				console.log(err);
+				loading.value = false;
+			})
+		}).catch(() => {})
+	}
+	if (String(command || '').startsWith('status:')) {
+		const status = Number(String(command).split(':')[1]);
+		if (!status) return;
+		loading.value = true;
+		Http.request(ApiLeadsUpdateStatus, {id: row.id, status}).then(() => {
+			loading.value = false;
+			row.status = status;
+		}).catch(err => {
+			console.log(err);
+			loading.value = false;
+		})
+	}
+}
+
+const toMd = (row) => {
+	if (row) {
+		router.push({
+			path: '/leads-md',
+			query: {
+				eid: row.id
+			}
+		})
+	} else {
+		router.push('/leads-md')
+	}
+}
+
+const toInfo = (row) => {
+	router.push({
+		path: '/leads-md',
+		query: {
+			eid: row.id,
+			mode: 'info'
+		}
+	})
 }
 
 </script>
@@ -92,15 +178,15 @@ const getBaseData = () => {
 			.panel-filter
 				el-input(v-model="filter.conditions"
 					clearable
-					placeholder="线索名称 / 客户 / 公司"
+					placeholder="线索名称 / 客户公司 / 联系人 / 电话"
 					@keyup.enter="getBaseData"
 					@clear="getBaseData")
 				el-select(v-model="filter.source" filterable placeholder="线索来源" @clear="getBaseData" clearable)
 					el-option(v-for="item in sourceList" :key="item.id" :label="item.name" :value="item.name")
-				el-select(v-model="filter.intention" filterable placeholder="产品意向" @clear="getBaseData" clearable)
+				el-select(v-model="filter.productIntent" filterable placeholder="产品意向" @clear="getBaseData" clearable)
 					el-option(v-for="item in intentionList" :key="item.id" :label="item.name" :value="item.name")
 				el-select(v-model="filter.status" filterable placeholder="线索状态" @clear="getBaseData" clearable)
-					el-option(v-for="item in statusList" :key="item.id" :label="item.name" :value="item.name")
+					el-option(v-for="item in statusList" :key="item.id" :label="item.name" :value="item.id")
 				.filter-btn
 					el-button(:icon="Search" type="primary" @click="getBaseData") 查询
 					el-button(:icon="RefreshLeft" @click="resetFilter") 重置
@@ -113,22 +199,37 @@ const getBaseData = () => {
 			el-table(:data="tableData" border size="small" stripe show-overflow-tooltip height="100%")
 				el-table-column(label="序号" width="54" align="center")
 					template(#default="{$index}") {{ (pager.rows * (pager.page - 1)) + $index + 1}}
-				el-table-column(prop="name" label="线索名称")
-				el-table-column(prop="client" label="客户 / 公司")
-				el-table-column(prop="phone" label="联系电话")
-				el-table-column(prop="source" label="线索来源")
-				el-table-column(prop="intention" label="产品意向")
+				el-table-column(prop="name" label="线索名称" min-width="120")
+				el-table-column(prop="clientName" label="客户 / 公司" min-width="120")
+				el-table-column(prop="contactName" label="联系人" width="100")
+				el-table-column(prop="contactPhone" label="联系电话" width="120")
+				el-table-column(prop="source" label="线索来源" width="100")
+				el-table-column(prop="productIntent" label="产品意向" min-width="100")
 				el-table-column(prop="status" label="线索状态" width="100" sortable)
 					template(#default="{row}")
-						el-tag(size="small" :type="statusObj[row.status].tagType")  {{statusObj[row.status].name}}
-				el-table-column(prop="principal" label="当前负责人" width="100")
-				el-table-column(prop="nextTime" label="下次联系时间")
-				el-table-column(prop="createTime" label="创建时间")
-				el-table-column(label="操作" width="140")
+						el-tag(size="small" :type="statusObj[String(row.status)]?.tagType")  {{statusObj[String(row.status)]?.name || '-'}}
+				el-table-column(label="已转化" width="80" align="center")
+					template(#default="{row}")
+						el-tag(size="small" :type="Number(row.isConverted) === 1 ? 'success' : 'info'") {{ Number(row.isConverted) === 1 ? '是' : '否' }}
+				el-table-column(prop="ownerId" label="当前负责人" width="110")
+					template(#default="{row}") {{ row.ownerName || row.ownerId || '-' }}
+				el-table-column(label="下次联系" width="110")
+					template(#default="{row}") {{ formatDbDate(row.nextContactTime) }}
+				el-table-column(label="创建时间" width="155")
+					template(#default="{row}") {{ formatDbDateTime(row.createTime) }}
+				el-table-column(label="操作" width="220" fixed="right")
 					template(#default="{row, $index}")
 						.tab-link
-							el-button(plain size="small" @click="toInfo(row)") 查看
-							el-button(plain size="small" @click="toMd(row)") 编辑
+							el-link(underline="never" type="primary" @click="toInfo(row)") 查看
+							el-link(underline="never" type="primary" @click="toMd(row)") 编辑
+							el-dropdown(placement="bottom-end" trigger="click" @command="command => handleCommand(command, row)")
+								el-link(underline="never" type="primary") 更多
+									el-icon
+										ArrowDown
+								template(#dropdown)
+									el-dropdown-menu
+										el-dropdown-item(v-for="opt in statusList" :key="opt.id" :command="`status:${opt.id}`" :disabled="Number(row.status) === Number(opt.id)") 设置为：{{opt.name}}
+										el-dropdown-item(divided command="delete") 删除
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

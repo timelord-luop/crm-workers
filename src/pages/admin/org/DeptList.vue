@@ -252,9 +252,9 @@ const toLocalSearch = () => {
 				el-table-column(label="操作" width="230")
 					template(#default="{row, $index}")
 						.tab-link
-							el-button(plain size="small" @click="toAdd(row)") 新增子部门
-							el-button(plain size="small" @click="toEdit(row)") 编辑
-							el-button(plain size="small" type="danger" :disabled="row.children.length > 0 || row.memberCount > 0" @click="toDelete(row)") 删除
+							el-link(underline="never" type="primary" @click="toAdd(row)") 新增子部门
+							el-link(underline="never" type="primary" @click="toEdit(row)") 编辑
+							el-link(underline="never" type="danger" :disabled="row.children.length > 0 || row.memberCount > 0" @click="toDelete(row)") 删除
 	el-dialog(v-model="dialogVisible"
 		width="460"
 		draggable

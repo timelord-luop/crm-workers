@@ -1,11 +1,12 @@
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
+import {ref, reactive, onMounted, computed} from 'vue'
 import { useRouter } from 'vue-router'
-import {Search, RefreshLeft, Plus, Upload} from '@element-plus/icons-vue'
+import {Search, RefreshLeft, Plus, Upload, ArrowDown} from '@element-plus/icons-vue'
 import Http from "@/plugins/http.js";
-import {ApiSupplierDelete, ApiSupplierQueryList, ApiSupplierUpdateStatus} from "@/configuration/api/supplier.js";
+import {ApiSupplierDelete, ApiSupplierQueryList, ApiSupplierImport, ApiSupplierExport, ApiSupplierUpdateStatus} from "@/configuration/api/supplier.js";
 import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
 import {ElMessage, ElMessageBox} from "element-plus";
+import ExportImport from "@/components/ExportImport.vue";
 
 const router = useRouter()
 
@@ -124,6 +125,29 @@ const toInfo = (row) => {
 
 }
 
+const excelField = [
+	{key: 'name', name: '供应商名称'},
+	{key: 'code', name: '编号'},
+	{key: 'classify', name: '供应商类别'},
+	{key: 'level', name: '供应商等级'},
+	{key: 'contactName', name: '联系人'},
+	{key: 'contactPhone', name: '联系人手机号'},
+	{key: 'areaText', name: '所在地区'},
+	{key: 'statusName', name: '状态'}
+]
+
+/** 导出：与列表筛选一致，放大 rows 拉取当前筛选下的数据 */
+const supplierExportParams = computed(() => {
+	const params = getParams();
+	delete params.page;
+	delete params.rows;
+	return params
+})
+
+const onImport = () => {
+	getBaseData()
+}
+
 </script>
 
 <template lang="pug">
@@ -144,9 +168,17 @@ const toInfo = (row) => {
 					el-button(:icon="RefreshLeft" @click="resetFilter") 重置
 			.panel-extend
 				el-button(:icon="Plus" type="success" plain, @click="toMd") 新增供应商
-				el-button 导出
-					el-icon(class="el-icon--right")
-						Upload
+				export-import(
+					is-import
+					:excel-field="excelField"
+					:export-api="ApiSupplierExport"
+					:import-api="ApiSupplierImport"
+					:export-params="supplierExportParams"
+					export-file-name-prefix="供应商导出"
+					template-file-name="供应商导入模板.xlsx"
+					dialog-title="导入供应商"
+					@import-success="onImport"
+				)
 		.panel-body(style="min-height: 100px")
 			el-table(:data="tableData" border size="small" stripe show-overflow-tooltip height="100%")
 				el-table-column(label="序号" width="54" align="center")
@@ -158,17 +190,19 @@ const toInfo = (row) => {
 				el-table-column(prop="contactName" label="联系人")
 				el-table-column(prop="contactPhone" label="联系人手机号")
 				el-table-column(prop="areaText" label="所在地区")
-				el-table-column(prop="status" label="状态" align="center" width="80")
+				el-table-column(prop="status" label="状态" width="100")
 					template(#default="{row}")
 						el-tag(v-if="row.status === 1" size="small" type="success")  正常
 						el-tag(v-if="row.status === 2" size="small" type="danger")  停用
-				el-table-column(label="操作" width="200")
+				el-table-column(label="操作" width="160")
 					template(#default="{row, $index}")
 						.tab-link
-							el-button(plain size="small" @click="toInfo(row)") 查看
-							el-button(plain size="small" @click="toMd(row)") 编辑
-							el-dropdown(placement="bottom-end" trigger="click" @command="command => handleCommand(command, row)" style="margin-left: 8px")
-								el-button(plain size="small") 更多
+							el-link(underline="never" type="primary" @click="toInfo(row)") 查看
+							el-link(underline="never" type="primary" @click="toMd(row)") 编辑
+							el-dropdown(placement="bottom-end" trigger="click" @command="command => handleCommand(command, row)")
+								el-link(underline="never" type="primary") 更多
+									el-icon
+										ArrowDown
 								template(#dropdown)
 									el-dropdown-menu
 										el-dropdown-item(command="status") {{row.status === 1 ? '停用' : '启用'}}

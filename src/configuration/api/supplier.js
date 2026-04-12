@@ -7,6 +7,19 @@ export const ApiSupplierQueryList = {
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
+
+// 供应商导出
+export const ApiSupplierExport = {
+	URL: API_BASE + '/supplier/export',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+}
+// 供应商导入
+export const ApiSupplierImport = {
+	URL: API_BASE + '/supplier/import',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+}
 // 供应商详情
 export const ApiSupplierInfo = {
 	URL: API_BASE + '/supplier/info',

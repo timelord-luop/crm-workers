@@ -1,7 +1,7 @@
 <script setup>
 import {nextTick, onMounted, reactive, ref} from "vue";
 import FieldDialog from "@/components/FieldDialog.vue";
-import {Sort} from '@element-plus/icons-vue'
+import {Sort, ArrowDown} from '@element-plus/icons-vue'
 import CommonUtil from "@/assets/js/commonUtil.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {
@@ -252,10 +252,12 @@ const toSaveConf = () => {
 					el-table-column(label="操作" width="200")
 						template(#default="{row, $index}")
 							.tab-link
-								el-button(text bg size="small" type="success" @click="add($index)") 添加
-								el-button(text bg size="small" @click="edit(row, $index)") 编辑
-								el-dropdown(placement="bottom-end" trigger="click" @command="command => handleCommand(command, row)" style="margin-left: 8px")
-									el-button(plain size="small") 更多
+								el-link(underline="never" type="success" @click="add($index)") 添加
+								el-link(underline="never" type="primary" @click="edit(row, $index)") 编辑
+								el-dropdown(placement="bottom-end" trigger="click" @command="command => handleCommand(command, row)")
+									el-link(underline="never" type="primary") 更多
+										el-icon
+											ArrowDown
 									template(#dropdown)
 										el-dropdown-menu
 											el-dropdown-item(command="status") {{row.status === 1 ? '停用' : '启用'}}

@@ -122,16 +122,16 @@ const getBaseData = () => {
 				el-table-column(prop="name" label="收款单号" width="160" )
 				el-table-column(prop="typeName" label="收款类型" width="130")
 				el-table-column(prop="client" label="客户")
-				el-table-column(prop="money" label="收款金额" width="140" align="right" header-align="center")
 				el-table-column(prop="nature" label="收款性质" width="130")
 				el-table-column(prop="account" label="收款账户")
+				el-table-column(prop="money" label="收款金额" width="140" align="right" header-align="center")
 				el-table-column(prop="userName" label="收款人" width="130")
 				el-table-column(prop="createTime" label="收款日期" width="140" )
 				el-table-column(label="操作" width="140")
 					template(#default="{row, $index}")
 						.tab-link
-							el-button(plain size="small" @click="toInfo(row)") 查看
-							el-button(plain size="small" @click="toMd(row)") 编辑
+							el-link(underline="never" type="primary" @click="toInfo(row)") 查看
+							el-link(underline="never" type="primary" @click="toMd(row)") 编辑
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

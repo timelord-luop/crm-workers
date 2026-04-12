@@ -1,3 +1,5 @@
+import {ApiSupplierUpdate} from "@/configuration/api/supplier.js";
+
 const API_BASE = import.meta.env.VITE_API_ROOT;
 const MethodType = {POST: 'post'}
 
@@ -58,6 +60,36 @@ export const ApiSysConfRows = {
 // 批量更新系统配置
 export const ApiSysConfUpdate = {
 	URL: API_BASE + '/sys/conf/edit',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 账户列表
+export const ApiAccountList = {
+	URL: API_BASE + '/sys/account',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 新增账户
+export const ApiAccountAdd= {
+	URL: API_BASE + '/sys/account/add',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 编辑账户
+export const ApiAccountUpdate= {
+	URL: API_BASE + '/sys/account/edit',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 删除账户
+export const ApiAccountDelete= {
+	URL: API_BASE + '/sys/account/delete',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+// 修改账户状态
+export const ApiAccountUpdateStatus= {
+	URL: API_BASE + '/sys/account/updateStatus',
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };

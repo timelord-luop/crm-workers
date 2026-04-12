@@ -1,17 +1,15 @@
 <script setup>
 import {onMounted, reactive, ref} from 'vue'
-import {Search, RefreshLeft} from '@element-plus/icons-vue'
-import "vue3-tree-org/lib/vue3-tree-org.css";
-import {
-	ApiDeptAdd,
-	ApiDeptDelete,
-	ApiDeptList,
-	ApiDeptUpdate,
-	ApiUserSimpleList
-} from "@/configuration/api/users.js";
+import {Search, RefreshLeft, ArrowDown} from '@element-plus/icons-vue'
 import Http from "@/plugins/http.js";
 import {ElMessage, ElMessageBox} from "element-plus";
-import CommonUtil from "@/assets/js/commonUtil.js";
+import {
+	ApiAccountAdd,
+	ApiAccountDelete,
+	ApiAccountList,
+	ApiAccountUpdate,
+	ApiAccountUpdateStatus
+} from "@/configuration/api/common.js";
 
 const loading = ref(false);
 
@@ -19,7 +17,6 @@ const filter = reactive({
 	name: '',
 	type: 'tree'
 });
-const userList = ref([]);
 const tableData = ref([]);
 const baseTableData = ref([]);
 
@@ -27,128 +24,106 @@ onMounted(() => {
 	getBaseData();
 })
 
-const getUserList = () => {
-	if (userList.value.length) return;
-	Http.request(ApiUserSimpleList).then(res => {
-		userList.value = res.list
-	})
-}
 const resetFilter = () => {
 	filter.name = '';
 	getBaseData();
 }
 const getBaseData = () => {
 	loading.value = true;
-	const params = getParams();
-	const mockData = [
-		{id: 1, name: '银行账户', code: '--', level: 1, children: [
-				{id: 2, name: '工商银行0622', code: '002', level: 2, money: '277,993.15'},
-				{id: 3, name: '中国银行1230', code: '003', level: 2, money: '1,000.00'},
-				{id: 4, name: '建设银行2232', code: '004', level: 2, money: '12.11'},
-				{id: 5, name: '农业银行5608', code: '005', level: 2, money: '320.00'},
-			]},
-		{id: 20, name: '现金账户', code: '--', level: 1, children: [
-				{id: 30, name: '现金', code: '001', level: 2, remark: '财务现金库存', money: '500.00'},
-			]},
-		{id: 40, name: '其他', code: '--', level: 1, children: [
-				{id: 50, name: '微信', code: '006', level: 2, remark: '企业微信', money: '1200.00'},
-				{id: 50, name: '支付宝', code: '007', level: 2, money: '1200.00'}
-			]}
-	]
-	Http.request(ApiDeptList, params).then(res => {
+	Http.request(ApiAccountList).then(res => {
 		loading.value = false;
-		baseTableData.value = mockData;
-		tableData.value = mockData;
+		baseTableData.value = res.list;
+		tableData.value = res.list;
 	}).catch(err => {
 		console.log(err);
 		loading.value = false;
 	})
 }
-const getParams = () => {
-	return {
-		type: filter.type
-	};
-}
 
-
-// 新增、编辑部门
+// 新增、编辑账户
 const dialogVisible = ref(false);
 const formRef = ref();
 const committing = ref(false);
-const deptData = reactive({
+const rowData = reactive({
 	title: '',
 	id: null,
 	pid: null,
-	parentName: '',
+	code: '',
 	name: '',
-	principal: [],
-	desc: ''
+	periodMoney: null,
+	remark: ''
 })
 const rules = reactive({
 	name: [{required: true, message: '请输入账户名称', trigger: 'change'}],
-	// principal: [{required: true, message: '请选择部门负责人', trigger: 'change'}],
-	pid: [{required: true, message: '请选择上级部门', trigger: 'change'}]
+	code: [{required: true, message: '请输入账户编码', trigger: 'change'}],
+	pid: [{required: true, message: '请选择账户分类', trigger: 'change'}]
 })
 const toAdd = (row) => {
-	getUserList();
 	dialogVisible.value = true;
-	deptData.title = '新增账户';
-	deptData.id = null;
-	deptData.pid = row ? row.id : null;
-	deptData.parentName = row ? row.name : null;
-	deptData.name = '';
-	deptData.principal = [];
-	deptData.desc = '';
+	rowData.title = '新增账户';
+	rowData.id = null;
+	rowData.pid = row ? row.id : null;
+	rowData.parentName = row ? row.name : null;
+	rowData.name = '';
+	rowData.code = '';
+	rowData.periodMoney = null;
+	rowData.remark = '';
 }
 const toEdit = (row) => {
-	getUserList();
 	dialogVisible.value = true;
-	deptData.title = '编辑账户';
-	deptData.id = row.id;
-	deptData.pid = null;
-	deptData.parentName = '';
-	deptData.name = row.name;
-	deptData.principal = row.principal ? row.principal.split(',') : [];
-	deptData.desc = row.desc;
+	rowData.title = '编辑账户';
+	rowData.id = row.id;
+	rowData.pid = null;
+	rowData.parentName = '';
+	rowData.name = row.name;
+	rowData.code = row.code;
+	rowData.periodMoney = row.periodMoney;
+	rowData.remark = row.remark;
 }
 const toCommit = async (formEl) => {
 	await formEl.validate(valid => {
 		if (!valid) return;
-		committing.value = true;
-		const API = deptData.id ? ApiDeptUpdate : ApiDeptAdd;
-		if (deptData.principal.length) deptData.principal = deptData.principal.join(',')
-		Http.request(API, deptData).then(res => {
-			committing.value = false;
+		const API = rowData.id ? ApiAccountUpdate : ApiAccountAdd;
+		Http.request(API, rowData).then(res => {
 			dialogVisible.value = false;
 			getBaseData();
-		}).catch(err => {
-			console.log(err);
+		}).finally(() => {
 			committing.value = false;
-		})
+		});
 	})
 }
 
-const toDelete = (row) => {
-	ElMessageBox.confirm(`确定删除账户 “${row.name}” ?`, '提示', {
-		confirmButtonText: '确定',
-		cancelButtonText: '取消',
-		type: 'warning',
-	}).then(() => {
+const handleCommand = (command, row) => {
+	if (command === 'delete') {
+		ElMessageBox.confirm(`确定删除账户 “${row.name}” ?`, '提示', {
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			type: 'warning',
+		}).then(() => {
+			loading.value = true;
+			Http.request(ApiAccountDelete, {id: row.id}).then(() => {
+				ElMessage({
+					type: 'success',
+					showClose: true,
+					message: `已删除账户：${row.name}`,
+				})
+				getBaseData();
+			}).finally(() => {
+				loading.value = false;
+			});
+		}).catch(() => {})
+	}
+	if (command === 'status') {
 		loading.value = true;
-		Http.request(ApiDeptDelete, {id: row.id}).then(() => {
-			ElMessage({
-				type: 'success',
-				showClose: true,
-				message: `已删除部门：${row.name}`,
-			})
+		const status = row.status === 1 ? 2 : 1;
+		Http.request(ApiAccountUpdateStatus, {id: row.id, status: status}).then(() => {``
+			row.status = status;
+		}).finally(() => {
 			loading.value = false;
-			getBaseData();
-		}).catch(err => {
-			console.log(err);
-			loading.value = false;
-		})
-	}).catch(() => {})
+		});
+	}
 }
+
 // 搜索
 const searchTreeData = (treeData, keyword, searchField = 'name', childrenField = 'children') => {
 	if (!keyword || !keyword.trim()) {
@@ -239,84 +214,64 @@ const toLocalSearch = () => {
 				el-table-column(label="序号" width="54" align="center" type="index")
 				el-table-column(prop="name" label="账户名称")
 				el-table-column(prop="code" label="账户编码")
-				el-table-column(prop="money" align="right" header-align="center" label="期初余额（元）")
+				el-table-column(prop="periodMoney" label="期初余额（元）")
 				el-table-column(prop="remark" label="描述")
 				el-table-column(prop="updateTime" label="账户状态" align="center" width="100")
 					template(#default="{row}")
-						el-tag(size="small" type="success")  正常
+						el-tag(v-if="row.status === 1" size="small" type="success")  正常
+						el-tag(v-if="row.status === 2" size="small" type="danger")  停用
 				el-table-column(prop="updateTime" label="更新时间" width="140" )
-					template(#default="{row}") 2026-03-07 11:45
 				el-table-column(label="操作" width="140")
 					template(#default="{row, $index}")
 						.tab-link
-							el-button(plain size="small" v-if="row.level=== 1" @click="toAdd(row)") 新增账户
-							el-button(plain size="small" v-if="row.level!== 1" @click="toEdit(row)") 编辑
-							el-button(plain size="small" type="danger" v-if="row.level!== 1" @click="toDelete(row)") 删除
+							el-link(underline="never" type="success" v-if="row.level === 1" @click="toAdd(row)") 新增账户
+							el-link(underline="never" type="primary" v-if="row.level !== 1" @click="toEdit(row)") 编辑
+							el-dropdown(placement="bottom-end" v-if="row.level === 2" trigger="click" @command="command => handleCommand(command, row)")
+								el-link(underline="never" type="primary") 更多
+									el-icon
+										ArrowDown
+								template(#dropdown)
+									el-dropdown-menu
+										el-dropdown-item(command="status") {{row.status === 1 ? '停用' : '启用'}}
+										el-dropdown-item(command="delete") 删除
 	el-dialog(v-model="dialogVisible"
 		width="460"
 		draggable
 		destroy-on-close
 		:close-on-click-modal="false"
-		:title="deptData.title")
+		:title="rowData.title")
 		el-form(
 			ref="formRef"
-			:model="deptData"
+			:model="rowData"
 			:rules="rules"
 			@submit.prevent
 			label-width="auto"
 		)
-			el-form-item(label="上级部门" prop="pid" v-if="deptData.pid")
-				el-input(v-model="deptData.parentName" disabled maxlength="32" placeholder="请输入" )
-			el-form-item(label="部门名称" prop="name")
-				el-input(v-model="deptData.name" maxlength="32" placeholder="请输入" )
-			el-form-item(label="部门负责人")
-				el-select(v-model="deptData.principal" multiple filterable placeholder="请选择" clearable)
-					el-option(v-for="item in userList" :key="item.id" :label="item.name" :value="item.id")
-			el-form-item(label="部门描述")
-				el-input(v-model="deptData.desc" type="textarea" maxlength="255" :rows="3" placeholder="请输入" )
+			el-form-item(label="账户分类" prop="pid" v-if="rowData.pid")
+				el-input(v-model="rowData.parentName" disabled maxlength="32" placeholder="请输入" )
+			el-form-item(label="账户名称" prop="name")
+				el-input(v-model="rowData.name" maxlength="32" placeholder="请输入" )
+			el-form-item(label="账户编号" prop="code")
+				el-input(v-model="rowData.code" maxlength="4" placeholder="请输入" )
+			el-form-item(label="期初余额")
+				el-input-number(
+					style="width: 100%"
+					:max="9999999999"
+					placeholder="请输入"
+					:value-on-clear="null"
+					disabled-scientific,
+					align="left"
+					:controls="false"
+					v-model="rowData.periodMoney"
+				)
+					template(#suffix) ￥
+			el-form-item(label="描述")
+				el-input(v-model="rowData.remark" type="textarea" maxlength="255" :rows="3" placeholder="请输入" )
 		template(#footer)
 			el-button(@click="dialogVisible = false") 取消
 			el-button(type="primary" :loading="committing" @click="toCommit(formRef)") 保存
 </template>
 
 <style scoped lang="scss">
-._chart_panel {
-	height: 100%;
-	width: 100%;
-	position: relative;
-	._chart_node {
-		padding: 6px 8px;
-	}
-	._principal {
-		color: #f19914;
-		font-size: 12px;
-	}
-	._direction {
-		position: absolute;
-		right: 10px;
-		bottom: 150px;
-		z-index: 1;
-		padding: 6px 9px;
-		border-radius: 0;
-	}
-}
-:deep(.zm-tree-org) {
-	padding: 0;
-	background-color: var(--bg-color-main);
-	overflow: hidden;
-	.zm-tree-handle .zm-tree-handle-item {
-		background-color: var(--bg-color-border);
-		border: 1px solid var(--border);
-	}
-	.zoom-container {
-		padding-top: 10px;
-	}
-	.tree-org-node__expand {
-		background-color: var(--bg-color-main);
-	}
-	.tree-org-node__content .tree-org-node__inner {
-		box-shadow: 0 1px 5px var(--border-shadow);
-		white-space: nowrap;
-	}
-}
+
 </style>
