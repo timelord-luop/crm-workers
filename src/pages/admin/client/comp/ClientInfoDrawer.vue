@@ -191,7 +191,7 @@ const initEditor = () => {
 			selector: '#editor-container',
 			html: editorContent.value
 		});
-		
+
 		editor.on('change', () => {
 			editorContent.value = editor.getHtml();
 		});
@@ -233,7 +233,8 @@ const handleCreate = () => {
 			.content(v-loading="pageLoading")
 				.left
 					.main
-						editor
+						._editor(v-if="dialogVisible")
+							editor
 					.footer
 
 				.right
