@@ -3,7 +3,7 @@ import {ArrowRightBold, ArrowUp, ArrowDown, MoreFilled, Plus} from '@element-plu
 import {computed, ref, watch, onMounted} from "vue";
 import Http from "@/plugins/http.js";
 import {ApiClientInfo} from "@/configuration/api/client.js";
-// import Editor from "@/components/Editor.vue";
+import Editor from "@/components/Editor.vue";
 
 const props = defineProps({
 	visible: {
@@ -234,7 +234,7 @@ const handleCreate = () => {
 				.left
 					.main
 						._editor(v-if="dialogVisible")
-							//editor
+							editor
 					.footer
 
 				.right
