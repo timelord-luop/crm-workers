@@ -1,7 +1,7 @@
 <script setup>
 import {ref, computed} from 'vue'
-import * as XLSX from 'xlsx'
-import ExcelJS from 'exceljs'
+// import * as XLSX from 'xlsx'
+// import ExcelJS from 'exceljs'
 import {Upload, Download, Document, Close} from '@element-plus/icons-vue'
 import {ElMessage} from 'element-plus'
 import Http from '@/plugins/http.js'
@@ -140,6 +140,7 @@ const MAX_ROWS_FULL_BORDER = 8000
  * @param {any[][]} aoa 首行为表头，其余为数据
  */
 async function downloadStyledWorkbook(aoa, fileName, sheetName = 'Sheet1') {
+	const { default: ExcelJS } = await import('exceljs')
 	const workbook = new ExcelJS.Workbook()
 	workbook.creator = 'CRM'
 	workbook.created = new Date()
@@ -290,7 +291,10 @@ const onFileInputChange = (e) => {
 	if (file) assignPickedFile(file)
 }
 
-function parseExcelToJson(arrayBuffer) {
+async function parseExcelToJson(arrayBuffer) {
+	// 只有执行此函数时，才会下载 xlsx 的 js 文件
+	const XLSX = await import('xlsx')
+
 	const workbook = XLSX.read(arrayBuffer, {type: 'array'})
 	const sheetName = workbook.SheetNames[0]
 	const sheet = workbook.Sheets[sheetName]
