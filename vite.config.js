@@ -14,6 +14,19 @@ export default defineConfig({
 			output: {
 				// 强制合并策略
 				manualChunks(id) {
+					// 1. 将大库独立分包
+					if (id.includes('node_modules/xlsx/')) {
+						return 'xlsx-vendor';
+					}
+					if (id.includes('node_modules/exceljs/')) {
+						return 'exceljs-vendor';
+					}
+					if (id.includes('@wangeditor')) {
+						return 'wangeditor';
+					}
+					if (id.includes('element-plus')) {
+						return 'element-plus';
+					}
 					if (id.includes('node_modules')) {
 						// 将所有 node_modules 中的包合并到 vendor
 						return 'vendor'
