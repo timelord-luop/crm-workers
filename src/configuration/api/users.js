@@ -104,3 +104,38 @@ export const ApiUserDelete = {
 	IS_AUTH: true
 };
 
+// 重置员工密码
+export const ApiUserResetPwd = {
+	URL: API_BASE + '/users/resetPwd',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+
+// 停用账号
+export const ApiUserDisableAccount = {
+	URL: API_BASE + '/users/disableAccount',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+
+// 启用账号
+export const ApiUserEnableAccount = {
+	URL: API_BASE + '/users/enableAccount',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+
+// 离职办理
+export const ApiUserDimission = {
+	URL: API_BASE + '/users/dimission',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+
+// 复职
+export const ApiUserReinstate = {
+	URL: API_BASE + '/users/reinstate',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+

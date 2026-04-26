@@ -9,6 +9,7 @@ import CommonUtil from "@/assets/js/commonUtil.js";
 import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
 import {ApiDeptList} from "@/configuration/api/users.js";
 import {ApiLeadsAdd, ApiLeadsInfo, ApiLeadsUpdate} from "@/configuration/api/leads.js";
+import {ApiClientQueryList} from "@/configuration/api/client.js";
 
 const router = useRouter()
 const route = useRoute()
@@ -23,6 +24,7 @@ const isView = computed(() => String(route.query.mode || '') === 'info')
 const sourceOptions = ref([]);
 const intentionOptions = ref([]);
 const userOptions = ref([]);
+const clientOptions = ref([]);
 
 const statusObj = {
 	"1": {id: 1, name: '新录入', tagType: 'danger'},
@@ -48,6 +50,7 @@ const formatDbDateTime = (val) => {
 const formData = ref({
 	id: null,
 	name: '',
+	clientId: '',
 	clientName: '',
 	contactName: '',
 	contactPhone: '',
@@ -59,10 +62,12 @@ const formData = ref({
 	lastContactTime: null,
 	remark: '',
 	tags: '',
+	loseReason: '',
 	isConverted: 0,
 	convertTime: null,
 	convertClientId: '',
 	convertOpportunityId: '',
+	tagsText: '',
 	createTime: null,
 	createBy: '',
 	updateTime: null,
@@ -81,18 +86,13 @@ const convertTimeText = computed(() => formatDbDateTime(formData.value.convertTi
 
 const rules = {
 	name: [{required: true, message: '请输入线索名称', trigger: 'change'}],
-	clientName: [{required: true, message: '请输入客户 / 公司', trigger: 'change'}],
-	contactPhone: [{required: true, message: '请输入联系电话', trigger: 'change'}],
-	source: [{required: true, message: '请选择线索来源', trigger: 'change'}],
-	productIntent: [{required: true, message: '请选择产品意向', trigger: 'change'}],
-	status: [{required: true, message: '请选择线索状态', trigger: 'change'}],
-	ownerId: [{required: true, message: '请选择负责人', trigger: 'change'}],
-	nextContactTime: [{required: true, message: '请选择下次联系时间', trigger: 'change'}],
+	status: [{required: true, message: '请选择线索状态', trigger: 'change'}]
 }
 
 onMounted(() => {
 	getDictList();
 	getUserList();
+	getClientList();
 	if (route.query.eid) {
 		title.value = isView.value ? '线索详情' : '编辑线索';
 		getBaseData();
@@ -121,6 +121,33 @@ const getUserList = () => {
 	})
 }
 
+const getClientList = () => {
+	Http.request(ApiClientQueryList, {
+		page: 1,
+		rows: 1000
+	}).then(res => {
+		clientOptions.value = (res.list || []).map(item => ({
+			id: item.id,
+			name: item.name
+		}));
+	}).catch(err => {
+		console.log(err);
+	})
+}
+
+const parseTagsText = (tagsVal) => {
+	if (!tagsVal) return '';
+	if (Array.isArray(tagsVal)) return tagsVal.join('，');
+	if (typeof tagsVal !== 'string') return String(tagsVal);
+	try {
+		const parsed = JSON.parse(tagsVal);
+		if (Array.isArray(parsed)) return parsed.join('，');
+	} catch (e) {
+		// ignore
+	}
+	return tagsVal;
+}
+
 const getBaseData = () => {
 	loading.value = true;
 	Http.request(ApiLeadsInfo, {id: route.query.eid}).then(res => {
@@ -129,8 +156,10 @@ const getBaseData = () => {
 			formData.value = {
 				...formData.value,
 				...res.data,
+				clientId: res.data.clientId || '',
 				status: res.data.status != null ? Number(res.data.status) : 1,
-				isConverted: res.data.isConverted != null ? Number(res.data.isConverted) : 0
+				isConverted: res.data.isConverted != null ? Number(res.data.isConverted) : 0,
+				tagsText: parseTagsText(res.data.tags)
 			}
 		}
 	}).catch(err => {
@@ -167,14 +196,15 @@ const toCommit = async (formEl) => {
 const getSubmitData = () => {
 	const raw = CommonUtil.deepClone(formData.value);
 	const keys = [
-		'id', 'name', 'clientName', 'contactName', 'contactPhone',
+		'id', 'name', 'clientId', 'contactName', 'contactPhone',
 		'source', 'productIntent', 'status', 'ownerId', 'nextContactTime',
-		'remark', 'tags'
+		'remark', 'loseReason'
 	];
 	const out = {};
 	for (const k of keys) {
 		if (raw[k] !== undefined) out[k] = raw[k];
 	}
+	out.tags = raw.tagsText || '';
 	out.status = out.status != null ? Number(out.status) : 1;
 	if (out.nextContactTime === '' || out.nextContactTime === undefined) {
 		out.nextContactTime = null;
@@ -182,6 +212,7 @@ const getSubmitData = () => {
 		out.nextContactTime = Number(out.nextContactTime);
 	}
 	if (out.ownerId === '') out.ownerId = null;
+	if (out.clientId === '') out.clientId = null;
 	if (!out.id) delete out.id;
 	return out;
 }
@@ -211,8 +242,9 @@ const getSubmitData = () => {
 							el-form-item(label="线索名称" prop="name")
 								el-input(v-model="formData.name" placeholder="请输入" maxlength="64")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
-							el-form-item(label="客户 / 公司" prop="clientName")
-								el-input(v-model="formData.clientName" placeholder="请输入" clearable maxlength="64")
+							el-form-item(label="关联客户")
+								el-select(v-model="formData.clientId" placeholder="可选，选择已存在客户" clearable filterable)
+									el-option(v-for="item in clientOptions" :key="item.id" :label="item.name" :value="item.id")
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="联系人" prop="contactName")
 								el-input(v-model="formData.contactName" placeholder="请输入" clearable maxlength="64")
@@ -269,9 +301,12 @@ const getSubmitData = () => {
 						el-col(:xs="24" :sm="12" :md="16" :lg="16" :xl="12")
 							el-form-item(label="备注" prop="remark")
 								el-input(v-model="formData.remark" type="textarea" :rows="3" placeholder="请输入" maxlength="2000" show-word-limit)
+						el-col(:xs="24" :sm="12" :md="16" :lg="16" :xl="12" v-if="Number(formData.status) === 4 || (isView && formData.loseReason)")
+							el-form-item(label="流失原因")
+								el-input(v-model="formData.loseReason" type="textarea" :rows="3" placeholder="请输入流失原因" maxlength="500" show-word-limit)
 						el-col(:xs="24" :sm="12" :md="8" :lg="8" :xl="6")
 							el-form-item(label="标签" prop="tags")
-								el-input(v-model="formData.tags" placeholder="多个可用逗号分隔" clearable maxlength="512")
+								el-input(v-model="formData.tagsText" placeholder="多个可用逗号分隔" clearable maxlength="512")
 
 				.info-block(v-if="isView")
 					._title 系统信息

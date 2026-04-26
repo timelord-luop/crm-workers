@@ -28,3 +28,7 @@ export const ApiClientUpdate = {URL: API_BASE + '/client/edit', METHOD: MethodTy
 export const ApiClientDelete = {URL: API_BASE + '/client/delete', METHOD: MethodType.POST, IS_AUTH: true};
 // 客户详情
 export const ApiClientInfo = {URL: API_BASE + '/client/info', METHOD: MethodType.POST, IS_AUTH: true};
+// 客户导出
+export const ApiClientExport = {URL: API_BASE + '/client/export', METHOD: MethodType.POST, IS_AUTH: true};
+// 客户导入
+export const ApiClientImport = {URL: API_BASE + '/client/import', METHOD: MethodType.POST, IS_AUTH: true};

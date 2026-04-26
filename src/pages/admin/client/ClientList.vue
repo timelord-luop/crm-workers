@@ -7,7 +7,10 @@ import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
 import {ApiDeptList} from "@/configuration/api/users.js";
 import CommonUtil from "@/assets/js/commonUtil.js";
 import {
+	ApiClientCustomFiledList,
 	ApiClientCustomFiledSetHead,
+	ApiClientExport,
+	ApiClientImport,
 	ApiClientQueryList
 } from "@/configuration/api/client.js";
 import draggable from 'vuedraggable';
@@ -35,10 +38,45 @@ const pager = reactive({
 	pageCount: 0
 });
 const tableData = ref([]);
+const customFieldOptions = ref([]);
+const excelField = computed(() => {
+	const base = [
+		{key: 'name', name: '客户名称'},
+		{key: 'code', name: '客户编号'},
+		{key: 'type', name: '客户类型'},
+		{key: 'source', name: '客户来源'},
+		{key: 'industry', name: '客户行业'},
+		{key: 'principalName', name: '客户负责人'},
+		{key: 'serviceUserNames', name: '客服专员'},
+		{key: 'address', name: '详细地址'},
+		{key: 'remark', name: '其他备注'},
+		{key: 'contactName', name: '联系人姓名'},
+		{key: 'contactPhone', name: '联系人手机号'},
+		{key: 'contactExtend', name: '备用联系方式'},
+		{key: 'contactEmail', name: '联系邮箱'},
+		{key: 'contactRemark', name: '联系人备注'},
+		{key: 'invoiceTitle', name: '发票抬头'},
+		{key: 'invoiceTelephone', name: '单位电话'},
+		{key: 'invoiceAddress', name: '开票地址'},
+		{key: 'invoiceITIN', name: '纳税人识别号'}
+	];
+	const custom = customFieldOptions.value.map(item => ({
+		key: item.key,
+		name: item.name
+	}));
+	return base.concat(custom);
+})
+const clientExportParams = computed(() => {
+	const params = getParams();
+	delete params.page;
+	delete params.rows;
+	return params;
+})
 
 onMounted( async () => {
 	getDictList();
 	getUserList();
+	getCustomFieldData();
 	getBaseData();
 })
 
@@ -75,13 +113,17 @@ const resetFilter = () => {
 	filter.principal = '';
 	getBaseData();
 }
-// 导出
-const  onExport = () => {
-
+const getCustomFieldData = () => {
+	Http.request(ApiClientCustomFiledList).then(res => {
+		customFieldOptions.value = (res.list || []).map(item => ({
+			key: item.key,
+			name: item.name
+		}));
+	})
 }
-// 导入
-const  onImport = () => {
 
+const onImport = () => {
+	getBaseData();
 }
 
 const getBaseData = () => {
@@ -251,7 +293,17 @@ const onInfoPage = (index) => {
 					el-button(:icon="RefreshLeft" @click="resetFilter") 重置
 			.panel-extend
 				el-button(:icon="Plus" type="success" plain, @click="toClientMd()") 新增客户
-				export-import(isImport @onExport="onExport" @onImport="onImport")
+				export-import(
+					is-import
+					:excel-field="excelField"
+					:export-api="ApiClientExport"
+					:import-api="ApiClientImport"
+					:export-params="clientExportParams"
+					export-file-name-prefix="客户导出"
+					template-file-name="客户导入模板.xlsx"
+					dialog-title="导入客户"
+					@import-success="onImport"
+				)
 		.panel-body(style="min-height: 100px")
 			el-table(:data="tableData" ref="tableRef" highlight-current-row border size="small" stripe show-overflow-tooltip height="100%")
 				el-table-column(label="序号" type="index" width="54" align="center" fixed="left")

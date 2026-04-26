@@ -1,11 +1,12 @@
 <script setup>
 import {useRouter} from "vue-router";
-import {onMounted, reactive, ref} from "vue";
-import {Search, RefreshLeft, Plus, Upload, ArrowDown} from '@element-plus/icons-vue'
+import {computed, onMounted, reactive, ref} from "vue";
+import {Search, RefreshLeft, Plus, ArrowDown} from '@element-plus/icons-vue'
 import Http from "@/plugins/http.js";
 import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
-import {ApiLeadsDelete, ApiLeadsQueryList, ApiLeadsUpdateStatus} from "@/configuration/api/leads.js";
+import {ApiLeadsConvert, ApiLeadsDelete, ApiLeadsExport, ApiLeadsQueryList, ApiLeadsUpdateStatus} from "@/configuration/api/leads.js";
 import {ElMessage, ElMessageBox} from "element-plus";
+import ExportImport from "@/components/ExportImport.vue";
 
 const router = useRouter()
 
@@ -56,6 +57,26 @@ const pager = reactive({
 	pageCount: 0
 });
 const tableData = ref([]);
+const excelField = [
+	{key: 'name', name: '线索名称'},
+	{key: 'clientName', name: '客户/公司'},
+	{key: 'contactName', name: '联系人'},
+	{key: 'contactPhone', name: '联系电话'},
+	{key: 'source', name: '线索来源'},
+	{key: 'productIntent', name: '产品意向'},
+	{key: 'statusName', name: '线索状态'},
+	{key: 'isConvertedName', name: '是否已转化'},
+	{key: 'ownerName', name: '当前负责人'},
+	{key: 'nextContactTimeText', name: '下次联系'},
+	{key: 'createTimeText', name: '创建时间'}
+]
+
+const leadsExportParams = computed(() => {
+	const params = getParams();
+	delete params.page;
+	delete params.rows;
+	return params;
+})
 
 onMounted(() => {
 	getDictList();
@@ -136,14 +157,49 @@ const handleCommand = (command, row) => {
 	if (String(command || '').startsWith('status:')) {
 		const status = Number(String(command).split(':')[1]);
 		if (!status) return;
+		if (status === 4) {
+			ElMessageBox.prompt('请输入流失原因', '设置线索为流失', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				inputType: 'textarea',
+				inputPlaceholder: '请输入流失原因',
+				inputValidator: (val) => !!String(val || '').trim() || '流失原因不能为空'
+			}).then(({value}) => {
+				loading.value = true;
+				Http.request(ApiLeadsUpdateStatus, {id: row.id, status, loseReason: String(value || '').trim()}).then(() => {
+					row.status = status;
+					row.loseReason = String(value || '').trim();
+				}).finally(() => {
+					loading.value = false;
+				})
+			}).catch(() => {})
+		} else {
+			loading.value = true;
+			Http.request(ApiLeadsUpdateStatus, {id: row.id, status}).then(() => {
+				row.status = status;
+				row.loseReason = '';
+			}).catch(err => {
+				console.log(err);
+			}).finally(() => {
+				loading.value = false;
+			})
+		}
+	}
+	if (command === 'convert') {
 		loading.value = true;
-		Http.request(ApiLeadsUpdateStatus, {id: row.id, status}).then(() => {
-			loading.value = false;
-			row.status = status;
+		Http.request(ApiLeadsConvert, {id: row.id}).then((res) => {
+			ElMessage({
+				type: 'success',
+				showClose: true,
+				message: res.msg || '线索已转化为商机'
+			});
+			getBaseData();
 		}).catch(err => {
 			console.log(err);
 			loading.value = false;
-		})
+		}).finally(() => {
+			loading.value = false;
+		});
 	}
 }
 
@@ -192,9 +248,12 @@ const toInfo = (row) => {
 					el-button(:icon="RefreshLeft" @click="resetFilter") 重置
 			.panel-extend
 				el-button(:icon="Plus" type="success" plain, @click="toMd") 新增线索
-				el-button 导出
-					el-icon(class="el-icon--right")
-						Upload
+				export-import(
+					:excel-field="excelField"
+					:export-api="ApiLeadsExport"
+					:export-params="leadsExportParams"
+					export-file-name-prefix="线索导出"
+				)
 		.panel-body(style="min-height: 100px")
 			el-table(:data="tableData" border size="small" stripe show-overflow-tooltip height="100%")
 				el-table-column(label="序号" width="54" align="center")
@@ -228,6 +287,7 @@ const toInfo = (row) => {
 										ArrowDown
 								template(#dropdown)
 									el-dropdown-menu
+										el-dropdown-item(command="convert" :disabled="Number(row.isConverted) === 1 || Number(row.status) === 4") 转为商机
 										el-dropdown-item(v-for="opt in statusList" :key="opt.id" :command="`status:${opt.id}`" :disabled="Number(row.status) === Number(opt.id)") 设置为：{{opt.name}}
 										el-dropdown-item(divided command="delete") 删除
 		.panel-footer

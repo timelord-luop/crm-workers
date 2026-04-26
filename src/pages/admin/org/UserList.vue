@@ -1,9 +1,19 @@
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
+import {h, onMounted, reactive, ref} from 'vue'
 import { useRouter } from 'vue-router'
 import {Search, RefreshLeft, Plus, Upload, ArrowDown} from '@element-plus/icons-vue'
 import Http from "@/plugins/http.js";
-import {ApiDeptSimpleList, ApiPostSimpleList, ApiUserList} from "@/configuration/api/users.js";
+import {
+	ApiDeptSimpleList,
+	ApiPostSimpleList,
+	ApiUserDisableAccount,
+	ApiUserDimission,
+	ApiUserEnableAccount,
+	ApiUserList,
+	ApiUserReinstate,
+	ApiUserResetPwd
+} from "@/configuration/api/users.js";
+import {ElMessage, ElMessageBox, ElNotification} from "element-plus";
 
 const router = useRouter()
 
@@ -92,6 +102,132 @@ const toUserMd = (row) => {
 		})
 	} else {
 		router.push('/user-md')
+	}
+}
+
+const onCopyPassword = async (pwd) => {
+	try {
+		await navigator.clipboard.writeText(pwd);
+		ElMessage({
+			type: 'success',
+			showClose: true,
+			message: '密码已复制'
+		})
+	} catch (e) {
+		ElMessage({
+			type: 'error',
+			showClose: true,
+			message: '复制失败，请手动复制'
+		})
+	}
+}
+
+const notifyResetPassword = (name, pwd) => {
+	ElNotification({
+		title: '密码重置成功',
+		type: 'success',
+		duration: 0,
+		position: 'top-right',
+		message: h('div', {style: 'line-height: 1.8;'}, [
+			h('span', null, `员工“${name}”已经重置密码为“${pwd}”`),
+			h('a', {
+				style: 'margin-left: 10px; color: var(--el-color-primary); cursor: pointer;',
+				onClick: () => onCopyPassword(pwd)
+			}, '点击复制密码')
+		])
+	})
+}
+
+const handleCommand = (command, row) => {
+	if (command === 'resetPwd') {
+		ElMessageBox.confirm(`确定重置员工“${row.name}”的登录密码吗？`, '提示', {
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			type: 'warning',
+		}).then(() => {
+			loading.value = true;
+			Http.request(ApiUserResetPwd, {id: row.id}).then((res) => {
+				notifyResetPassword(row.name, res.password);
+				getBaseData();
+			}).finally(() => {
+				loading.value = false;
+			})
+		}).catch(() => {})
+	}
+	if (command === 'disableAccount') {
+		ElMessageBox.confirm(`确定停用员工“${row.name}”账号吗？`, '提示', {
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			type: 'warning',
+		}).then(() => {
+			loading.value = true;
+			Http.request(ApiUserDisableAccount, {id: row.id}).then(() => {
+				ElMessage({
+					type: 'success',
+					showClose: true,
+					message: `员工“${row.name}”账号已停用`
+				});
+				getBaseData();
+			}).finally(() => {
+				loading.value = false;
+			})
+		}).catch(() => {})
+	}
+	if (command === 'enableAccount') {
+		loading.value = true;
+		Http.request(ApiUserEnableAccount, {id: row.id}).then(() => {
+			ElMessage({
+				type: 'success',
+				showClose: true,
+				message: `员工“${row.name}”账号已启用`
+			});
+			getBaseData();
+		}).finally(() => {
+			loading.value = false;
+		})
+	}
+	if (command === 'dimission') {
+		ElMessageBox.prompt('请输入离职原因', '离职办理', {
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			inputType: 'textarea',
+			inputPlaceholder: '请输入离职原因',
+			inputValidator: (val) => !!String(val || '').trim() || '离职原因不能为空'
+		}).then(({value}) => {
+			loading.value = true;
+			Http.request(ApiUserDimission, {
+				id: row.id,
+				dimissionReason: String(value || '').trim()
+			}).then(() => {
+				ElMessage({
+					type: 'success',
+					showClose: true,
+					message: `员工“${row.name}”已办理离职`
+				});
+				getBaseData();
+			}).finally(() => {
+				loading.value = false;
+			})
+		}).catch(() => {})
+	}
+	if (command === 'reinstate') {
+		ElMessageBox.confirm(`确定为离职员工“${row.name}”办理复职吗？`, '提示', {
+			confirmButtonText: '确定',
+			cancelButtonText: '取消',
+			type: 'warning',
+		}).then(() => {
+			loading.value = true;
+			Http.request(ApiUserReinstate, {id: row.id}).then(() => {
+				ElMessage({
+					type: 'success',
+					showClose: true,
+					message: `员工“${row.name}”已复职`
+				});
+				getBaseData();
+			}).finally(() => {
+				loading.value = false;
+			})
+		}).catch(() => {})
 	}
 }
 </script>
@@ -201,6 +337,9 @@ const toUserMd = (row) => {
 							el-col(:xs="24" :sm="12" :md="8" :lg="6" :xl="6")
 								span._label 其他备注：
 									span._val {{row.remark}}
+							el-col(:xs="24" :sm="12" :md="8" :lg="6" :xl="6")
+								span._label 离职原因：
+									span._val {{row.dimissionReason || '-'}}
 						._table_tab(v-if="row.bankCards?.length")
 							el-table(size="small" :data="row.bankCards")
 								el-table-column(prop="account" label="银行账号")
@@ -226,15 +365,17 @@ const toUserMd = (row) => {
 					template(#default="{row, $index}")
 						.tab-link
 							el-link(underline="never" type="primary"  @click="toUserMd(row)") 编辑
-							el-dropdown(placement="bottom-end" trigger="click")
+							el-dropdown(placement="bottom-end" trigger="click" @command="command => handleCommand(command, row)")
 								el-link(underline="never" type="primary") 更多
 									el-icon
 										ArrowDown
 								template(#dropdown)
 									el-dropdown-menu
-										el-dropdown-item() 重置密码
-										el-dropdown-item() 关闭账号
-										el-dropdown-item() 离职办理
+										el-dropdown-item(command="resetPwd") 重置密码
+										el-dropdown-item(v-if="row.status === 1" command="disableAccount") 停用账号
+										el-dropdown-item(v-if="row.status === 2" command="enableAccount") 启用账号
+										el-dropdown-item(v-if="row.status !== 3" command="dimission") 离职办理
+										el-dropdown-item(v-if="row.status === 3" command="reinstate") 复职
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

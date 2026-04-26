@@ -56,3 +56,17 @@ export const ApiLeadsSetNextContact = {
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
+
+// 导出线索
+export const ApiLeadsExport = {
+	URL: API_BASE + '/leads/export',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+
+// 线索转商机
+export const ApiLeadsConvert = {
+	URL: API_BASE + '/leads/convert',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
