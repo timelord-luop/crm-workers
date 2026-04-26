@@ -14,6 +14,7 @@
 	--bg-color-mute: #F5F6F8;
 	--bg-color-main: #FFFFFF;
 	--bg-color-border: #FFFFFF;
+	--split-color: #e5eeff;
 	--secondary: #999999;
 	--scrollbar: #BBBBBB;
 	--text-color: #303133;
@@ -31,6 +32,7 @@
 	--bg-color-mute: #2C2C2C;
 	--bg-color-main: #1c1c1c;
 	--bg-color-border: #141414;
+	--split-color: #2C2C2C;
 	--secondary: #999999;
 	--scrollbar: #666666;
 	--text-color: #E5E3F3;
@@ -138,7 +140,7 @@ a {
             display: inline-block;
             width: 1px;
             height: 10px;
-            background-color: #e5eeff;
+            background-color: var(--split-color);
             margin-left: 8px
         }
 	}
@@ -218,9 +220,9 @@ a {
 		}
 	}
 	.panel-extend {
-        min-width: 300px;
+        min-width: 260px;
 		display: flex;
-		// align-items: flex-end;
+		 align-items: flex-start;
 		// flex-wrap: nowrap;
         justify-content: end;
 		margin: 0 0 8px;
