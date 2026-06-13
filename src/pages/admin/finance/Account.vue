@@ -116,7 +116,7 @@ const handleCommand = (command, row) => {
 	if (command === 'status') {
 		loading.value = true;
 		const status = row.status === 1 ? 2 : 1;
-		Http.request(ApiAccountUpdateStatus, {id: row.id, status: status}).then(() => {``
+		Http.request(ApiAccountUpdateStatus, {id: row.id, status: status}).then(() => {
 			row.status = status;
 		}).finally(() => {
 			loading.value = false;

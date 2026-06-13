@@ -15,7 +15,7 @@ function _showRequestErrMsg(res) {
 		type: 'error'
 	})
 	setTimeout(() => {
-		if (res.status === 401) window.location.href = '/login'
+		if (res?.status === 401) window.location.href = '/login'
 	}, 1800)
 }
 
@@ -49,7 +49,8 @@ export default {
 			if (API.IS_AUTH) {
 				requestObj.headers = _getAuthHeaders();
 				if (!requestObj.headers) {
-					reject({response: {status: 401, data: {msg: '未登录或登录过期!'}}})
+					reject({ response: { status: 401, data: { msg: '未登录或登录过期!' } } });
+					return;
 				}
 			}
 			requestObj.headers['Content-Type'] = 'application/json';

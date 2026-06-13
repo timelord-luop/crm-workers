@@ -49,3 +49,24 @@ export const ApiOpportunityExport = {
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
+
+export const ApiOpportunityFollowList = {
+	URL: API_BASE + '/follow/list',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+export const ApiOpportunityFollowAdd = {
+	URL: API_BASE + '/follow/add',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+export const ApiOpportunityFollowLatest = {
+	URL: API_BASE + '/follow/latest',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+export const ApiOpportunityFollowLatestEdit = {
+	URL: API_BASE + '/follow/latest/edit',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};

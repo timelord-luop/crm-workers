@@ -7,6 +7,7 @@ import {ApiSysDictionaryRows} from "@/configuration/api/common.js";
 import {ApiLeadsConvert, ApiLeadsDelete, ApiLeadsExport, ApiLeadsQueryList, ApiLeadsUpdateStatus} from "@/configuration/api/leads.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 import ExportImport from "@/components/ExportImport.vue";
+import LeadsInfoDrawer from "@/pages/admin/client/comp/LeadsInfoDrawer.vue";
 
 const router = useRouter()
 
@@ -57,6 +58,8 @@ const pager = reactive({
 	pageCount: 0
 });
 const tableData = ref([]);
+const drawerVisible = ref(false);
+const activeId = ref('');
 const excelField = [
 	{key: 'name', name: '线索名称'},
 	{key: 'clientName', name: '客户/公司'},
@@ -217,13 +220,13 @@ const toMd = (row) => {
 }
 
 const toInfo = (row) => {
-	router.push({
-		path: '/leads-md',
-		query: {
-			eid: row.id,
-			mode: 'info'
-		}
-	})
+	activeId.value = row.id;
+	drawerVisible.value = true;
+}
+const onInfoPage = (idx) => {
+	const id = tableData.value[idx]?.id;
+	if (!id) return;
+	activeId.value = id;
 }
 
 </script>
@@ -301,6 +304,7 @@ const toInfo = (row) => {
 				:total="pager.total",
 				@current-change="handleCurrentChange",
 				background)
+	leads-info-drawer(v-model:visible="drawerVisible" :id="activeId" :page-ids="tableData.map(item=>item.id)" @info-page="onInfoPage")
 </template>
 
 <style scoped lang="scss">

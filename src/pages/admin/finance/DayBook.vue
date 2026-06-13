@@ -22,8 +22,15 @@ const accountList = ref([]);
 const filter = reactive({
 	conditions: '',
 	date: [],
-	category: ''
+	category: '',
+	sourceType: '',
+	sourceNo: ''
 });
+const sourceTypeList = [
+	{ id: 'manual', name: '手工日记账' },
+	{ id: 'receipt', name: '收款联动' },
+	{ id: 'payment', name: '付款联动' }
+];
 
 const pager = reactive({
 	page: 1,
@@ -58,6 +65,8 @@ const excelField = [
 	{key: 'lendText', name: '借（收入）'},
 	{key: 'loanText', name: '贷（支出）'},
 	{key: 'category', name: '收支类别'},
+	{key: 'sourceTypeText', name: '来源类型'},
+	{key: 'sourceNo', name: '来源单号'},
 	{key: 'createTimeText', name: '记账时间'}
 ];
 
@@ -114,6 +123,8 @@ const getParams = () => {
 	};
 	if (filter.conditions) params.conditions = filter.conditions;
 	if (filter.category) params.category = filter.category;
+	if (filter.sourceType) params.sourceType = filter.sourceType;
+	if (filter.sourceNo) params.sourceNo = filter.sourceNo;
 	if (filter.date?.length) {
 		params.dateBd = Number(filter.date[0]);
 		params.dateEd = Number(filter.date[1]);
@@ -126,7 +137,10 @@ const getBaseData = () => {
 	Http.request(ApiDayBookQueryList, getParams()).then(res => {
 		pager.total = res.total;
 		pager.pageCount = res.pageCount;
-		tableData.value = res.list || [];
+		tableData.value = (res.list || []).map(item => ({
+			...item,
+			sourceTypeText: getSourceTypeText(item)
+		}));
 	}).finally(() => {
 		loading.value = false;
 	});
@@ -140,6 +154,8 @@ const resetFilter = () => {
 	filter.conditions = '';
 	filter.date = [];
 	filter.category = '';
+	filter.sourceType = '';
+	filter.sourceNo = '';
 	pager.page = 1;
 	getBaseData();
 };
@@ -220,6 +236,13 @@ const formatMoney = (val) => {
 	const num = Number(val || 0);
 	return num > 0 ? num.toFixed(2) : '';
 };
+
+const getSourceTypeText = (row) => {
+	if (row.sourceBizType === 'receipt') return '收款联动';
+	if (row.sourceBizType === 'payment') return '付款联动';
+	if ((row.sourceType || 'manual') === 'manual') return '手工日记账';
+	return '--';
+};
 </script>
 
 <template lang="pug">
@@ -230,6 +253,13 @@ const formatMoney = (val) => {
 					v-model="filter.conditions"
 					clearable
 					placeholder="账户名称 / 摘要"
+					@keyup.enter="getBaseData"
+					@clear="getBaseData"
+				)
+				el-input(
+					v-model="filter.sourceNo"
+					clearable
+					placeholder="来源单号"
 					@keyup.enter="getBaseData"
 					@clear="getBaseData"
 				)
@@ -244,6 +274,8 @@ const formatMoney = (val) => {
 				)
 				el-select(v-model="filter.category" filterable placeholder="收支类别" @clear="getBaseData" clearable)
 					el-option(v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.name")
+				el-select(v-model="filter.sourceType" filterable placeholder="来源类型" @clear="getBaseData" clearable)
+					el-option(v-for="item in sourceTypeList" :key="item.id" :label="item.name" :value="item.id")
 				.filter-btn
 					el-button(:icon="Search" type="primary" @click="getBaseData") 查询
 					el-button(:icon="RefreshLeft" @click="resetFilter") 重置
@@ -267,12 +299,15 @@ const formatMoney = (val) => {
 				el-table-column(prop="loan" label="贷（支出）" width="120" align="right" header-align="center")
 					template(#default="{row}") {{ formatMoney(row.loan) }}
 				el-table-column(prop="category" label="收支类别" width="140")
+				el-table-column(prop="sourceTypeText" label="来源类型" width="120")
+				el-table-column(prop="sourceNo" label="来源单号" width="160")
 				el-table-column(prop="createTimeText" label="记账时间" width="140")
 				el-table-column(label="操作" width="140")
 					template(#default="{row}")
 						.tab-link
-							el-link(underline="never" type="primary" @click="toEdit(row)") 编辑
-							el-link(underline="never" type="danger" @click="toDelete(row)") 删除
+							el-link(v-if="Number(row.immutableFlag || 0) !== 1" underline="never" type="primary" @click="toEdit(row)") 编辑
+							el-link(v-if="Number(row.immutableFlag || 0) !== 1" underline="never" type="danger" @click="toDelete(row)") 删除
+							span(v-if="Number(row.immutableFlag || 0) === 1") --
 		.panel-footer
 			.total-section
 				span 共 {{ pager.total }} 条记录

@@ -70,3 +70,24 @@ export const ApiLeadsConvert = {
 	METHOD: MethodType.POST,
 	IS_AUTH: true
 };
+
+export const ApiLeadsFollowList = {
+	URL: API_BASE + '/follow/list',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+export const ApiLeadsFollowAdd = {
+	URL: API_BASE + '/follow/add',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+export const ApiLeadsFollowLatest = {
+	URL: API_BASE + '/follow/latest',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};
+export const ApiLeadsFollowLatestEdit = {
+	URL: API_BASE + '/follow/latest/edit',
+	METHOD: MethodType.POST,
+	IS_AUTH: true
+};

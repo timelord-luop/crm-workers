@@ -13,6 +13,7 @@ import {
 import CommonUtil from "@/assets/js/commonUtil.js";
 import ExportImport from "@/components/ExportImport.vue";
 import {ElMessage, ElMessageBox} from "element-plus";
+import OpportunityInfoDrawer from "@/pages/admin/client/comp/OpportunityInfoDrawer.vue";
 
 const router = useRouter()
 
@@ -40,6 +41,8 @@ const pager = reactive({
 	pageCount: 0
 });
 const tableData = ref([]);
+const drawerVisible = ref(false);
+const activeId = ref('');
 
 const excelField = [
 	{key: 'name', name: '商机名称'},
@@ -128,13 +131,13 @@ const toMd = (row) => {
 }
 
 const toInfo = (row) => {
-	router.push({
-		path: '/opportunity-md',
-		query: {
-			eid: row.id,
-			mode: 'info'
-		}
-	})
+	activeId.value = row.id;
+	drawerVisible.value = true;
+}
+const onInfoPage = (idx) => {
+	const id = tableData.value[idx]?.id;
+	if (!id) return;
+	activeId.value = id;
 }
 
 const handleCommand = (command, row) => {
@@ -286,6 +289,7 @@ const formatMoney = (val) => Number(val || 0).toFixed(2)
 				:total="pager.total",
 				@current-change="handleCurrentChange",
 				background)
+	opportunity-info-drawer(v-model:visible="drawerVisible" :id="activeId" :page-ids="tableData.map(item=>item.id)" @info-page="onInfoPage")
 </template>
 
 <style scoped lang="scss">

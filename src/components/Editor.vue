@@ -1,8 +1,8 @@
 <template>
   <div class="editor-container">
-    <div style="border: 1px solid #ccc">
+    <div class="editor-shell">
       <Toolbar
-        style="border-bottom: 1px solid #ccc"
+        class="editor-toolbar"
         :editor="editorRef"
         :defaultConfig="toolbarConfig"
         :mode="mode"
@@ -133,5 +133,55 @@ watch(() => props.modelValue, (newVal) => {
 <style scoped>
 .editor-container {
   width: 100%;
+}
+
+:deep(.editor-shell) {
+  border: 1px solid #d9e1ef;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+:deep(.editor-shell:focus-within) {
+  border-color: #9fc5ff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.14);
+}
+
+:deep(.editor-toolbar) {
+  border-bottom: 1px solid #e7edf6;
+}
+
+:deep(.editor-toolbar .w-e-bar) {
+  padding: 0 6px;
+  background: #f9fbff;
+}
+
+:deep(.w-e-text-container) {
+  background: #fff;
+}
+
+:deep(.w-e-text-container [data-slate-editor]) {
+  padding: 8px 12px;
+  line-height: 1.6;
+}
+
+:deep(.w-e-text-container [data-slate-editor] p) {
+  margin: 5px 0 !important;
+}
+
+:deep(.w-e-text-container [data-slate-editor] > p:first-child) {
+  margin-top: 0 !important;
+}
+
+:deep(.w-e-text-container [data-slate-editor] > p:last-child) {
+  margin-bottom: 0 !important;
+}
+
+:deep(.w-e-text-placeholder) {
+  left: 12px;
+  top: 8px;
+  font-style: normal;
+  line-height: 1.6;
 }
 </style>
